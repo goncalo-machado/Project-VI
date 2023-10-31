@@ -11,7 +11,7 @@ def scrap_page(url, filename):
     with urllib3.PoolManager(ssl_context=ctx) as http:
         r = http.request("GET", url)
         #print(r.status)
-        if (r.status != 200):
+        if r.status != 200:
             with open(filename + "_NoData", 'w', newline='',encoding='utf-8-sig') as f: 
                 w = csv.DictWriter(f,['Order Number','Parcial Identification Number','Name','Applicant Grade','Option Number','Entrance Test Grade','12th year grade','Average of 11th and 10th grades']) 
                 w.writeheader() 
