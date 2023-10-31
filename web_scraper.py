@@ -50,15 +50,15 @@ def url_maker(year,university_code, course_code):
 
 university_course_dict = {}
 
-university_course_dict['L221'] = ['0300']
-#university_course_dict['L221'] = ['0300', '1518', '1000']
-university_course_dict['L223'] = ['0300']
-university_course_dict['L202'] = ['0300']
-university_course_dict['L217'] = ['0300']
-#university_course_dict['L209'] = ['0300', '0501', '1518', '0903', '1105', '1203', '3064', '3083']
-university_course_dict['L209'] = ['0300']
-#university_course_dict['9119'] = ['6800', '0203', '0400', '0501','0602','1503','1307','1000','0903','1203','3023','3043','3053','3065','3064','3092','3102','3122','3138','3135','3152','3242','3163','3182','2910','2920','4375','2100','1350','2750','2410','2500','4602','4442','4530','4640','4572']
-university_course_dict['9119'] = ['0300']
+# university_course_dict['L221'] = ['0300']
+# #university_course_dict['L221'] = ['0300', '1518', '1000']
+# university_course_dict['L223'] = ['0300']
+# university_course_dict['L202'] = ['0300']
+# university_course_dict['L217'] = ['0300']
+# #university_course_dict['L209'] = ['0300', '0501', '1518', '0903', '1105', '1203', '3064', '3083']
+# university_course_dict['L209'] = ['0300']
+university_course_dict['9119'] = ['6800', '0203', '0400', '0501','0602','1503','1307','1000','0903','1203','3023','3043','3053','3065','3064','3092','3102','3122','3138','3135','3152','3242','3163','3182','2910','2920','4375','2100','1350','2750','2410','2500','4602','4442','4530','4640','4572']
+# university_course_dict['9119'] = ['0300']
 years = ['2021','2022','2023']
 
 for year in years:
