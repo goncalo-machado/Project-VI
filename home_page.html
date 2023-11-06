@@ -139,14 +139,21 @@
         year_selection()
         // Evething needs to change when the value in the droplist changes
         function year_selection(){
+            // Reset the SVG
+            bar_chart_SVG.selectAll("*").remove();
             // Define the Dataset with all data
             d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Applicants_2021_2023.csv?token=GHSAT0AAAAAACJ32OOFC7YF6MSVXECN6KJMZKI52DQ").then(function(total_data) {
 
                 // Data set with Last Placed Candidates Grades
                 d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_DETI_Courses_2021_2023.csv?token=GHSAT0AAAAAACJ32OOEUYT2WTOYHLZXJVHYZKJAULQ").then(function(data_last_grade) {
 
+                    // Condition that checks which droplist item is selected
+                    var droplist_items = document.getElementById("droplist"); // Select the droplist
+                    var droplist_item_selected = droplist_items.options[droplist_items.selectedIndex].value; // Get the item
+                    console.log(droplist_item_selected); // Check which droplist item is selected
+
                     // Filter the data needed for X, that is, DETI courses
-                    const x_axis_filter = data_last_grade.filter(d => d['University Code'] === '0300' && d.Year === '2021');
+                    const x_axis_filter = data_last_grade.filter(d => d['University Code'] === '0300' && d.Year === droplist_item_selected);
                     // Get the X information, that is, DETI courses to X axis
                     const x = d3.scaleBand()
                                 .domain(x_axis_filter.map(d => d['Course Name']))
@@ -159,12 +166,6 @@
                                 .selectAll("text")
                                     .attr("transform", "translate(-10,0)rotate(-45)")
                                     .style("text-anchor", "end");
-
-                    // Condition that checks which droplist item is selected
-                    var droplist_items = document.getElementById("droplist"); // Select the droplist
-                    var droplist_item_selected = droplist_items.options[droplist_items.selectedIndex].value; // Get the item
-                    console.log(droplist_item_selected); // Check which droplist item is selected
-                    console.log(typeof droplist_item_selected) // Check which type is
 
                     // Filter the data needed for Y, that is, number of applicants for each DETI course
                     const y_axis_filter = total_data.filter(d => d['University Code'] === '0300' && d.Year === droplist_item_selected);
@@ -191,6 +192,14 @@
                     });
                     console.log(dataset_n_applicants_count);
                     /* ----------------------------------------- */
+
+                    // Convert n_applicants_count to an array
+                    const n_applicants_array = Object.keys(n_applicants_count).map(course_code => ({ CourseCode: course_code, Count: n_applicants_count[course_code] }));
+
+                    // Get the Y information and store it in Y
+                    const y = d3.scaleLinear()
+                                .domain([0, d3.max(n_applicants_array, d => +d.Count) + 1000])
+                                .range([ height, 0]);
 
                 })
 
