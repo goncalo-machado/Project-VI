@@ -123,9 +123,9 @@
     <script type="text/javascript">
 
         // Set the dimensions and margins of the graph
-        const margin = {top: 50, right: 50, bottom: 20, left: 50}, // Space for axis legends
-                                width = 700 - margin.left - margin.right,
-                                height = 600 - margin.top - margin.bottom;
+        const margin = {top: 50, right: 50, bottom: 120, left: 50}, // Space for axis legends
+                                width = 900 - margin.left - margin.right,
+                                height = 1000 - margin.top - margin.bottom;
 
         // Create the SVG (the space) to put the Bar Chart of the number of applicants by DETI course
         const bar_chart_SVG = d3.select(".div_d3")
@@ -138,12 +138,24 @@
         
         // Define the Dataset with all data
         d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Applicants_2021_2023.csv?token=GHSAT0AAAAAACJ32OOFC7YF6MSVXECN6KJMZKI52DQ").then(function(total_data) {
-
+            
             // Data set with Last Placed Candidates Grades
             d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_DETI_Courses_2021_2023.csv?token=GHSAT0AAAAAACJ32OOEUYT2WTOYHLZXJVHYZKJAULQ").then(function(data_last_grade) {
 
-                // Get the X information, that is, DETI courses to X axis
+                // Filter the data needed, that is, DETI courses
                 const x_axis_filter = data_last_grade.filter(d => d['University Code'] === '0300' && d.Year === '2021');
+                // Get the X information, that is, DETI courses to X axis
+                const x = d3.scaleBand()
+                            .domain(x_axis_filter.map(d => d['Course Name']))
+                            .range([ 0, width ])
+                            .padding(0.2);
+                // Plot the X information in the axis
+                bar_chart_SVG.append("g")
+                                .attr("transform", `translate(0, ${height})`)
+                                .call(d3.axisBottom(x))
+                            .selectAll("text")
+                                .attr("transform", "translate(-10,0)rotate(-45)")
+                                .style("text-anchor", "end");
 
             })
 
