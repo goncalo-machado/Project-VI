@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from urllib3.util.ssl_ import create_urllib3_context
 import csv
 
-def scrap_page(url, filename):
+def scrap_page(url, dict_writer, year, course, university):
     ctx = create_urllib3_context()
     ctx.load_default_certs()
     ctx.options |= 0x4  # ssl.OP_LEGACY_SERVER_CONNECT
@@ -12,9 +12,9 @@ def scrap_page(url, filename):
         r = http.request("GET", url)
         #print(r.status)
         if r.status != 200:
-            with open(filename + "_NoData.csv", 'w', newline='',encoding='utf-8-sig') as f: 
-                w = csv.DictWriter(f,['Order Number','Parcial Identification Number','Name','Applicant Grade','Option Number','Entrance Test Grade','12th year grade','Average of 11th and 10th grades']) 
-                w.writeheader() 
+            # with open(filename + "_NoData.csv", 'w', newline='',encoding='utf-8-sig') as f: 
+            #     w = csv.DictWriter(f,['Order Number','Parcial Identification Number','Name','Applicant Grade','Option Number','Entrance Test Grade','12th year grade','Average of 11th and 10th grades']) 
+            #     w.writeheader() 
             return
 
     document = BeautifulSoup(r.data, 'html.parser')
@@ -36,13 +36,12 @@ def scrap_page(url, filename):
         candidate['Entrance Test Grade'] = data[5]
         candidate['12th year grade'] = data[6]
         candidate['Average of 11th and 10th grades'] = data[7]
+        candidate['Course Code'] = course
+        candidate['University Code'] = university
+        candidate['Year'] = year
         candidates.append(candidate)
 
-    with open(filename, 'w', newline='',encoding='utf-8-sig') as f: 
-        w = csv.DictWriter(f,['Order Number','Parcial Identification Number','Name','Applicant Grade','Option Number','Entrance Test Grade','12th year grade','Average of 11th and 10th grades']) 
-        w.writeheader() 
-        
-        w.writerows(candidates)
+    dict_writer.writerows(candidates)
 
 def url_maker(year,university_code, course_code):
     return "https://dges.gov.pt/coloc/" + year + "/col1listaser.asp?CodEstab=" + university_code + "&CodCurso=" + course_code + "&ids=0&ide=10000&Mx=10000"
@@ -51,22 +50,23 @@ def url_maker(year,university_code, course_code):
 university_course_dict = {}
 
 university_course_dict['L221'] = ['0300']
-# #university_course_dict['L221'] = ['0300', '1518', '1000']
 university_course_dict['L223'] = ['0300']
 university_course_dict['L202'] = ['0300']
 university_course_dict['L217'] = ['0300']
-# #university_course_dict['L209'] = ['0300', '0501', '1518', '0903', '1105', '1203', '3064', '3083']
 university_course_dict['L209'] = ['0300']
-#university_course_dict['9119'] = ['6800', '0203', '0400', '0501','0602','1503','1307','1000','0903','1203','3023','3043','3053','3065','3064','3092','3102','3122','3138','3135','3152','3242','3163','3182','2910','2920','4375','2100','1350','2750','2410','2500','4602','4442','4530','4640','4572']
-university_course_dict['9119'] = ['0300']
+university_course_dict['9119'] = ['0300', '6800', '0203', '0400', '0501','0602','1503','1307','1000','0903','1203','3023','3043','3053','3065','3064','3092','3102','3122','3138','3135','3152','3242','3163','3182','2910','2920','4375','2100','1350','2750','2410','2500','4602','4442','4530','4640','4572']
 years = ['2021','2022','2023']
 
-for year in years:
-    for course in university_course_dict.keys():
-        for university in university_course_dict[course]:
-            print(f"Year {year} course {course} university {university}")
-            url = url_maker(year, university, course)
-            print(f"url {url}")
-            filename = course + "_" + university + "_" + year + '.csv' 
-            print(f"filename {filename}")
-            scrap_page(url, filename)
+filename = 'Dataset_Applicants_2021_2023.csv'
+
+with open(filename, 'w', newline='',encoding='utf-8-sig') as f: 
+        w = csv.DictWriter(f,['Order Number','Parcial Identification Number','Name','Applicant Grade','Option Number','Entrance Test Grade','12th year grade','Average of 11th and 10th grades', 'Course Code', 'University Code', 'Year']) 
+        w.writeheader()
+
+        for year in years:
+            for course in university_course_dict.keys():
+                for university in university_course_dict[course]:
+                    print(f"Year {year} course {course} university {university}")
+                    url = url_maker(year, university, course)
+                    print(f"url {url}")
+                    scrap_page(url, w, year, course, university)
