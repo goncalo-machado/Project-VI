@@ -12,7 +12,7 @@ def scrap_page(url, filename, wanted_courses):
         r = http.request("GET", url)
         #print(r.status)
         if r.status != 200:
-            with open(filename + "_NoData", 'w', newline='',encoding='utf-8-sig') as f: 
+            with open(filename + "_NoData.csv", 'w', newline='',encoding='utf-8-sig') as f: 
                 w = csv.DictWriter(f,['Course Code','Course Name','Course Type','Last Placed Candidate Grade']) 
                 w.writeheader() 
             return
@@ -54,6 +54,6 @@ for year in years:
         print(f"Year {year} university {university}")
         url = url_maker(year, university)
         print(f"url {url}")
-        filename = university + "_" + year 
+        filename = university + "_" + year + ".csv"
         print(f"filename {filename}")
         scrap_page(url, filename, courses)
