@@ -61,7 +61,7 @@
         .buttons_DETI_courses {
             display: flex;
             flex-direction: linear;
-            align-items: flex-start;
+            align-items: center;
         }
 
         /* Style of the buttons */
@@ -136,7 +136,18 @@
                                 .append("g") // Section to plot the axis legends
                                     .attr("transform", `translate(${margin.top})`);
         
-        // Define the Dataset
+        // Define the Dataset with all data
+        d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Applicants_2021_2023.csv?token=GHSAT0AAAAAACJ32OOFC7YF6MSVXECN6KJMZKI52DQ").then(function(total_data) {
+
+            // Data set with Last Placed Candidates Grades
+            d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_DETI_Courses_2021_2023.csv?token=GHSAT0AAAAAACJ32OOEUYT2WTOYHLZXJVHYZKJAULQ").then(function(data_last_grade) {
+
+                // Get the X information, that is, DETI courses to X axis
+                const x_axis_filter = data_last_grade.filter(d => d['University Code'] === '0300' && d.Year === '2021');
+
+            })
+
+        })
 
     </script>
 
