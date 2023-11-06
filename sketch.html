@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="http://d3js.org/d3.v7.js"></script>
+
+    <!-- Title tha appears in the searcher tab  -->
+    <title>DETI Courses Data Visualisation</title>
+
+    <!-- CSS -->
+    <style>
+
+        /* Config of entery site */
+        *{
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* For the Main Title */
+        h1{
+            font-family: Arial, sans-serif;
+            color: black; /* Cores: https://www.w3schools.com/cssref/css_colors.php */
+            font-size: 50px;
+            text-align: center;
+            background-image: linear-gradient(90deg, white, lightblue, white);
+            background-size: 100% 3px;
+            background-position: 0 100%;
+            padding: 20px 0;
+        }
+
+        /* To the H2 Title */
+        h2{
+            color: black;
+            font-size: 25px;
+            padding-left: 5px;
+        }
+
+        /* Confi the H2 and the dropList*/
+        .H2_dropList {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Configuration of the droplist */
+       .droplist_year{
+            font-family: Arial, sans-serif;
+            color: black;
+            font-size: 25px;
+            border: none;
+            margin-left: 5px;
+        }
+
+        /* Config the Buttons*/
+        .buttons_DETI_courses {
+            display: flex;
+            flex-direction: linear;
+            align-items: flex-start;
+        }
+
+        /* Style of the buttons */
+        .buttons_DETI{
+            background-color: lightblue;
+            color: black;
+            font-size: 20px;
+            margin-left: 5px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        /* Config do d3 */
+        .div_d3 {
+            display: flex;
+            justify-content: center;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- Main Title -->
+    <h1> DETI Courses Data Visualisation </h1>
+
+    <!-- Define the Buttons for each DETI course -->
+    <div class="buttons_DETI_courses">
+        <button class="buttons_DETI" id="button_Aer_Eng"> Aerospace Engineering</button>
+        <button class="buttons_DETI" id="button_Bio_Eng"> Biomedical Engineering</button>
+        <button class="buttons_DETI" id="button_CS_Eng"> Computer Science and Engineering</button>
+        <button class="buttons_DETI" id="button_Comp_Eng"> Computational Engineering</button>
+        <button class="buttons_DETI" id="button_CompEng_Inf"> Computer Engineering and Informatics</button>
+        <button class="buttons_DETI" id="button_EleComp_Eng"> Electrical and Computer Engineering</button>
+        <button class="buttons_DETI" id="button_IndAut_Eng"> Industrial Automation Engineering</button>
+    </div>
+
+    <!-- Container for H2 title and the DropList with curriculam years -->
+    <div class="H2_dropList">
+        <!-- Title -->
+        <h2> Curricular Year </h2>
+
+        <!-- Define the DropList with curricular years -->
+        <select class="droplist_year">
+            <option value="year_20_21"> 2020/21 </option>
+            <option value="year_21_22"> 2021/22 </option>
+            <option value="year_22_23"> 2022/23 </option>
+            <option value="year_23_24"> 2023/24 </option>
+        </select>
+    </div>
+
+    <!-- Other possibilitie for graphs: https://www.chartjs.org/ -->
+    <!-- D3 Section - Front Page -->
+    <div class="div_d3"> </div>
+
+    <!-- Script that has all the charts -->
+    <script type="text/javascript">
+
+        // Set the dimensions and margins of the graph
+        const margin = {top: 50, right: 50, bottom: 20, left: 50}, // Space for axis legends
+                                width = 700 - margin.left - margin.right,
+                                height = 600 - margin.top - margin.bottom;
+
+        // Create the SVG (the space) to put the Bar Chart of the number of applicants by DETI course
+        const bar_chart_SVG = d3.select(".div_d3")
+                                .append("svg")
+                                    .attr("width", width + margin.left + margin.right)
+                                    .attr("height", height + margin.top + margin.bottom)
+                                    .style("background", "#DCDCDC") // Just to see the space
+                                .append("g") // Section to plot the axis legends
+                                    .attr("transform", `translate(${margin.top})`);
+        
+        // Define the Dataset
+        d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/7_OneCatOneNum_header.csv").then(function(data) {
+
+            /* ---------- ALL NEEDED TO PLOT THE BAR CHART OF NUMBER OF APPLICANTS ---------- */
+
+            // Get the X information and store it in X
+            const x = d3.scaleBand()
+                        .domain(data.map(d => d.Country))
+                        .range([ 0, width ])
+                        .padding(0.2);
+            // Plot the X information in the axis
+            bar_chart_SVG.append("g")
+                            .attr("transform", `translate(0, ${height})`)
+                            .call(d3.axisBottom(x))
+                        .selectAll("text")
+                            .attr("transform", "translate(-10,0)rotate(-45)")
+                            .style("text-anchor", "end");
+
+            // Get the Y information and store it in Y
+            const y = d3.scaleLinear()
+                        .domain([0, d3.max(data, d => +d.Value) + 1000])
+                        .range([ height, 0]);
+
+            // Plot the Bars
+            const bars = bar_chart_SVG.selectAll("mybar")
+                .data(data)
+                .join("rect")
+                    .attr("x", d => x(d.Country))
+                    .attr("y", d => y(d.Value))
+                    .attr("width", x.bandwidth())
+                    .attr("height", d => height - y(d.Value))
+                    .attr("fill", "#69b3a2")
+
+            // Get the values on top of each bar
+            bars.each(function(d) {
+                const bar = d3.select(this); // Select the bars
+                const barValue = bar.data()[0].Value; // Get the bar value
+
+                bar_chart_SVG.append("text")
+                    .attr("class", "bar-label")
+                    .attr("x", bar.attr("x") * 1 + x.bandwidth() / 2) // Adjusted x position
+                    .attr("y", bar.attr("y") * 1 - 5) // Adjusted y position
+                    .text(barValue)
+                    .style("text-anchor", "middle");
+            });
+
+            // Append the title to the SVG
+            bar_chart_SVG.append("text")
+                .attr("x", width / 2)
+                .attr("y", margin.top / 2)
+                .attr("text-anchor", "middle")
+                .style("font-size", "25px")
+                .text("Number of Applicants");
+
+            /* ---------- FINISH OF BAR CHART OF NUMBER OF APPLICANTS ---------- */
+
+            /* ---------- ALL NEEDED TO PLOT THE PIE CHART FOR THE APPLICANT CHOISE ---------- */
+
+            //...
+
+            /* ---------- FINISH OF PIE CHART FOR THE APPLICANT CHOISE ---------- */
+
+        })
+
+    </script>
+
+</body>
+
+</html>
