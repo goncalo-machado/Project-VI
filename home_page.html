@@ -150,7 +150,9 @@
                     // Condition that checks which droplist item is selected
                     var droplist_items = document.getElementById("droplist"); // Select the droplist
                     var droplist_item_selected = droplist_items.options[droplist_items.selectedIndex].value; // Get the item
-                    console.log(droplist_item_selected); // Check which droplist item is selected
+                    /* CHECK WHICH DROPLIST ITEM IS SELECTED */
+                    console.log("Selected year: " + droplist_item_selected);
+                    /* ------------------------------------- */
 
                     // Filter the data needed for X, that is, DETI courses
                     const x_axis_filter = data_last_grade.filter(d => d['University Code'] === '0300' && d.Year === droplist_item_selected);
@@ -190,16 +192,40 @@
                     const dataset_n_applicants_count = Object.keys(n_applicants_count).map(courseCode => {
                         return { "Course Code": courseCode, "Count": n_applicants_count[courseCode] };
                     });
+                    console.log("Course applicants counting: ")
                     console.log(dataset_n_applicants_count);
                     /* ----------------------------------------- */
 
-                    // Convert n_applicants_count to an array
-                    const n_applicants_array = Object.keys(n_applicants_count).map(course_code => ({ CourseCode: course_code, Count: n_applicants_count[course_code] }));
-
                     // Get the Y information and store it in Y
                     const y = d3.scaleLinear()
-                                .domain([0, d3.max(n_applicants_array, d => +d.Count) + 1000])
-                                .range([ height, 0]);
+                        .domain([0, d3.max(dataset_n_applicants_count, d => d.Count) + margin.bottom])
+                        .range([height, 0]);
+                    /* CHECK Y VALUES */
+                    dataset_n_applicants_count.forEach((item, index) => {
+                        console.log(`Y for element ${index}:`, item.Count);
+                    });
+                    /* -------------- */
+
+                    // Plot the Bars
+                    bar_chart_SVG.selectAll("mybar")
+                        .data(dataset_n_applicants_count)
+                        .enter()
+                        .append("rect")
+                            .attr("x", function(d, i) { return x(d["Course Code"]); })
+                            .attr("y", function(d, i) { return y(d.Count); })
+                            .attr("width", x.bandwidth() / 2)
+                            .attr("height", function(d) { 
+                                return height - y(d.Count); 
+                            })
+                            .attr("fill", "steelblue");
+
+                    // Append the title to the SVG
+                    bar_chart_SVG.append("text")
+                        .attr("x", width / 2)
+                        .attr("y", margin.top)
+                        .attr("text-anchor", "middle")
+                        .style("font-size", "25px")
+                        .text("Number of Applicants of all DETI Courses");
 
                 })
 
