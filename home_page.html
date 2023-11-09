@@ -201,9 +201,8 @@
                         .domain([0, d3.max(dataset_n_applicants_count, d => d.Count) + margin.bottom])
                         .range([height, 0]);
                     /* CHECK Y VALUES */
-                    dataset_n_applicants_count.forEach((item, index) => {
-                        console.log(`Y for element ${index}:`, item.Count);
-                    });
+                    bar_chart_SVG.append("g")
+                        .call(d3.axisLeft(y));
                     /* -------------- */
 
                     // Plot the Bars
@@ -211,12 +210,20 @@
                         .data(dataset_n_applicants_count)
                         .enter()
                         .append("rect")
-                            .attr("x", function(d, i) { return x(d["Course Code"]); })
-                            .attr("y", function(d, i) { return y(d.Count); })
-                            .attr("width", x.bandwidth() / 2)
-                            .attr("height", function(d) { 
-                                return height - y(d.Count); 
+                            .attr("x", d => x(d["Course Code"]))
+                            .attr("y", d => y(d.Count))
+                        /*
+                            .attr("x", function(d, i) {
+                                console.log("Index " + i + ", Value X: " + d["Course Code"] + ". Used Value - " + x(d["Course Code"]))
+                                return x(d["Course Code"]); 
                             })
+                            .attr("y", function(d, i) {
+                                console.log("Index " + i + ", Value Y: " + d.Count + ". Used Value - " + y(d.Count))
+                                return y(d.Count);
+                            })
+                        */
+                            .attr("width", x.bandwidth() / 2)
+                            .attr("height", function(d) { return height - y(d.Count); })
                             .attr("fill", "steelblue");
 
                     // Append the title to the SVG
