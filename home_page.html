@@ -142,7 +142,12 @@
                             .attr("height", height + margin.top + margin.bottom)
                             .style("background", "#808080") // Just to see the space
                         .append("g") // Section to plot the axis legends
-                            .attr("transform", `translate(${margin.top})`);
+                        .attr("transform", `translate(${width/2},${height/2})`);
+        
+        // Define the pie chart margin
+        var pie_chart_margin = 50
+        // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+        var radius = Math.min(width, height) / 2 - pie_chart_margin
         
         // Get the selected item in the droplist
         year_selection()
@@ -272,6 +277,7 @@
                         .delay(function(d,i){ return(i*100) });
 
                     /* -------------------------------------------- */
+
                     /* ---------- CODE FOR THE PIE CHART ---------- */
                     
                     // Variable to keep track of the selected bar
@@ -315,31 +321,62 @@
                              });
                             /* TO VERIFY IF THE COUNTING IS WORKING WELL */
                             const dataset_n_option_number = Object.keys(n_option_number).map(OptionNumber => {
-                                return { "Option Number": OptionNumber, "Count": n_option_number[OptionNumber] };
+                                return { "Option Number": OptionNumber, "Count": (n_option_number[OptionNumber] / i.Count) * 100 };
                             });
-                            console.log("Course Option Number: ")
+                            console.log("Course Option Number(%): ")
                             console.log(dataset_n_option_number);
                             /* ----------------------------------------- */
-    
+
+                            // Set the color scale of the pie chart
+                            const colors_pie_chart = d3.scaleOrdinal()
+                                .domain(dataset_n_option_number.map(d => d["Option Number"]))
+                                .range(d3.schemeDark2);
+                            /* TO VERIFY IF THE COLORS ARE GOOD */
+                            const colorArray = dataset_n_option_number.map(d => colors_pie_chart(d["Option Number"]));
+                            console.log("Colors of pie chart: ")
+                            console.log(colorArray);
+                            /* -------------------------------- */
+
+                            // Compute the position of each group on the pie:
+                            const slice_position_pie_chart = d3.pie()
+                                .sort(null)
+                                .value(d => d[1])
+                            // Make a data set that the pie chart can use
+                            const data_ready_pie_chart = slice_position_pie_chart(Object.entries(dataset_n_option_number))
+                            /* TO VERIFY IF THE DATA IS GOOD */
+                            console.log("Data pie chart will use: ")
+                            console.log(data_ready_pie_chart);
+                            /* ----------------------------- */
+
+                            // The arc generator
+                            const arc = d3.arc()
+                                .innerRadius(radius * 0.5)
+                                .outerRadius(radius * 0.8)
+                            // Arc for labels positioning
+                            const arc_labels = d3.arc()
+                                .innerRadius(radius * 0.9)
+                                .outerRadius(radius * 0.9)
+
+                            // Draw the Pie chart
+                            pie_chart_SVG.selectAll('allSlices')
+                                .data(data_ready_pie_chart)
+                                .join('path')
+                                .attr('d', arc)
+                                .attr('fill', d => colors_pie_chart(d.data[1]))
+                                .attr("stroke", "white")
+                                .style("stroke-width", "2px")
+                                .style("opacity", 0.7);
+
                         }
             
-                    });
-
-                    // Plot the title
-                    pie_chart_SVG.append("text")
-                        .attr("x", width / 2)
-                        .attr("y", margin.top)
-                        .attr("text-anchor", "middle")
-                        .style("font-size", "25px")
-                        .text("Option Number");
-
+                    }); // End of the bar click action
                     /* -------------------------------------------- */
 
-                })
+                }) // End of data_last_grade dataset
 
-            })
+            }) // End of tota_dataset dataset
 
-        }
+        } // End of the year_selection function
 
     </script>
 
