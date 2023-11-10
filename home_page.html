@@ -123,8 +123,8 @@
 
         // Set the dimensions and margins of the graph
         const margin = {top: 50, right: 50, bottom: 120, left: 50}, // Space for axis legends
-                                width = 900 - margin.left - margin.right,
-                                height = 1000 - margin.top - margin.bottom;
+                                width = 800 - margin.left - margin.right,
+                                height = 800 - margin.top - margin.bottom;
 
         // Create the SVG (the space) to put the Bar Chart of the number of applicants by DETI course
         const bar_chart_SVG = d3.select(".div_d3")
@@ -176,7 +176,6 @@
                     const x = d3.scaleBand()
                                 .domain(x_axis_filter.map(d => d['Course Name']))
                                 .range([ 0, width ]);
-                                //.padding(0.2);
                     // Plot the X information in the axis
                     bar_chart_SVG.append("g")
                                     .attr("transform", `translate(0, ${height})`)
@@ -204,10 +203,14 @@
                         }
                     });
 
-                    /* TO VERIFY IF THE COUNTING IS WORKING WELL */
+                    // Make an array that can be used to make the bars
                     const dataset_n_applicants_count = Object.keys(n_applicants_count).map(courseCode => {
                         return { "Course Code": courseCode, "Count": n_applicants_count[courseCode] };
                     });
+                    // Remove the first element from the array, that is, the one that starts with a number and put it in last
+                    const firstElement = dataset_n_applicants_count.shift();
+                    dataset_n_applicants_count.push(firstElement);
+                    /* TO VERIFY IF THE COUNTING IS WORKING WELL */
                     console.log("Course applicants counting: ")
                     console.log(dataset_n_applicants_count);
                     /* ----------------------------------------- */
