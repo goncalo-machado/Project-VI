@@ -201,8 +201,8 @@
                         .domain([0, d3.max(dataset_n_applicants_count, d => d.Count) + margin.bottom])
                         .range([height, 0]);
                     /* CHECK Y VALUES */
-                    bar_chart_SVG.append("g")
-                        .call(d3.axisLeft(y));
+                    //bar_chart_SVG.append("g")
+                    //    .call(d3.axisLeft(y));
                     /* -------------- */
 
                     // Plot the Bars
@@ -212,19 +212,26 @@
                         .append("rect")
                             .attr("x", d => x(d["Course Code"]))
                             .attr("y", d => y(d.Count))
-                            /*
-                            .attr("x", function(d, i) {
-                                console.log("Index " + i + ", Value X: " + d["Course Code"] + ". Used Value - " + x(d["Course Code"]))
-                                return x(d["Course Code"]); 
-                            })
-                            .attr("y", function(d, i) {
-                                console.log("Index " + i + ", Value Y: " + d.Count + ". Used Value - " + y(d.Count))
-                                return y(d.Count);
-                            })
-                            */
                             .attr("width", x.bandwidth() / 2)
                             .attr("height", function(d) { return height - y(d.Count); })
-                            .attr("fill", "steelblue");
+                            .attr("fill", "steelblue")
+                        // Append text on top of each bar with the count value
+                        .each(function(d, i) {
+                            bar_chart_SVG.append("text")
+                                .attr("x", function() {
+                                    return i * (width / dataset_n_applicants_count.length) + 27;
+                                })
+                                .attr("y", y(d.Count) - 10)
+                                .attr("text-anchor", "middle")
+                                .style("font-size", "20px")
+                                .text(d.Count)
+                                // Start of the animation of the text on top of each bar
+                                .style("opacity", 0)
+                                .transition()
+                                .duration(2000)
+                                .style("opacity", 1)
+                                .delay(function() { return i * 100; });
+                            });
 
                     // Plot the title
                     bar_chart_SVG.append("text")
@@ -234,14 +241,24 @@
                         .style("font-size", "25px")
                         .text("Number of Applicants of all DETI Courses");
 
-                    // Animation (For some reason, only when i put the animation, all the bars were ploted (?))
+                    // Calculate DETI total of applicants
+                    const total_DETI_applicants = dataset_n_applicants_count.reduce((sum, entry) => sum + entry.Count, 0);
+                    // Add the total DETI applicants
+                    bar_chart_SVG.append("text")
+                        .attr("x", width / 2)
+                        .attr("y", margin.top + 30)
+                        .attr("text-anchor", "middle")
+                        .style("font-size", "20px")
+                        .text("Total Applicants: " + total_DETI_applicants);
+
+                    // Animation (For some reason, only when i put the animation, all the bars were ploted. Apperently they were overlapped.)
                     bar_chart_SVG.selectAll("rect")
                         .transition()
                         .duration(1000)
                         .attr("x", function(d, i) {
-                            return i * (width / dataset_n_applicants_count.length);
+                            return i * (width / dataset_n_applicants_count.length)
                         })
-                        
+                        .delay(function(d,i){ return(i*100) });
 
                 })
 
