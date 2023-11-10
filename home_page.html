@@ -134,6 +134,15 @@
                                     .style("background", "#DCDCDC") // Just to see the space
                                 .append("g") // Section to plot the axis legends
                                     .attr("transform", `translate(${margin.top})`);
+
+        // Create the SVG (the space) to put the Bar Chart of the number of applicants by DETI course
+        const pie_chart_SVG = d3.select(".div_d3")
+                        .append("svg")
+                            .attr("width", width + margin.left + margin.right)
+                            .attr("height", height + margin.top + margin.bottom)
+                            .style("background", "#808080") // Just to see the space
+                        .append("g") // Section to plot the axis legends
+                            .attr("transform", `translate(${margin.top})`);
         
         // Get the selected item in the droplist
         year_selection()
@@ -146,6 +155,8 @@
 
                 // Data set with Last Placed Candidates Grades
                 d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_DETI_Courses_2021_2023.csv?token=GHSAT0AAAAAACJ32OOEUYT2WTOYHLZXJVHYZKJAULQ").then(function(data_last_grade) {
+
+                    /* ---------- CODE FOR THE BAR CHART ---------- */
 
                     // Condition that checks which droplist item is selected
                     var droplist_items = document.getElementById("droplist"); // Select the droplist
@@ -206,7 +217,7 @@
                     /* -------------- */
 
                     // Plot the Bars
-                    bar_chart_SVG.selectAll("mybar")
+                    const bars = bar_chart_SVG.selectAll("mybar")
                         .data(dataset_n_applicants_count)
                         .enter()
                         .append("rect")
@@ -259,6 +270,70 @@
                             return i * (width / dataset_n_applicants_count.length) + ((width / dataset_n_applicants_count.length) / 4);
                         })
                         .delay(function(d,i){ return(i*100) });
+
+                    /* -------------------------------------------- */
+                    /* ---------- CODE FOR THE PIE CHART ---------- */
+                    
+                    // Variable to keep track of the selected bar
+                    let selectedBar = null;
+                    // Make each bar clickable to select a DETI course
+                    bars.on("click", function(d, i) {
+
+                        // Check if the clicked bar is already selected
+                        const isSelected = d3.select(this).attr("fill") === "Navy";
+                        // De-select all bars
+                        bars.attr("fill", "steelblue");
+                        // Reset the state if a different bar is clicked
+                        if (selectedBar !== this) {
+                            d3.select(selectedBar).attr("fill", "steelblue");
+                            selectedBar = null;
+                        }
+                        // Get the coure selected
+                        const selec_course = i["Course Code"];
+                        // If the clicked bar was not selected, select it
+                        if (!isSelected) {
+
+                            // Select the Bar
+                            d3.select(this).attr("fill", "Navy");
+                            selectedBar = this;
+
+                            // Get the dataset of the select course for the selected year
+                            const course_filter = total_data.filter(d => d['University Code'] === '0300' && d.Year === droplist_item_selected && d['Course Code'] === selec_course);
+                            // Creat a new dataset to store the option number
+                            n_option_number = {};
+                            // For each applicant, count the number of times that one option appears
+                            course_filter.forEach(d => {
+                                // Define the curse code
+                                const option_number = d["Option Number"];
+                                // If the coourse code was alredy detected, increment
+                                if(n_option_number[option_number]){
+                                    n_option_number[option_number] += 1; // Count one student
+                                }
+                                else{
+                                    n_option_number[option_number] = 1; // Count the first apperance
+                                }
+                             });
+                            /* TO VERIFY IF THE COUNTING IS WORKING WELL */
+                            const dataset_n_option_number = Object.keys(n_option_number).map(OptionNumber => {
+                                return { "Option Number": OptionNumber, "Count": n_option_number[OptionNumber] };
+                            });
+                            console.log("Course Option Number: ")
+                            console.log(dataset_n_option_number);
+                            /* ----------------------------------------- */
+    
+                        }
+            
+                    });
+
+                    // Plot the title
+                    pie_chart_SVG.append("text")
+                        .attr("x", width / 2)
+                        .attr("y", margin.top)
+                        .attr("text-anchor", "middle")
+                        .style("font-size", "25px")
+                        .text("Option Number");
+
+                    /* -------------------------------------------- */
 
                 })
 
