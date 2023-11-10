@@ -212,7 +212,7 @@
                         .append("rect")
                             .attr("x", d => x(d["Course Code"]))
                             .attr("y", d => y(d.Count))
-                        /*
+                            /*
                             .attr("x", function(d, i) {
                                 console.log("Index " + i + ", Value X: " + d["Course Code"] + ". Used Value - " + x(d["Course Code"]))
                                 return x(d["Course Code"]); 
@@ -221,18 +221,27 @@
                                 console.log("Index " + i + ", Value Y: " + d.Count + ". Used Value - " + y(d.Count))
                                 return y(d.Count);
                             })
-                        */
+                            */
                             .attr("width", x.bandwidth() / 2)
                             .attr("height", function(d) { return height - y(d.Count); })
                             .attr("fill", "steelblue");
 
-                    // Append the title to the SVG
+                    // Plot the title
                     bar_chart_SVG.append("text")
                         .attr("x", width / 2)
                         .attr("y", margin.top)
                         .attr("text-anchor", "middle")
                         .style("font-size", "25px")
                         .text("Number of Applicants of all DETI Courses");
+
+                    // Animation (For some reason, only when i put the animation, all the bars were ploted (?))
+                    bar_chart_SVG.selectAll("rect")
+                        .transition()
+                        .duration(1000)
+                        .attr("x", function(d, i) {
+                            return i * (width / dataset_n_applicants_count.length);
+                        })
+                        
 
                 })
 
