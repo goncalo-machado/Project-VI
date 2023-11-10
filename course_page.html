@@ -220,26 +220,46 @@
                 .attr("transform", d => `translate(${x(d.value.Grade)},${y(d.value.Num_Applicants)})`) // Put the text at the position of the last point
                 .attr("x", 12) // shift the text a bit more right
                 .text(d => d.Year)
-                .style("fill", d => myColor(d.name))
+                .style("fill", d => myColor(d.Year))
                 .style("font-size", 15)
 
             // Add a legend (interactive)
-            application_grades_svg
+            var buttons = application_grades_svg
             .selectAll("myLegend")
             .data(data_applicants_grade)
-            .join('g')
-                .append("text")
+            .enter()
+            .append('g')
+            .attr("class", d => "Button" + d.Year)
+            // .selectAll("g.Button")
+            // .data(data_applicants_grade)
+
+            buttons
+            .append("rect")
                 .attr('x', (d,i) => 30 + i*60)
-                .attr('y', 30)
-                .text(d => d.Year)
+                .attr('y', 10)
+                //.style("outline", "thin solid black")
+                .style("height", "20")
+                .style("width", "50")
                 .style("fill", d => myColor(d.Year))
+                .on("click", function(event,d){
+                    // is the element currently visible ?
+                    currentOpacity = d3.selectAll("." + "Year" + d.Year).style("opacity")
+                    // Change the opacity: from 0 to 1 or from 1 to 0
+                    d3.selectAll("." + "Year" + d.Year).transition().style("opacity", currentOpacity == 1 ? 0:1)
+                })
+            
+            buttons
+            .append("text")
+                .attr('x', (d,i) => 30 + i*60 + 10)
+                .attr('y', 25)
+                .text(d => d.Year)
+                .style("fill", "black")
                 .style("font-size", 15)
                 .on("click", function(event,d){
-                // is the element currently visible ?
-                currentOpacity = d3.selectAll("." + "Year" + d.Year).style("opacity")
-                // Change the opacity: from 0 to 1 or from 1 to 0
-                d3.selectAll("." + "Year" + d.Year).transition().style("opacity", currentOpacity == 1 ? 0:1)
-
+                    // is the element currently visible ?
+                    currentOpacity = d3.selectAll("." + "Year" + d.Year).style("opacity")
+                    // Change the opacity: from 0 to 1 or from 1 to 0
+                    d3.selectAll("." + "Year" + d.Year).transition().style("opacity", currentOpacity == 1 ? 0:1)
                 })
             })
 
