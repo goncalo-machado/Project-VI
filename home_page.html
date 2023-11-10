@@ -159,8 +159,8 @@
                     // Get the X information, that is, DETI courses to X axis
                     const x = d3.scaleBand()
                                 .domain(x_axis_filter.map(d => d['Course Name']))
-                                .range([ 0, width ])
-                                .padding(0.2);
+                                .range([ 0, width ]);
+                                //.padding(0.2);
                     // Plot the X information in the axis
                     bar_chart_SVG.append("g")
                                     .attr("transform", `translate(0, ${height})`)
@@ -219,7 +219,7 @@
                         .each(function(d, i) {
                             bar_chart_SVG.append("text")
                                 .attr("x", function() {
-                                    return i * (width / dataset_n_applicants_count.length) + 27;
+                                    return i * (width / dataset_n_applicants_count.length) + ((width / dataset_n_applicants_count.length) / 2);
                                 })
                                 .attr("y", y(d.Count) - 10)
                                 .attr("text-anchor", "middle")
@@ -256,7 +256,7 @@
                         .transition()
                         .duration(1000)
                         .attr("x", function(d, i) {
-                            return i * (width / dataset_n_applicants_count.length)
+                            return i * (width / dataset_n_applicants_count.length) + ((width / dataset_n_applicants_count.length) / 4);
                         })
                         .delay(function(d,i){ return(i*100) });
 
