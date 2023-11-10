@@ -74,6 +74,15 @@
             border: none;
         }
 
+        .buttons_Home{
+            background-color: lightcoral;
+            color: black;
+            font-size: 20px;
+            margin-left: 5px;
+            border-radius: 5px;
+            border: none;
+        }
+
         /* Config do d3 */
         .div_d3 {
             display: flex;
@@ -84,19 +93,19 @@
     </style>
 
 </head>
-
 <body>
 
     <!-- Main Title -->
-    <h1> DETI - Engenharia Informática </h1>
+    <h1 id="H1_Title"></h1>
 
     <!-- Define the Buttons for each DETI course -->
     <div class="buttons_DETI_courses">
-        <button class="buttons_DETI" id="button_Eng_Aero" value="L221" onclick="redirectPage(value)"> Engenharia Aeroespacial</button>
-        <button class="buttons_DETI" id="button_Eng_Comp" value="L223" onclick="redirectPage(value)"> Engenharia Computacional</button>
-        <button class="buttons_DETI" id="button_Eng_Comp_Inf" value="L217" onclick="redirectPage(value)"> Engenharia de Computadores e Informática</button>
-        <button class="buttons_DETI" id="button_Eng_Eletro_Comp" value="L209" onclick="redirectPage(value)"> Engenharia Eletrotécnica e de Computadores</button>
-        <button class="buttons_DETI" id="button_EleComp_Eng" value="9119" onclick="redirectPage(value)"> Engenharia Informática</button>
+        <button class="buttons_Home" id="button_Home" onclick="redirectHomePage()"> Home Page</button>
+        <button class="buttons_DETI" id="button_L221" value="L221" onclick="redirectPage(value)"> Engenharia Aeroespacial</button>
+        <button class="buttons_DETI" id="button_L223" value="L223" onclick="redirectPage(value)"> Engenharia Computacional</button>
+        <button class="buttons_DETI" id="button_L217" value="L217" onclick="redirectPage(value)"> Engenharia de Computadores e Informática</button>
+        <button class="buttons_DETI" id="button_L209" value="L209" onclick="redirectPage(value)"> Engenharia Eletrotécnica e de Computadores</button>
+        <button class="buttons_DETI" id="button_9119" value="9119" onclick="redirectPage(value)"> Engenharia Informática</button>
     </div>
 
     <div id="graph_application_grades"></div>
@@ -106,12 +115,23 @@
             localStorage.setItem("course_code", value)
             window.location.href = "course_page.html"
         }
+
+        function redirectHomePage(){
+            window.location.href = "home_page.html"
+        }
+    </script>
+
+    <script>
+        window.onload = function(){
+            course_code = localStorage.getItem("course_code")
+            var course_name = document.getElementById("button_" + course_code).textContent
+            document.getElementById("H1_Title").innerHTML = course_name;
+            document.title = course_name
+        }
     </script>
 
     <!-- Script that has all the charts -->
     <script type="text/javascript">
-
-        course_code = localStorage.getItem("course_code")
 
         // Set the dimensions and margins of the graph
         const margin = {top: 10, right: 30, bottom: 30, left: 60},
