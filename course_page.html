@@ -154,6 +154,8 @@
 
             const applicants_grade_final = {}
 
+            var max_number_aplicants = 0
+
             years.forEach(year => {
                 const applicants_grades_by_value = {}
 
@@ -173,9 +175,17 @@
                 });
 
                 applicants_grade_final[year] = applicants_grades_by_value
+
+                if (max_number_aplicants < Math.max(...Object.values(applicants_grades_by_value))){
+                    max_number_aplicants = Math.max(...Object.values(applicants_grades_by_value))
+                }
             });
 
             console.log(applicants_grade_final)
+
+            var max_applicants_rounded_10 = Math.ceil(max_number_aplicants / 10 ) * 10
+
+            var domain = max_applicants_rounded_10 + Math.floor(max_applicants_rounded_10 / 50 ) * 10
 
             const data_applicants_grade = Object.keys(applicants_grade_final).map(year => {
                 return {"Year": year, "Grades" : Object.keys(applicants_grade_final[year]).map(grade => {
@@ -200,7 +210,7 @@
 
             // Add Y axis
             const y = d3.scaleLinear()
-            .domain( [0,220])
+            .domain( [0,domain])
             .range([ height, 0 ]);
             application_grades_svg.append("g")
             .call(d3.axisLeft(y));
@@ -236,19 +246,19 @@
                 .attr("r", 5)
                 .attr("stroke", "white")
 
-            // Add a label at the end of each line
-            application_grades_svg
-            .selectAll("myLabels")
-            .data(data_applicants_grade)
-            .join('g')
-                .append("text")
-                .attr("class", d => "Year" + d.Year)
-                .datum(d => { return {Year: d.Year, value: d.Grades[d.Grades.length - 1]}; }) // keep only the last value of each time series
-                .attr("transform", d => `translate(${x(d.value.Grade)},${y(d.value.Num_Applicants)})`) // Put the text at the position of the last point
-                .attr("x", 12) // shift the text a bit more right
-                .text(d => d.Year)
-                .style("fill", d => myColor(d.Year))
-                .style("font-size", 15)
+            // // Add a label at the end of each line
+            // application_grades_svg
+            // .selectAll("myLabels")
+            // .data(data_applicants_grade)
+            // .join('g')
+            //     .append("text")
+            //     .attr("class", d => "Year" + d.Year)
+            //     .datum(d => { return {Year: d.Year, value: d.Grades[d.Grades.length - 1]}; }) // keep only the last value of each time series
+            //     .attr("transform", d => `translate(${x(d.value.Grade)},${y(d.value.Num_Applicants)})`) // Put the text at the position of the last point
+            //     .attr("x", 12) // shift the text a bit more right
+            //     .text(d => d.Year)
+            //     .style("fill", d => myColor(d.Year))
+            //     .style("font-size", 15)
 
             // Add a legend (interactive)
             var buttons = application_grades_svg
