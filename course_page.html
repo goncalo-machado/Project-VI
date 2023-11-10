@@ -92,19 +92,26 @@
 
     <!-- Define the Buttons for each DETI course -->
     <div class="buttons_DETI_courses">
-        <button class="buttons_DETI" id="button_Aer_Eng"> Aerospace Engineering</button>
-        <button class="buttons_DETI" id="button_Bio_Eng"> Biomedical Engineering</button>
-        <button class="buttons_DETI" id="button_CS_Eng"> Computer Science and Engineering</button>
-        <button class="buttons_DETI" id="button_Comp_Eng"> Computational Engineering</button>
-        <button class="buttons_DETI" id="button_CompEng_Inf"> Home Page</button>
-        <button class="buttons_DETI" id="button_EleComp_Eng"> Electrical and Computer Engineering</button>
-        <button class="buttons_DETI" id="button_IndAut_Eng"> Industrial Automation Engineering</button>
+        <button class="buttons_DETI" id="button_Eng_Aero" value="L221" onclick="redirectPage(value)"> Engenharia Aeroespacial</button>
+        <button class="buttons_DETI" id="button_Eng_Comp" value="L223" onclick="redirectPage(value)"> Engenharia Computacional</button>
+        <button class="buttons_DETI" id="button_Eng_Comp_Inf" value="L217" onclick="redirectPage(value)"> Engenharia de Computadores e Informática</button>
+        <button class="buttons_DETI" id="button_Eng_Eletro_Comp" value="L209" onclick="redirectPage(value)"> Engenharia Eletrotécnica e de Computadores</button>
+        <button class="buttons_DETI" id="button_EleComp_Eng" value="9119" onclick="redirectPage(value)"> Engenharia Informática</button>
     </div>
 
     <div id="graph_application_grades"></div>
 
+    <script>
+        function redirectPage(value){
+            localStorage.setItem("course_code", value)
+            window.location.href = "course_page.html"
+        }
+    </script>
+
     <!-- Script that has all the charts -->
     <script type="text/javascript">
+
+        course_code = localStorage.getItem("course_code")
 
         // Set the dimensions and margins of the graph
         const margin = {top: 10, right: 30, bottom: 30, left: 60},
@@ -130,7 +137,7 @@
             years.forEach(year => {
                 const applicants_grades_by_value = {}
 
-                const data_by_course_year_university = applicants_data.filter(d => d['University Code'] === "0300" && d['Year'] === year  && d['Course Code'] === "9119");
+                const data_by_course_year_university = applicants_data.filter(d => d['University Code'] === "0300" && d['Year'] === year  && d['Course Code'] === course_code);
 
                 //console.log("Temp")
                 //console.log(applicants_data)
