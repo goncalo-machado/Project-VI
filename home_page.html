@@ -283,6 +283,14 @@
 
                     /* ---------- CODE FOR THE CIRCLE CHART ---------- */
                     
+                    // Plot the title
+                    circle_chart_SVG.append("text")
+                        .attr("x", (width + margin.left + margin.right) / 2)
+                        .attr("y", margin.top)
+                        .attr("text-anchor", "middle")
+                        .style("font-size", "25px")
+                        .text("Choice Option");
+
                     // Function to reset the chart every time an new event occours
                     function clearCircleChart() {
                         circle_chart_SVG.selectAll("circle").remove();
@@ -310,6 +318,14 @@
 
                             // Clear the existing circles and text
                             clearCircleChart();
+
+                            // Plot the title
+                            circle_chart_SVG.append("text")
+                                .attr("x", (width + margin.left + margin.right) / 2)
+                                .attr("y", margin.top)
+                                .attr("text-anchor", "middle")
+                                .style("font-size", "25px")
+                                .text("Choice Option");
 
                             // Select the Bar
                             d3.select(this).attr("fill", "Navy");
@@ -371,7 +387,7 @@
                                     circles.attr("cx", function(d){ return d.x; })
                                             .attr("cy", function(d){ return d.y; });
                                     // Simulation of the text of each circle
-                                    texts.attr("x", function(d){ return d.x; })
+                                    legend.attr("x", function(d){ return d.x; })
                                             .attr("y", function(d){ return d.y; });
                                 });
                             
@@ -385,7 +401,7 @@
                                 d.y = Math.floor(Math.random() * maxY) + 50;
                             });
                             // This will create the text to put on each circle
-                            var texts = circle_chart_SVG.append("g")
+                            var legend = circle_chart_SVG.append("g")
                                 .selectAll("text")
                                 .data(dataset_n_option_number)
                                 .enter()
@@ -404,6 +420,13 @@
                         else{
                             // Clear the existing circles and text when nothing is selected
                             clearCircleChart();
+                            // Plot the title
+                            circle_chart_SVG.append("text")
+                                .attr("x", (width + margin.left + margin.right) / 2)
+                                .attr("y", margin.top)
+                                .attr("text-anchor", "middle")
+                                .style("font-size", "25px")
+                                .text("Choice Option");
                         }
             
                     }); // End of the bar click action
