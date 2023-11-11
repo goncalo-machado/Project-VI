@@ -80,6 +80,11 @@
             justify-content: center;
 
         }
+        /* To users noticed that bars are clickable */
+        rect:hover {
+            cursor: pointer;
+            fill: Navy;
+        }
 
     </style>
 
@@ -141,13 +146,6 @@
                             .attr("width", width + margin.left + margin.right)
                             .attr("height", height + margin.top + margin.bottom)
                             .style("background", "#808080"); // Just to see the space
-        //                 .append("g") // Section to plot the axis legends
-        //                 .attr("transform", `translate(${width/2},${height/2})`);
-        
-        // // Define the pie chart margin
-        // var pie_chart_margin = 50
-        // // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
-        // var radius = Math.min(width, height) / 2 - pie_chart_margin
         
         // Get the selected item in the droplist
         year_selection()
