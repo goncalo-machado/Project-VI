@@ -281,8 +281,14 @@
 
                     /* -------------------------------------------- */
 
-                    /* ---------- CODE FOR THE PIE CHART ---------- */
+                    /* ---------- CODE FOR THE CIRCLE CHART ---------- */
                     
+                    // Function to reset the chart every time an new event occours
+                    function clearCircleChart() {
+                        circle_chart_SVG.selectAll("circle").remove();
+                        circle_chart_SVG.selectAll("text").remove();
+                    }
+
                     // Variable to keep track of the selected bar
                     let selectedBar = null;
                     // Make each bar clickable to select a DETI course
@@ -301,6 +307,9 @@
                         const selec_course = i["Course Code"];
                         // If the clicked bar was not selected, select it
                         if (!isSelected) {
+
+                            // Clear the existing circles and text
+                            clearCircleChart();
 
                             // Select the Bar
                             d3.select(this).attr("fill", "Navy");
@@ -391,6 +400,10 @@
                                 .attr("y", function (d) { return d.y; })
                                 .style("fill", "black");
                         
+                        }
+                        else{
+                            // Clear the existing circles and text when nothing is selected
+                            clearCircleChart();
                         }
             
                     }); // End of the bar click action
