@@ -135,19 +135,19 @@
                                 .append("g") // Section to plot the axis legends
                                     .attr("transform", `translate(${margin.top})`);
 
-        // Create the SVG (the space) to put the Bar Chart of the number of applicants by DETI course
-        const pie_chart_SVG = d3.select(".div_d3")
+        // Create the SVG (the space) to put the Circle Chart of the number of applicants by DETI course
+        const circle_chart_SVG = d3.select(".div_d3")
                         .append("svg")
                             .attr("width", width + margin.left + margin.right)
                             .attr("height", height + margin.top + margin.bottom)
-                            .style("background", "#808080") // Just to see the space
-                        .append("g") // Section to plot the axis legends
-                        .attr("transform", `translate(${width/2},${height/2})`);
+                            .style("background", "#808080"); // Just to see the space
+        //                 .append("g") // Section to plot the axis legends
+        //                 .attr("transform", `translate(${width/2},${height/2})`);
         
-        // Define the pie chart margin
-        var pie_chart_margin = 50
-        // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
-        var radius = Math.min(width, height) / 2 - pie_chart_margin
+        // // Define the pie chart margin
+        // var pie_chart_margin = 50
+        // // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+        // var radius = Math.min(width, height) / 2 - pie_chart_margin
         
         // Get the selected item in the droplist
         year_selection()
@@ -330,46 +330,67 @@
                             console.log(dataset_n_option_number);
                             /* ----------------------------------------- */
 
-                            // Set the color scale of the pie chart
-                            const colors_pie_chart = d3.scaleOrdinal()
-                                .domain(dataset_n_option_number.map(d => d["Option Number"]))
-                                .range(d3.schemeDark2);
-                            /* TO VERIFY IF THE COLORS ARE GOOD */
-                            const colorArray = dataset_n_option_number.map(d => colors_pie_chart(d["Option Number"]));
-                            console.log("Colors of pie chart: ")
-                            console.log(colorArray);
-                            /* -------------------------------- */
-
-                            // Compute the position of each group on the pie:
-                            const slice_position_pie_chart = d3.pie()
-                                .sort(null)
-                                .value(d => d[1])
-                            // Make a data set that the pie chart can use
-                            const data_ready_pie_chart = slice_position_pie_chart(Object.entries(dataset_n_option_number))
-                            /* TO VERIFY IF THE DATA IS GOOD */
-                            console.log("Data pie chart will use: ")
-                            console.log(data_ready_pie_chart);
-                            /* ----------------------------- */
-
-                            // The arc generator
-                            const arc = d3.arc()
-                                .innerRadius(radius * 0.5)
-                                .outerRadius(radius * 0.8)
-                            // Arc for labels positioning
-                            const arc_labels = d3.arc()
-                                .innerRadius(radius * 0.9)
-                                .outerRadius(radius * 0.9)
-
-                            // Draw the Pie chart
-                            pie_chart_SVG.selectAll('allSlices')
-                                .data(data_ready_pie_chart)
-                                .join('path')
-                                .attr('d', arc)
-                                .attr('fill', d => colors_pie_chart(d.data[1]))
-                                .attr("stroke", "white")
-                                .style("stroke-width", "2px")
-                                .style("opacity", 0.7);
-
+                            // Define the circle in the circular packing
+                            var circles = circle_chart_SVG.append("g")
+                                .selectAll("circle")
+                                .data(dataset_n_option_number)
+                                .enter()
+                                .append("circle")
+                                    .attr("cx", (width + margin.left + margin.right) / 2) 
+                                    .attr("cy", (height + margin.top + margin.bottom) / 2)
+                                    .style("fill", "steelblue")
+                                    .style("fill-opacity", 0.3)
+                                    .attr("stroke", "Navy")
+                                    .style("stroke-width", 4)
+                                    .attr("r", function(d) {
+                                        // Attributes a radius to a circle based on its value, that is, the radius is related to the value
+                                        return d3.scaleLinear()
+                                                    .domain([d3.min(dataset_n_option_number, function(d) { return d.Count; }),
+                                                            d3.max(dataset_n_option_number, function(d) { return d.Count; })])
+                                                    .range([50, 100])(d.Count);
+                                    });
+                                                  
+                            // This will simulate the animation of the circles
+                            var simulation = d3.forceSimulation()
+                                .force("center", d3.forceCenter().x((width + margin.left + margin.right) / 2).y((height + margin.top + margin.bottom) / 2))
+                                .force("charge", d3.forceManyBody().strength(0.5))
+                                .force("collide", d3.forceCollide().strength(0.01).radius(100).iterations(1))
+                            // Apply the simulation when each bar is clicked
+                            simulation.nodes(dataset_n_option_number)
+                                .on("tick", function(d){
+                                    // Simulation of the circles
+                                    circles.attr("cx", function(d){ return d.x; })
+                                            .attr("cy", function(d){ return d.y; });
+                                    // Simulation of the text of each circle
+                                    texts.attr("x", function(d){ return d.x; })
+                                            .attr("y", function(d){ return d.y; });
+                                });
+                            
+                            // This will calculate a random position to the circles
+                            circles.each(function(d) {
+                                // Calculate the maximum x and y within the SVG boundaries
+                                var maxX = width - 200;
+                                var maxY = height - 200;
+                                // Generate random x and y coordinates within the SVG boundaries
+                                d.x = Math.floor(Math.random() * maxX) + 50;
+                                d.y = Math.floor(Math.random() * maxY) + 50;
+                            });
+                            // This will create the text to put on each circle
+                            var texts = circle_chart_SVG.append("g")
+                                .selectAll("text")
+                                .data(dataset_n_option_number)
+                                .enter()
+                                .append("text")
+                                .text(function (d) {
+                                    var percnt_form = parseFloat(d.Count).toFixed(2);
+                                    return d["Option Number"] + "ª: " + percnt_form + "%";
+                                })
+                                .attr("text-anchor", "middle")
+                                .attr("alignment-baseline", "middle")
+                                .attr("x", function (d) { return d.x; })
+                                .attr("y", function (d) { return d.y; })
+                                .style("fill", "black");
+                        
                         }
             
                     }); // End of the bar click action
