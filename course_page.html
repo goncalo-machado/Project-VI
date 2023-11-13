@@ -122,9 +122,13 @@
             Informática</button>
     </div>
 
-    <div id="svg_div" class="flex-container" style="margin-top: 15px;">
+    <div class="flex-container" style="margin-top: 15px;">
         <div id="applicants_grade_div" class="flex-child"></div>
         <div id="applicants_year_div" class="flex-child"></div>
+    </div>
+    
+    <div class="flex-container" style="margin-top: 15px;">
+        <div id="uni_comparison_div" class="flex-child"></div>
     </div>
 
     <script>
@@ -148,7 +152,7 @@
         }
     </script>
 
-    <!-- Script that has all the charts -->
+    <!-- Script that has grades and n_applicants the charts -->
     <script type="text/javascript">
 
         // Set the dimensions and margins of the graph
@@ -392,7 +396,7 @@
                 .style("text-anchor", "end");
 
             const y_domain = d3.scaleLinear()
-                .domain([0, 1000])
+                .domain([0, d3.max(data_n_applicants_year, d => d.N_Applicants) + margin.bottom])
                 .range([height, 0]);
 
             application_year_svg.selectAll("mybar")
@@ -416,6 +420,25 @@
 
         })
 
+    </script>
+
+    <script type="text/javascript">
+
+        const uni_comparison_div = d3.select("#uni_comparison_div")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .style("background", "#DCDCDC"); // Just to see the space
+
+        const uni_comparison_svg = uni_comparison_div.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        uni_comparison_div.append("text")
+            .attr("x", all_width / 2)
+            .attr("y", margin.top - 10)
+            .attr("text-anchor", "middle")
+            .style("font-size", "25px")
+            .text("Grade of Last Place Applicant");
     </script>
 
 </body>
