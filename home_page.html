@@ -136,7 +136,7 @@
                                 .append("svg")
                                     .attr("width", width + margin.left + margin.right)
                                     .attr("height", height + margin.top + margin.bottom)
-                                    .style("background", "#DCDCDC") // Just to see the space
+                                    //.style("background", "#DCDCDC") // Just to see the space
                                 .append("g") // Section to plot the axis legends
                                     .attr("transform", `translate(${margin.top})`);
 
@@ -144,8 +144,8 @@
         const circle_chart_SVG = d3.select(".div_d3")
                         .append("svg")
                             .attr("width", width + margin.left + margin.right)
-                            .attr("height", height + margin.top + margin.bottom)
-                            .style("background", "#808080"); // Just to see the space
+                            .attr("height", height + margin.top + margin.bottom);
+                            //.style("background", "#808080"); // Just to see the space
         
         // Get the selected item in the droplist
         year_selection()
