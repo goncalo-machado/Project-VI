@@ -80,6 +80,12 @@
             justify-content: center;
 
         }
+        .div_d3_v2 {
+            display: flex;
+            justify-content: center;
+
+        }
+
         /* To users noticed that bars are clickable */
         rect:hover {
             cursor: pointer;
@@ -122,12 +128,13 @@
     <!-- Other possibilitie for graphs: https://www.chartjs.org/ -->
     <!-- D3 Section - Front Page -->
     <div class="div_d3"> </div>
+    <div class="div_d3_v2"> </div>
 
     <!-- Script that has all the charts -->
     <script type="text/javascript">
 
-        // Set the dimensions and margins of the graph
-        const margin = {top: 50, right: 50, bottom: 120, left: 50}, // Space for axis legends
+        // Set the dimensions and margins of the bar and circle graph
+        const margin = {top: 50, right: 100, bottom: 120, left: 50}, // Space for axis legends
                                 width = 800 - margin.left - margin.right,
                                 height = 800 - margin.top - margin.bottom;
 
@@ -146,6 +153,17 @@
                             .attr("width", width + margin.left + margin.right)
                             .attr("height", height + margin.top + margin.bottom);
                             //.style("background", "#808080"); // Just to see the space
+
+        // Set the dimensions and margins of the bar and circle graph
+        const margin_line_chart = {top: 50, right: 50, bottom: 120, left: 25}, // Space for axis legends
+                                width_line_chart = 1600 - margin_line_chart.left - margin_line_chart.right,
+                                height_line_chart = 800 - margin_line_chart.top - margin_line_chart.bottom;
+        // Create the SVG (the space) to put the line Chart of the last student grade by DETI course
+        const line_chart_SVG = d3.select(".div_d3_v2")
+                .append("svg")
+                    .attr("width", width_line_chart)
+                    .attr("height", height_line_chart + margin_line_chart.top + margin_line_chart.bottom)
+                    .style("background", "#DCDCDC"); // Just to see the space
         
         // Get the selected item in the droplist
         year_selection()
@@ -430,6 +448,69 @@
                     }); // End of the bar click action
                     /* -------------------------------------------- */
 
+                    /* ---------- CODE FOR THE LINE CHART ---------- */
+
+                    // Create an array with unique years found
+                    var course_name = Array.from(new Set(data_last_grade.map(d => d["Course Name"])));
+                    
+                    // Data ready to make the graph
+                    var dataset_line_chart = course_name.map( function(line_name) {
+                        // Filter data for the current year
+                        var filteredData = data_last_grade.filter(d =>  d["Course Name"] === line_name);
+                        return {
+                            name: line_name,
+                            values: filteredData.map(function(d) {
+                            return {time: d.Year, value: +d["Last Placed Candidate Grade"]};
+                            })
+                        };
+                    });
+                    /* TO VERIFY IF THE DATA IS GOOD */
+                    console.log("Dataset Ready to LineChart: ")
+                    console.log(dataset_line_chart);
+                    /* ----------------------------- */
+
+                    // Create a color for each year
+                    const colorYears = d3.scaleOrdinal(d3.schemeCategory10);
+
+                    // Get the X Informarion for the axis
+                    const x_axis_LineChart = d3.scaleBand()
+                                .domain(data_last_grade.map(d => d.Year))
+                                .range([ 0, width_line_chart ]);
+                    // Plot the X information in the axis
+                    line_chart_SVG.append("g")
+                                    .attr("transform", `translate(0, ${height_line_chart})`)
+                                    .call(d3.axisBottom(x_axis_LineChart))
+                                .selectAll("text")
+                                    .attr("transform", "translate(-10,0)rotate(-45)")
+                                    .style("text-anchor", "end");
+
+                    // Get the Y Informarion for the axis
+                    var y_axis_LineChart = d3.scaleLinear()
+                        .domain([0, 200])
+                        .range([height_line_chart, 0]);
+                    // Plot the Y information in the axis
+                    line_chart_SVG.append("g")
+                        .call(d3.axisLeft(y_axis_LineChart));
+
+                    // Create lines for each year
+                    const line_years = Array.from(new Set(data_last_grade.map(d => d.Year)));
+                    // Draw the lines
+                    line_years.forEach(year => {
+                        const line = d3.line()
+                            .x(d => x_axis_LineChart(d["Course Name"]) + x_axis_LineChart.bandwidth() / 2)
+                            .y(d => y_axis_LineChart(+d["Last Placed Candidate Grade"]))
+                            .curve(d3.curveMonotoneX);
+
+                        line_chart_SVG.append('path')
+                            .datum(data_last_grade.filter(d => d.Year === year))
+                            .attr('fill', 'none')
+                            .attr('stroke', colorYears(year))
+                            .attr('stroke-width', 2)
+                            .attr('d', line);
+                    });
+                    // MAKE EACH COURSE BEING A NUMBER TO WORK
+                    /* ----------------------------------------- */
+                
                 }) // End of data_last_grade dataset
 
             }) // End of tota_dataset dataset
