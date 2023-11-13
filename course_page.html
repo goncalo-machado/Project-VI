@@ -65,7 +65,7 @@
         }
 
         /* Style of the buttons */
-        .buttons_DETI{
+        .buttons_Unselected{
             background-color: lightblue;
             color: black;
             font-size: 20px;
@@ -74,7 +74,7 @@
             border: none;
         }
 
-        .buttons_Home{
+        .buttons_Selected{
             background-color: lightcoral;
             color: black;
             font-size: 20px;
@@ -100,15 +100,15 @@
 
     <!-- Define the Buttons for each DETI course -->
     <div class="buttons_DETI_courses">
-        <button class="buttons_Home" id="button_Home" onclick="redirectHomePage()"> Home Page</button>
-        <button class="buttons_DETI" id="button_L221" value="L221" onclick="redirectPage(value)"> Engenharia Aeroespacial</button>
-        <button class="buttons_DETI" id="button_L223" value="L223" onclick="redirectPage(value)"> Engenharia Computacional</button>
-        <button class="buttons_DETI" id="button_L217" value="L217" onclick="redirectPage(value)"> Engenharia de Computadores e Informática</button>
-        <button class="buttons_DETI" id="button_L209" value="L209" onclick="redirectPage(value)"> Engenharia Eletrotécnica e de Computadores</button>
-        <button class="buttons_DETI" id="button_9119" value="9119" onclick="redirectPage(value)"> Engenharia Informática</button>
+        <button class="buttons_Unselected" id="button_Home" onclick="redirectHomePage()"> Home Page</button>
+        <button class="buttons_Unselected" id="button_L221" value="L221" onclick="redirectPage(value)"> Engenharia Aeroespacial</button>
+        <button class="buttons_Unselected" id="button_L223" value="L223" onclick="redirectPage(value)"> Engenharia Computacional</button>
+        <button class="buttons_Unselected" id="button_L217" value="L217" onclick="redirectPage(value)"> Engenharia de Computadores e Informática</button>
+        <button class="buttons_Unselected" id="button_L209" value="L209" onclick="redirectPage(value)"> Engenharia Eletrotécnica e de Computadores</button>
+        <button class="buttons_Unselected" id="button_9119" value="9119" onclick="redirectPage(value)"> Engenharia Informática</button>
     </div>
 
-    <div id="graph_application_grades"></div>
+    <div id="graph_application_grades" style="margin-top: 15px;"></div>
 
     <script>
         function redirectPage(value){
@@ -125,6 +125,7 @@
         window.onload = function(){
             course_code = localStorage.getItem("course_code")
             var course_name = document.getElementById("button_" + course_code).textContent
+            document.getElementById("button_" + course_code).className = "buttons_Selected"
             document.getElementById("H1_Title").innerHTML = course_name;
             document.title = course_name
         }
@@ -134,19 +135,29 @@
     <script type="text/javascript">
 
         // Set the dimensions and margins of the graph
-        const margin = {top: 10, right: 30, bottom: 30, left: 60},
-            width = 460 - margin.left - margin.right,
-            height = 400 - margin.top - margin.bottom;
+        const margin = {top: 50, right: 20, bottom: 50, left: 60},
+            all_width = 500
+            all_height = 500
+            width = all_width - margin.left - margin.right,
+            height = all_height - margin.top - margin.bottom;
 
         // Create the SVG (the space) to put the Bar Chart of the number of applicants by DETI course
-        const application_grades_svg = d3.select("#graph_application_grades")
+        const div_svg = d3.select("#graph_application_grades")
                                             .append("svg")
                                                 .attr("width", width + margin.left + margin.right)
                                                 .attr("height", height + margin.top + margin.bottom)
-                                                .style("background", "#DCDCDC") // Just to see the space
-                                            .append("g")
-                                                .attr("transform", `translate(${margin.left},${margin.top})`);
+                                                .style("background", "#DCDCDC"); // Just to see the space
         
+        const application_grades_svg = div_svg.append("g")
+                                                .attr("transform", `translate(${margin.left},${margin.top})`); 
+                                                
+        div_svg.append("text")
+                .attr("x", 460/2)
+                .attr("y", margin.top - 10)
+                .attr("text-anchor", "middle")
+                .style("font-size", "25px")
+                .text("Applicant's Grades Distribution");
+
         d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Applicants_2021_2023.csv?token=GHSAT0AAAAAACJ32OOFC7YF6MSVXECN6KJMZKI52DQ").then(function(applicants_data) {
 
             // List of groups (here I have one group per column)
@@ -208,12 +219,29 @@
             .attr("transform", `translate(0, ${height})`)
             .call(d3.axisBottom(x));
 
+            // Add X axis label 
+            application_grades_svg.append("text")
+                                    .attr("class", "x label")
+                                    .attr("text-anchor", "end")
+                                    .attr("x", all_width - margin.right - margin.left)
+                                    .attr("y", all_height - margin.bottom - 10)
+                                    .text("Grade interval ([x.0, x.9])");
+
             // Add Y axis
             const y = d3.scaleLinear()
             .domain( [0,domain])
             .range([ height, 0 ]);
             application_grades_svg.append("g")
             .call(d3.axisLeft(y));
+
+            //Add Y axis label
+            application_grades_svg.append("text")
+                                    .attr("class", "y label")
+                                    .attr("text-anchor", "end")
+                                    .attr("y", -50)
+                                    .attr("dy", ".75em")
+                                    .attr("transform", "rotate(-90)")
+                                    .text("Number of applicants");
 
             // Add the lines
             const line = d3.line()
