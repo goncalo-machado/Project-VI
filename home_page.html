@@ -155,15 +155,17 @@
                             //.style("background", "#808080"); // Just to see the space
 
         // Set the dimensions and margins of the bar and circle graph
-        const margin_line_chart = {top: 50, right: 50, bottom: 120, left: 25}, // Space for axis legends
-                                width_line_chart = 1600 - margin_line_chart.left - margin_line_chart.right,
-                                height_line_chart = 800 - margin_line_chart.top - margin_line_chart.bottom;
+        const margin_line_chart = {top: 50, right: 50, bottom: 200, left: 25}, // Space for axis legends
+                                width_line_chart = ((width + margin.left + margin.right) * 2) - margin_line_chart.left - margin_line_chart.right,
+                                height_line_chart = ((height + margin.top + margin.bottom) * 1.3) - margin_line_chart.top - margin_line_chart.bottom;
         // Create the SVG (the space) to put the line Chart of the last student grade by DETI course
         const line_chart_SVG = d3.select(".div_d3_v2")
                 .append("svg")
-                    .attr("width", width_line_chart)
+                    .attr("width", width_line_chart + margin_line_chart.left + margin_line_chart.right)
                     .attr("height", height_line_chart + margin_line_chart.top + margin_line_chart.bottom)
-                    .style("background", "#DCDCDC"); // Just to see the space
+                    .style("background", "#DCDCDC") // Just to see the space
+                .append("g")
+                    .attr("transform",`translate(${margin_line_chart.left}, ${margin_line_chart.top})`);
         
         // Get the selected item in the droplist
         year_selection()
@@ -450,65 +452,84 @@
 
                     /* ---------- CODE FOR THE LINE CHART ---------- */
 
-                    // Create an array with unique years found
-                    var course_name = Array.from(new Set(data_last_grade.map(d => d["Course Name"])));
-                    
-                    // Data ready to make the graph
-                    var dataset_line_chart = course_name.map( function(line_name) {
-                        // Filter data for the current year
-                        var filteredData = data_last_grade.filter(d =>  d["Course Name"] === line_name);
-                        return {
-                            name: line_name,
-                            values: filteredData.map(function(d) {
-                            return {time: d.Year, value: +d["Last Placed Candidate Grade"]};
-                            })
-                        };
-                    });
-                    /* TO VERIFY IF THE DATA IS GOOD */
-                    console.log("Dataset Ready to LineChart: ")
-                    console.log(dataset_line_chart);
-                    /* ----------------------------- */
-
-                    // Create a color for each year
-                    const colorYears = d3.scaleOrdinal(d3.schemeCategory10);
-
-                    // Get the X Informarion for the axis
-                    const x_axis_LineChart = d3.scaleBand()
-                                .domain(data_last_grade.map(d => d.Year))
+                    // Get the X information for axis
+                    const x_line_chart = d3.scaleBand()
+                                .domain(data_last_grade.map(d => d['Course Name']))
                                 .range([ 0, width_line_chart ]);
-                    // Plot the X information in the axis
+                    // Plot the X axis
                     line_chart_SVG.append("g")
                                     .attr("transform", `translate(0, ${height_line_chart})`)
-                                    .call(d3.axisBottom(x_axis_LineChart))
+                                    .call(d3.axisBottom(x_line_chart))
                                 .selectAll("text")
                                     .attr("transform", "translate(-10,0)rotate(-45)")
                                     .style("text-anchor", "end");
-
-                    // Get the Y Informarion for the axis
-                    var y_axis_LineChart = d3.scaleLinear()
-                        .domain([0, 200])
+                    
+                    // Get the Y information for axis
+                    const y_line_chart = d3.scaleLinear()
+                        .domain( [0, 200])
                         .range([height_line_chart, 0]);
-                    // Plot the Y information in the axis
+                    // Plot the Y axis
                     line_chart_SVG.append("g")
-                        .call(d3.axisLeft(y_axis_LineChart));
+                        .call(d3.axisLeft(y_line_chart));
 
-                    // Create lines for each year
-                    const line_years = Array.from(new Set(data_last_grade.map(d => d.Year)));
-                    // Draw the lines
-                    line_years.forEach(year => {
-                        const line = d3.line()
-                            .x(d => x_axis_LineChart(d["Course Name"]) + x_axis_LineChart.bandwidth() / 2)
-                            .y(d => y_axis_LineChart(+d["Last Placed Candidate Grade"]))
-                            .curve(d3.curveMonotoneX);
+                    // Plot the title
+                    line_chart_SVG.append("text")
+                        .attr("x", (width_line_chart + margin_line_chart.right + margin_line_chart.left) / 2)
+                        .attr("text-anchor", "middle")
+                        .style("font-size", "25px")
+                        .text("Last Placed Candidate Grade over the Years");
 
-                        line_chart_SVG.append('path')
-                            .datum(data_last_grade.filter(d => d.Year === year))
-                            .attr('fill', 'none')
-                            .attr('stroke', colorYears(year))
-                            .attr('stroke-width', 2)
-                            .attr('d', line);
-                    });
-                    // MAKE EACH COURSE BEING A NUMBER TO WORK
+                    // Get an array for each line, that is, years
+                    const years = Array.from(new Set(data_last_grade.map(d => d.Year)));
+                    console.log("Check Years for line chart: ");
+                    console.log(years);
+
+                    // // Create a mapping of unique names to integer values
+                    // var courseName_ToInt = {};
+                    // var courseName_Idx= 0;
+                    // // Copy data to not modify the original dataset
+                    // var data_last_grade_V2 = JSON.parse(JSON.stringify(data_last_grade));
+                    // // Convert
+                    // data_last_grade_V2.forEach(function(d) {
+                    //     // Check if alredy exisit
+                    //     if (!(d["Course Name"] in courseName_ToInt)) {
+                    //         // Add to the new dataset
+                    //         courseName_ToInt[d["Course Name"]] = courseName_Idx;
+                    //         // Increment the index
+                    //         courseName_Idx++;
+                    //     }
+                    //     // Update the name
+                    //     d["Course Name"] = courseName_ToInt[d["Course Name"]];
+                    // });
+                    // console.log("After: ");
+                    // console.log(data_last_grade_V2);
+
+                    // // Reform data so it can be used to plot a line chart
+                    // const dataset_line_chart = years.map(function(year) {
+                    //     return{
+                    //         name: year, // Is the Year - It will be each line
+                    //         values: data_last_grade_V2
+                    //             .filter(function(d) {
+                    //                 // Filter data for the current year
+                    //                 return d["Year"] === year;
+                    //             })
+                    //             .map(function(d) {
+                    //                 return { time: d["Course Name"], value: +d["Last Placed Candidate Grade"] };
+                    //             })
+                    //     };
+                    // });
+                    // console.log("Check if dataset is ready to Line Chart: ");
+                    // console.log(dataset_line_chart);
+
+                    // // Define a color for each line
+                    // const colors_lineChart = d3.scaleOrdinal()
+                    //     .domain(years)
+                    //     .range(d3.schemeSet2);
+
+                    // // Get only course names
+                    // const course_names = Array.from(new Set(data_last_grade.map(d => d['Course Name'])));
+                    // console.log("Course Names: " + course_names);
+
                     /* ----------------------------------------- */
                 
                 }) // End of data_last_grade dataset
