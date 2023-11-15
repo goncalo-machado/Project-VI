@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+s<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <script type="text/javascript" src="http://d3js.org/d3.v7.js"></script>
+    <script type="text/javascript" src="http://d3js.org/d3.v6.js"></script>
 
     <!-- Title tha appears in the searcher tab  -->
     <title>DETI Courses Data Visualisation</title>
@@ -155,7 +155,7 @@
                             //.style("background", "#808080"); // Just to see the space
 
         // Set the dimensions and margins of the bar and circle graph
-        const margin_line_chart = {top: 50, right: 50, bottom: 200, left: 25}, // Space for axis legends
+        const margin_line_chart = {top: 50, right: 50, bottom: 200, left: 100}, // Space for axis legends
                                 width_line_chart = ((width + margin.left + margin.right) * 2) - margin_line_chart.left - margin_line_chart.right,
                                 height_line_chart = ((height + margin.top + margin.bottom) * 1.3) - margin_line_chart.top - margin_line_chart.bottom;
         // Create the SVG (the space) to put the line Chart of the last student grade by DETI course
@@ -452,23 +452,26 @@
 
                     /* ---------- CODE FOR THE LINE CHART ---------- */
 
+                    // Get the course names to use in X axis
+                    var course_Names = Array.from(new Set(data_last_grade.map(d => d['Course Name'])));
+
                     // Get the X information for axis
-                    const x_line_chart = d3.scaleBand()
-                                .domain(data_last_grade.map(d => d['Course Name']))
-                                .range([ 0, width_line_chart ]);
-                    // Plot the X axis
+                    var x_line_chart = d3.scalePoint()
+                        .domain(course_Names.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))
+                        .range([0, width_line_chart]);
+                    // Plot the X information in the axis
                     line_chart_SVG.append("g")
-                                    .attr("transform", `translate(0, ${height_line_chart})`)
-                                    .call(d3.axisBottom(x_line_chart))
-                                .selectAll("text")
-                                    .attr("transform", "translate(-10,0)rotate(-45)")
-                                    .style("text-anchor", "end");
-                    
+                                .attr("transform", `translate(0, ${height_line_chart})`)
+                                .call(d3.axisBottom(x_line_chart))
+                            .selectAll("text")
+                                .attr("transform", "translate(-10,0)rotate(-45)")
+                                .style("text-anchor", "end");
+
                     // Get the Y information for axis
-                    const y_line_chart = d3.scaleLinear()
-                        .domain( [0, 200])
+                    var y_line_chart = d3.scaleLinear()
+                        .domain([95, 200])
                         .range([height_line_chart, 0]);
-                    // Plot the Y axis
+                    // Plot the Y information in the axis
                     line_chart_SVG.append("g")
                         .call(d3.axisLeft(y_line_chart));
 
@@ -479,56 +482,140 @@
                         .style("font-size", "25px")
                         .text("Last Placed Candidate Grade over the Years");
 
-                    // Get an array for each line, that is, years
-                    const years = Array.from(new Set(data_last_grade.map(d => d.Year)));
-                    console.log("Check Years for line chart: ");
-                    console.log(years);
+                    // List of groups, in this case, the different Years
+                    var years = Array.from(new Set(data_last_grade.map(d => d.Year)));
 
-                    // // Create a mapping of unique names to integer values
-                    // var courseName_ToInt = {};
-                    // var courseName_Idx= 0;
-                    // // Copy data to not modify the original dataset
-                    // var data_last_grade_V2 = JSON.parse(JSON.stringify(data_last_grade));
-                    // // Convert
-                    // data_last_grade_V2.forEach(function(d) {
-                    //     // Check if alredy exisit
-                    //     if (!(d["Course Name"] in courseName_ToInt)) {
-                    //         // Add to the new dataset
-                    //         courseName_ToInt[d["Course Name"]] = courseName_Idx;
-                    //         // Increment the index
-                    //         courseName_Idx++;
-                    //     }
-                    //     // Update the name
-                    //     d["Course Name"] = courseName_ToInt[d["Course Name"]];
-                    // });
-                    // console.log("After: ");
-                    // console.log(data_last_grade_V2);
+                    // Reformat the data: we need an array of arrays of {x, y} tuples
+                    var dataReady_line_chart = years.map( function(year) { // .map allows to do something for each element of the list
+                        return {
+                            name: year,
+                            values: data_last_grade
+                                .filter(function(d) {return d.Year === year;})// Filter data by year
+                                .map(function(d) { return { time: d["Course Name"], value: +d["Last Placed Candidate Grade"] };})
+                        };
+                    });
+                    console.log("Check the data for line chart: ");
+                    console.log(dataReady_line_chart);
 
-                    // // Reform data so it can be used to plot a line chart
-                    // const dataset_line_chart = years.map(function(year) {
-                    //     return{
-                    //         name: year, // Is the Year - It will be each line
-                    //         values: data_last_grade_V2
-                    //             .filter(function(d) {
-                    //                 // Filter data for the current year
-                    //                 return d["Year"] === year;
-                    //             })
-                    //             .map(function(d) {
-                    //                 return { time: d["Course Name"], value: +d["Last Placed Candidate Grade"] };
-                    //             })
-                    //     };
-                    // });
-                    // console.log("Check if dataset is ready to Line Chart: ");
-                    // console.log(dataset_line_chart);
+                    // Create a color for each year
+                    var colors_year = d3.scaleOrdinal()
+                        .domain(years)
+                        .range(d3.schemeSet2);
 
-                    // // Define a color for each line
-                    // const colors_lineChart = d3.scaleOrdinal()
-                    //     .domain(years)
-                    //     .range(d3.schemeSet2);
+                    // Create lines for each year
+                    var lines = d3.line()
+                        .x(function(d) { return x_line_chart(d.time) })
+                        .y(function(d) { return y_line_chart(d.value) })
 
-                    // // Get only course names
-                    // const course_names = Array.from(new Set(data_last_grade.map(d => d['Course Name'])));
-                    // console.log("Course Names: " + course_names);
+                    //Plot the lines
+                    line_chart_SVG.selectAll("myLines")
+                        .data(dataReady_line_chart)
+                        .enter()
+                        .append("path")
+                            .attr("d", function(d){ return lines(d.values) } )
+                            .attr("stroke", function(d){ return colors_year(d.name) })
+                            .style("stroke-width", 4)
+                            .style("fill", "none");
+
+                    // Lets add the points
+                    line_chart_SVG
+                    // First we need to enter in a group
+                    .selectAll("myDots")
+                    .data(dataReady_line_chart)
+                    .enter()
+                        .append('g')
+                        .style("fill", function(d){ return colors_year(d.name) })
+                    // Second we need to enter in the 'values' part of this group
+                    .selectAll("myPoints")
+                    .data(function(d){ return d.values })
+                    .enter()
+                    .append("circle")
+                        .attr("cx", function(d) { return x_line_chart(d.time) } )
+                        .attr("cy", function(d) { return y_line_chart(d.value) } )
+                        .attr("r", 5)
+                        .attr("stroke", "white")
+                        .on("mouseover", function(d) {
+                            // Incrise the size of the point
+                            d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .attr("r", 8)
+                                .attr("stroke-width", 2);
+                            // Define the tooltip
+                            var tooltip = d3.select("body")
+                                .append("div")
+                                .attr("class", "tooltip")
+                                .style("position", "absolute")
+                                .style("visibility", "visible")
+                                .style("background", "rgba(0, 0, 0, 0.6)")
+                                .style("color", "white")
+                                .style("padding", "8px")
+                                .style("border-radius", "4px")
+                                .style("opacity", 0);
+                            // Make a transition on its appear
+                            tooltip.transition()
+                                .duration(200)
+                                .style("opacity", .9);
+                            // Plot the information
+                            tooltip.html("Year: " + d.name + "<br>Course: " + d.time + "<br>Grade: " + d.value)
+                                .style("left", (event.pageX + 10) + "px")
+                                .style("top", (event.pageY - 15) + "px");
+                        })
+                        .on("mouseout", function(d) {
+                            // Reset radius and stroke width
+                            d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .attr("r", 5)
+                                .attr("stroke-width", 1);
+                            // Remove the tooltip
+                            d3.select(".tooltip")
+                                .style("visibility", "hidden");
+                        });
+
+                    // Define a tooltip that displays information when mouse is houver the button
+                    /*var tooltip = d3.select("body")
+                        .append("div")
+                        .style("position", "absolute")
+                        .style("visibility", "hidden")
+                        .style("background", "rgba(0, 0, 0, 0.6)")
+                        .style("color", "white")
+                        .style("padding", "8px")
+                        .style("border-radius", "4px");
+                    // Function that makes each point houverble bigger
+                    function point_mouse_houverble(year, course, grade, element) {
+                        d3.select(element)
+                            .attr("r", 8)
+                            .attr("stroke-width", 2);
+                        
+                        // Show the tooltip
+                        tooltip.style("visibility", "visible")
+                            .html("Year: " + year + "<br/>Course: " + course + "<br/>Grade: " + grade)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 15) + "px");
+                    }
+                    // Function that makes each point going to normal when mouse not on point
+                    function point_mouse_out_houverble(d, i) {
+                        d3.select(this)
+                            .attr("r", 5) 
+                            .attr("stroke-width", 1);
+                        // Hide the tooltip
+                        tooltip.style("visibility", "hidden");
+                    }*/
+
+                    // Add a legend at the end of each line
+                    line_chart_SVG.selectAll("myLabels")
+                    .data(dataReady_line_chart)
+                    .enter()
+                        .append('g')
+                        .append("text")
+                        .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; }) // keep only the last value of each time series
+                        .attr("transform", function(d) { return "translate(" + x_line_chart(d.value.time) + "," + y_line_chart(d.value.value) + ")"; }) // Put the text at the position of the last point
+                        .attr("x", 12) // shift the text a bit more right
+                        .text(function(d) { return d.name; })
+                        .style("fill", function(d){ return colors_year(d.name) })
+                        .style("font-size", 15);
+
 
                     /* ----------------------------------------- */
                 
