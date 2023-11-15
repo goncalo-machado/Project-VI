@@ -1,4 +1,4 @@
-s<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -163,7 +163,7 @@ s<!DOCTYPE html>
                 .append("svg")
                     .attr("width", width_line_chart + margin_line_chart.left + margin_line_chart.right)
                     .attr("height", height_line_chart + margin_line_chart.top + margin_line_chart.bottom)
-                    .style("background", "#DCDCDC") // Just to see the space
+                    //.style("background", "#DCDCDC") // Just to see the space
                 .append("g")
                     .attr("transform",`translate(${margin_line_chart.left}, ${margin_line_chart.top})`);
         
@@ -534,7 +534,7 @@ s<!DOCTYPE html>
                         .attr("cy", function(d) { return y_line_chart(d.value) } )
                         .attr("r", 5)
                         .attr("stroke", "white")
-                        .on("mouseover", function(d) {
+                        .on("mouseover", function(event, d) {
                             // Incrise the size of the point
                             d3.select(this)
                                 .transition()
@@ -554,10 +554,10 @@ s<!DOCTYPE html>
                                 .style("opacity", 0);
                             // Make a transition on its appear
                             tooltip.transition()
-                                .duration(200)
+                                .duration(600)
                                 .style("opacity", .9);
                             // Plot the information
-                            tooltip.html("Year: " + d.name + "<br>Course: " + d.time + "<br>Grade: " + d.value)
+                            tooltip.html("Year: " + d3.select(this.parentNode).datum().name + "<br>Course: " + d.time + "<br>Grade: " + d.value)
                                 .style("left", (event.pageX + 10) + "px")
                                 .style("top", (event.pageY - 15) + "px");
                         })
@@ -570,38 +570,8 @@ s<!DOCTYPE html>
                                 .attr("stroke-width", 1);
                             // Remove the tooltip
                             d3.select(".tooltip")
-                                .style("visibility", "hidden");
+                                .remove();
                         });
-
-                    // Define a tooltip that displays information when mouse is houver the button
-                    /*var tooltip = d3.select("body")
-                        .append("div")
-                        .style("position", "absolute")
-                        .style("visibility", "hidden")
-                        .style("background", "rgba(0, 0, 0, 0.6)")
-                        .style("color", "white")
-                        .style("padding", "8px")
-                        .style("border-radius", "4px");
-                    // Function that makes each point houverble bigger
-                    function point_mouse_houverble(year, course, grade, element) {
-                        d3.select(element)
-                            .attr("r", 8)
-                            .attr("stroke-width", 2);
-                        
-                        // Show the tooltip
-                        tooltip.style("visibility", "visible")
-                            .html("Year: " + year + "<br/>Course: " + course + "<br/>Grade: " + grade)
-                            .style("left", (event.pageX + 10) + "px")
-                            .style("top", (event.pageY - 15) + "px");
-                    }
-                    // Function that makes each point going to normal when mouse not on point
-                    function point_mouse_out_houverble(d, i) {
-                        d3.select(this)
-                            .attr("r", 5) 
-                            .attr("stroke-width", 1);
-                        // Hide the tooltip
-                        tooltip.style("visibility", "hidden");
-                    }*/
 
                     // Add a legend at the end of each line
                     line_chart_SVG.selectAll("myLabels")
