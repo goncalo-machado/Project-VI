@@ -156,7 +156,7 @@
 
         // Set the dimensions and margins of the bar and circle graph
         const margin_line_chart = {top: 50, right: 50, bottom: 200, left: 100}, // Space for axis legends
-                                width_line_chart = ((width + margin.left + margin.right) * 2) - margin_line_chart.left - margin_line_chart.right,
+                                width_line_chart = ((width + margin.left + margin.right) * 2) - (margin_line_chart.left * 2) - margin_line_chart.left - margin_line_chart.right,
                                 height_line_chart = ((height + margin.top + margin.bottom) * 1.3) - margin_line_chart.top - margin_line_chart.bottom;
         // Create the SVG (the space) to put the line Chart of the last student grade by DETI course
         const line_chart_SVG = d3.select(".div_d3_v2")
