@@ -500,7 +500,11 @@
                     // Create a color for each year
                     var colors_year = d3.scaleOrdinal()
                         .domain(years)
-                        .range(d3.schemeSet2);
+                        .range(d3.schemeBlues[years.length]);
+                    /*
+                    var colors_year = d3.scaleOrdinal()
+                        .domain(years)
+                        .range(d3.schemeSet2);*/
 
                     // Create lines for each year
                     var lines = d3.line()
