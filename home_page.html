@@ -330,6 +330,9 @@
                         }
                         // Get the coure selected
                         const selec_course = i["Course Code"];
+                        // Get the course selected
+                        const selected_Course = data_last_grade.find(d => d["Course Code"] === selec_course);
+                        console.log(selected_Course["Course Name"]);
                         // If the clicked bar was not selected, select it
                         if (!isSelected) {
 
@@ -343,6 +346,14 @@
                                 .attr("text-anchor", "middle")
                                 .style("font-size", "25px")
                                 .text("Application Choice Option");
+                            
+                            // Add the total DETI applicants
+                            circle_chart_SVG.append("text")
+                                .attr("x", (width + margin.left + margin.right) / 2)
+                                .attr("y", margin.top + 30)
+                                .attr("text-anchor", "middle")
+                                .style("font-size", "20px")
+                                .text("Selected Course: " + selected_Course["Course Name"]);
 
                             // Select the Bar
                             d3.select(this).attr("fill", "Navy");
