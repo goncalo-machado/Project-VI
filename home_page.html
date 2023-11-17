@@ -86,18 +86,22 @@
 
         }
 
-        /* To users noticed that bars are clickable */
+        /* To users notice that bars are clickable */
         rect:hover {
             cursor: pointer;
             fill: Navy;
         }
-        /* To users noticed that course buttons are clickable */
+        /* To users notice that course buttons are clickable */
         button:hover {
             cursor: pointer;
             background-color: steelblue;
         }
-        /* To users noticed that drooplist is clickable */
+        /* To users notice that drooplist is clickable */
         select:hover {
+            cursor: pointer;
+        }
+        /* To users notice that lines are clickable */
+        path.data-line:hover{
             cursor: pointer;
         }
 
@@ -548,15 +552,24 @@
                                 // Check if the clicked line is already selected
                                 var isSelected = selectedLine === this;
                                 // Reset styles for all lines
-                                line_chart_SVG.selectAll(".data-line").style("stroke-width", 2).style("opacity", 0.2).classed("highlighted", false);
+                                line_chart_SVG.selectAll(".data-line")
+                                    .style("stroke-width", 2)
+                                    .style("opacity", 0.2)
+                                    .classed("highlighted", false);
                                 // Highlight the clicked line
                                 if (!isSelected) {
-                                    d3.select(this).style("stroke-width", 8).style("opacity", 1).classed("highlighted", true);
+                                    d3.select(this)
+                                        .style("stroke-width", 8)
+                                        .style("opacity", 1)
+                                        .classed("highlighted", true);
                                     selectedLine = this;
                                 // If the clicked line was already selected, reset the selectedLine
                                 } else {
                                     selectedLine = null;
-                                    line_chart_SVG.selectAll(".data-line").style("stroke-width", 4).style("opacity", 1).classed("highlighted", false);
+                                    line_chart_SVG.selectAll(".data-line")
+                                        .style("stroke-width", 4)
+                                        .style("opacity", 1)
+                                        .classed("highlighted", false);
                                 }
                             });
 
