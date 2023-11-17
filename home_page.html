@@ -170,8 +170,10 @@
         year_selection()
         // Evething needs to change when the value in the droplist changes
         function year_selection(){
-            // Reset the SVG
+            // Reset the SVGs
             bar_chart_SVG.selectAll("*").remove();
+            circle_chart_SVG.selectAll("*").remove();
+            line_chart_SVG.selectAll("*").remove();
             // Define the Dataset with all data
             d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Applicants_2021_2023.csv?token=GHSAT0AAAAAACJ32OOFC7YF6MSVXECN6KJMZKI52DQ").then(function(total_data) {
 
