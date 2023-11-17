@@ -532,15 +532,33 @@
                         .x(function(d) { return x_line_chart(d.time) })
                         .y(function(d) { return y_line_chart(d.value) })
 
+                    // Keep track of the selected line
+                    var selectedLine = null;
                     //Plot the lines
                     line_chart_SVG.selectAll("myLines")
                         .data(dataReady_line_chart)
                         .enter()
                         .append("path")
+                            .attr("class", "data-line")
                             .attr("d", function(d){ return lines(d.values) } )
                             .attr("stroke", function(d){ return colors_year(d.name) })
                             .style("stroke-width", 4)
-                            .style("fill", "none");
+                            .style("fill", "none")
+                            .on("click", function(event, d) {
+                                // Check if the clicked line is already selected
+                                var isSelected = selectedLine === this;
+                                // Reset styles for all lines
+                                line_chart_SVG.selectAll(".data-line").style("stroke-width", 2).style("opacity", 0.2).classed("highlighted", false);
+                                // Highlight the clicked line
+                                if (!isSelected) {
+                                    d3.select(this).style("stroke-width", 8).style("opacity", 1).classed("highlighted", true);
+                                    selectedLine = this;
+                                // If the clicked line was already selected, reset the selectedLine
+                                } else {
+                                    selectedLine = null;
+                                    line_chart_SVG.selectAll(".data-line").style("stroke-width", 4).style("opacity", 1).classed("highlighted", false);
+                                }
+                            });
 
                     // Lets add the points
                     line_chart_SVG
