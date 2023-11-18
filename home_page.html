@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <script type="text/javascript" src="http://d3js.org/d3.v7.js"></script>
+    <script type="text/javascript" src="http://d3js.org/d3.v6.js"></script>
 
     <!-- Title tha appears in the searcher tab  -->
     <title>DETI Courses Data Visualisation</title>
@@ -90,6 +90,30 @@
             justify-content: center;
 
         }
+        .div_d3_v2 {
+            display: flex;
+            justify-content: center;
+
+        }
+
+        /* To users notice that bars are clickable */
+        rect:hover {
+            cursor: pointer;
+            fill: Navy;
+        }
+        /* To users notice that course buttons are clickable */
+        button:hover {
+            cursor: pointer;
+            background-color: steelblue;
+        }
+        /* To users notice that drooplist is clickable */
+        select:hover {
+            cursor: pointer;
+        }
+        /* To users notice that lines are clickable */
+        path.data-line:hover{
+            cursor: pointer;
+        }
 
     </style>
 
@@ -131,6 +155,7 @@
     <!-- Other possibilitie for graphs: https://www.chartjs.org/ -->
     <!-- D3 Section - Front Page -->
     <div class="div_d3"> </div>
+    <div class="div_d3_v2"> </div>
 
     <script>
         function redirectPage(value) {
@@ -146,31 +171,55 @@
     <!-- Script that has all the charts -->
     <script type="text/javascript">
 
-        // Set the dimensions and margins of the graph
-        const margin = {top: 50, right: 50, bottom: 120, left: 50}, // Space for axis legends
-                                width = 900 - margin.left - margin.right,
-                                height = 1000 - margin.top - margin.bottom;
+        // Set the dimensions and margins of the bar and circle graph
+        const margin = {top: 50, right: 100, bottom: 120, left: 50}, // Space for axis legends
+                                width = 800 - margin.left - margin.right,
+                                height = 800 - margin.top - margin.bottom;
 
         // Create the SVG (the space) to put the Bar Chart of the number of applicants by DETI course
         const bar_chart_SVG = d3.select(".div_d3")
                                 .append("svg")
                                     .attr("width", width + margin.left + margin.right)
                                     .attr("height", height + margin.top + margin.bottom)
-                                    .style("background", "#DCDCDC") // Just to see the space
+                                    //.style("background", "#DCDCDC") // Just to see the space
                                 .append("g") // Section to plot the axis legends
                                     .attr("transform", `translate(${margin.top})`);
+
+        // Create the SVG (the space) to put the Circle Chart of the number of applicants by DETI course
+        const circle_chart_SVG = d3.select(".div_d3")
+                        .append("svg")
+                            .attr("width", width + margin.left + margin.right)
+                            .attr("height", height + margin.top + margin.bottom);
+                            //.style("background", "#808080"); // Just to see the space
+
+        // Set the dimensions and margins of the bar and circle graph
+        const margin_line_chart = {top: 50, right: 50, bottom: 200, left: 100}, // Space for axis legends
+                                width_line_chart = ((width + margin.left + margin.right) * 2) - (margin_line_chart.left * 2) - margin_line_chart.left - margin_line_chart.right,
+                                height_line_chart = ((height + margin.top + margin.bottom) * 1.3) - margin_line_chart.top - margin_line_chart.bottom;
+        // Create the SVG (the space) to put the line Chart of the last student grade by DETI course
+        const line_chart_SVG = d3.select(".div_d3_v2")
+                .append("svg")
+                    .attr("width", width_line_chart + margin_line_chart.left + margin_line_chart.right)
+                    .attr("height", height_line_chart + margin_line_chart.top + margin_line_chart.bottom)
+                    //.style("background", "#DCDCDC") // Just to see the space
+                .append("g")
+                    .attr("transform",`translate(${margin_line_chart.left}, ${margin_line_chart.top})`);
         
         // Get the selected item in the droplist
         year_selection()
         // Evething needs to change when the value in the droplist changes
         function year_selection(){
-            // Reset the SVG
+            // Reset the SVGs
             bar_chart_SVG.selectAll("*").remove();
+            circle_chart_SVG.selectAll("*").remove();
+            line_chart_SVG.selectAll("*").remove();
             // Define the Dataset with all data
             d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Applicants_2021_2023.csv?token=GHSAT0AAAAAACJ32OOFC7YF6MSVXECN6KJMZKI52DQ").then(function(total_data) {
 
                 // Data set with Last Placed Candidates Grades
                 d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_DETI_Courses_2021_2023.csv?token=GHSAT0AAAAAACJ32OOEUYT2WTOYHLZXJVHYZKJAULQ").then(function(data_last_grade) {
+
+                    /* ---------- CODE FOR THE BAR CHART ---------- */
 
                     // Condition that checks which droplist item is selected
                     var droplist_items = document.getElementById("droplist"); // Select the droplist
@@ -185,7 +234,6 @@
                     const x = d3.scaleBand()
                                 .domain(x_axis_filter.map(d => d['Course Name']))
                                 .range([ 0, width ]);
-                                //.padding(0.2);
                     // Plot the X information in the axis
                     bar_chart_SVG.append("g")
                                     .attr("transform", `translate(0, ${height})`)
@@ -213,10 +261,14 @@
                         }
                     });
 
-                    /* TO VERIFY IF THE COUNTING IS WORKING WELL */
+                    // Make an array that can be used to make the bars
                     const dataset_n_applicants_count = Object.keys(n_applicants_count).map(courseCode => {
                         return { "Course Code": courseCode, "Count": n_applicants_count[courseCode] };
                     });
+                    // Remove the first element from the array, that is, the one that starts with a number and put it in last
+                    const firstElement = dataset_n_applicants_count.shift();
+                    dataset_n_applicants_count.push(firstElement);
+                    /* TO VERIFY IF THE COUNTING IS WORKING WELL */
                     console.log("Course applicants counting: ")
                     console.log(dataset_n_applicants_count);
                     /* ----------------------------------------- */
@@ -231,7 +283,7 @@
                     /* -------------- */
 
                     // Plot the Bars
-                    bar_chart_SVG.selectAll("mybar")
+                    const bars = bar_chart_SVG.selectAll("mybar")
                         .data(dataset_n_applicants_count)
                         .enter()
                         .append("rect")
@@ -285,11 +337,345 @@
                         })
                         .delay(function(d,i){ return(i*100) });
 
-                })
+                    /* -------------------------------------------- */
 
-            })
+                    /* ---------- CODE FOR THE CIRCLE CHART ---------- */
+                    
+                    // Plot the title
+                    circle_chart_SVG.append("text")
+                        .attr("x", (width + margin.left + margin.right) / 2)
+                        .attr("y", margin.top)
+                        .attr("text-anchor", "middle")
+                        .style("font-size", "25px")
+                        .text("Application Choice Option");
 
-        }
+                    // Function to reset the chart every time an new event occours
+                    function clearCircleChart() {
+                        circle_chart_SVG.selectAll("circle").remove();
+                        circle_chart_SVG.selectAll("text").remove();
+                    }
+
+                    // Variable to keep track of the selected bar
+                    let selectedBar = null;
+                    // Make each bar clickable to select a DETI course
+                    bars.on("click", function(d, i) {
+
+                        // Check if the clicked bar is already selected
+                        const isSelected = d3.select(this).attr("fill") === "Navy";
+                        // De-select all bars
+                        bars.attr("fill", "steelblue");
+                        // Reset the state if a different bar is clicked
+                        if (selectedBar !== this) {
+                            d3.select(selectedBar).attr("fill", "steelblue");
+                            selectedBar = null;
+                        }
+                        // Get the coure selected
+                        const selec_course = i["Course Code"];
+                        // Get the course selected
+                        const selected_Course = data_last_grade.find(d => d["Course Code"] === selec_course);
+                        console.log(selected_Course["Course Name"]);
+                        // If the clicked bar was not selected, select it
+                        if (!isSelected) {
+
+                            // Clear the existing circles and text
+                            clearCircleChart();
+
+                            // Plot the title
+                            circle_chart_SVG.append("text")
+                                .attr("x", (width + margin.left + margin.right) / 2)
+                                .attr("y", margin.top)
+                                .attr("text-anchor", "middle")
+                                .style("font-size", "25px")
+                                .text("Application Choice Option");
+                            
+                            // Add the total DETI applicants
+                            circle_chart_SVG.append("text")
+                                .attr("x", (width + margin.left + margin.right) / 2)
+                                .attr("y", margin.top + 30)
+                                .attr("text-anchor", "middle")
+                                .style("font-size", "20px")
+                                .text("Selected Course: " + selected_Course["Course Name"]);
+
+                            // Select the Bar
+                            d3.select(this).attr("fill", "Navy");
+                            selectedBar = this;
+
+                            // Get the dataset of the select course for the selected year
+                            const course_filter = total_data.filter(d => d['University Code'] === '0300' && d.Year === droplist_item_selected && d['Course Code'] === selec_course);
+                            // Creat a new dataset to store the option number
+                            n_option_number = {};
+                            // For each applicant, count the number of times that one option appears
+                            course_filter.forEach(d => {
+                                // Define the curse code
+                                const option_number = d["Option Number"];
+                                // If the coourse code was alredy detected, increment
+                                if(n_option_number[option_number]){
+                                    n_option_number[option_number] += 1; // Count one student
+                                }
+                                else{
+                                    n_option_number[option_number] = 1; // Count the first apperance
+                                }
+                             });
+                            /* TO VERIFY IF THE COUNTING IS WORKING WELL */
+                            const dataset_n_option_number = Object.keys(n_option_number).map(OptionNumber => {
+                                return { "Option Number": OptionNumber, "Count": (n_option_number[OptionNumber] / i.Count) * 100 };
+                            });
+                            console.log("Course Option Number(%): ")
+                            console.log(dataset_n_option_number);
+                            /* ----------------------------------------- */
+
+                            // Define the circle in the circular packing
+                            var circles = circle_chart_SVG.append("g")
+                                .selectAll("circle")
+                                .data(dataset_n_option_number)
+                                .enter()
+                                .append("circle")
+                                    .attr("cx", (width + margin.left + margin.right) / 2) 
+                                    .attr("cy", (height + margin.top + margin.bottom) / 2)
+                                    .style("fill", "steelblue")
+                                    .style("fill-opacity", 0.3)
+                                    .attr("stroke", "Navy")
+                                    .style("stroke-width", 4)
+                                    .attr("r", function(d) {
+                                        // Attributes a radius to a circle based on its value, that is, the radius is related to the value
+                                        return d3.scaleLinear()
+                                                    .domain([d3.min(dataset_n_option_number, function(d) { return d.Count; }),
+                                                            d3.max(dataset_n_option_number, function(d) { return d.Count; })])
+                                                    .range([50, 100])(d.Count);
+                                    });
+                                                  
+                            // This will simulate the animation of the circles
+                            var simulation = d3.forceSimulation()
+                                .force("center", d3.forceCenter().x((width + margin.left + margin.right) / 2).y((height + margin.top + margin.bottom) / 2))
+                                .force("charge", d3.forceManyBody().strength(0.5))
+                                .force("collide", d3.forceCollide().strength(0.01).radius(100).iterations(1))
+                            // Apply the simulation when each bar is clicked
+                            simulation.nodes(dataset_n_option_number)
+                                .on("tick", function(d){
+                                    // Simulation of the circles
+                                    circles.attr("cx", function(d){ return d.x; })
+                                            .attr("cy", function(d){ return d.y; });
+                                    // Simulation of the text of each circle
+                                    legend.attr("x", function(d){ return d.x; })
+                                            .attr("y", function(d){ return d.y; });
+                                });
+                            
+                            // This will calculate a random position to the circles
+                            circles.each(function(d) {
+                                // Calculate the maximum x and y within the SVG boundaries
+                                var maxX = width - 200;
+                                var maxY = height - 200;
+                                // Generate random x and y coordinates within the SVG boundaries
+                                d.x = Math.floor(Math.random() * maxX) + 50;
+                                d.y = Math.floor(Math.random() * maxY) + 50;
+                            });
+                            // This will create the text to put on each circle
+                            var legend = circle_chart_SVG.append("g")
+                                .selectAll("text")
+                                .data(dataset_n_option_number)
+                                .enter()
+                                .append("text")
+                                .text(function (d) {
+                                    var percnt_form = parseFloat(d.Count).toFixed(2);
+                                    return d["Option Number"] + "ª: " + percnt_form + "%";
+                                })
+                                .attr("text-anchor", "middle")
+                                .attr("alignment-baseline", "middle")
+                                .attr("x", function (d) { return d.x; })
+                                .attr("y", function (d) { return d.y; })
+                                .style("fill", "black");
+                        
+                        }
+                        else{
+                            // Clear the existing circles and text when nothing is selected
+                            clearCircleChart();
+                            // Plot the title
+                            circle_chart_SVG.append("text")
+                                .attr("x", (width + margin.left + margin.right) / 2)
+                                .attr("y", margin.top)
+                                .attr("text-anchor", "middle")
+                                .style("font-size", "25px")
+                                .text("Application Choice Option");
+                        }
+            
+                    }); // End of the bar click action
+                    /* -------------------------------------------- */
+
+                    /* ---------- CODE FOR THE LINE CHART ---------- */
+
+                    // Get the course names to use in X axis
+                    var course_Names = Array.from(new Set(data_last_grade.map(d => d['Course Name'])));
+
+                    // Get the X information for axis
+                    var x_line_chart = d3.scalePoint()
+                        .domain(course_Names.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))
+                        .range([0, width_line_chart]);
+                    // Plot the X information in the axis
+                    line_chart_SVG.append("g")
+                                .attr("transform", `translate(0, ${height_line_chart})`)
+                                .call(d3.axisBottom(x_line_chart))
+                            .selectAll("text")
+                                .attr("transform", "translate(-10,0)rotate(-45)")
+                                .style("text-anchor", "end");
+
+                    // Get the Y information for axis
+                    var y_line_chart = d3.scaleLinear()
+                        .domain([95, 200])
+                        .range([height_line_chart, 0]);
+                    // Plot the Y information in the axis
+                    line_chart_SVG.append("g")
+                        .call(d3.axisLeft(y_line_chart));
+
+                    // Plot the title
+                    line_chart_SVG.append("text")
+                        .attr("x", (width_line_chart + margin_line_chart.right + margin_line_chart.left) / 2)
+                        .attr("text-anchor", "middle")
+                        .style("font-size", "25px")
+                        .text("Last Placed Candidate Grade over the Years");
+
+                    // List of groups, in this case, the different Years
+                    var years = Array.from(new Set(data_last_grade.map(d => d.Year)));
+
+                    // Reformat the data: we need an array of arrays of {x, y} tuples
+                    var dataReady_line_chart = years.map( function(year) { // .map allows to do something for each element of the list
+                        return {
+                            name: year,
+                            values: data_last_grade
+                                .filter(function(d) {return d.Year === year;})// Filter data by year
+                                .map(function(d) { return { time: d["Course Name"], value: +d["Last Placed Candidate Grade"] };})
+                        };
+                    });
+                    console.log("Check the data for line chart: ");
+                    console.log(dataReady_line_chart);
+
+                    // Create a color for each year
+                    var colors_year = d3.scaleOrdinal()
+                        .domain(years)
+                        .range(d3.schemeBlues[years.length]);
+                    /*
+                    var colors_year = d3.scaleOrdinal()
+                        .domain(years)
+                        .range(d3.schemeSet2);*/
+
+                    // Create lines for each year
+                    var lines = d3.line()
+                        .x(function(d) { return x_line_chart(d.time) })
+                        .y(function(d) { return y_line_chart(d.value) })
+
+                    // Keep track of the selected line
+                    var selectedLine = null;
+                    //Plot the lines
+                    line_chart_SVG.selectAll("myLines")
+                        .data(dataReady_line_chart)
+                        .enter()
+                        .append("path")
+                            .attr("class", "data-line")
+                            .attr("d", function(d){ return lines(d.values) } )
+                            .attr("stroke", function(d){ return colors_year(d.name) })
+                            .style("stroke-width", 4)
+                            .style("fill", "none")
+                            .on("click", function(event, d) {
+                                // Check if the clicked line is already selected
+                                var isSelected = selectedLine === this;
+                                // Reset styles for all lines
+                                line_chart_SVG.selectAll(".data-line")
+                                    .style("stroke-width", 4)
+                                    .style("opacity", 0.2)
+                                    .classed("highlighted", false);
+                                // Highlight the clicked line
+                                if (!isSelected) {
+                                    d3.select(this)
+                                        .style("stroke-width", 8)
+                                        .style("opacity", 1)
+                                        .classed("highlighted", true);
+                                    selectedLine = this;
+                                // If the clicked line was already selected, reset the selectedLine
+                                } else {
+                                    selectedLine = null;
+                                    line_chart_SVG.selectAll(".data-line")
+                                        .style("stroke-width", 4)
+                                        .style("opacity", 1)
+                                        .classed("highlighted", false);
+                                }
+                            });
+
+                    // Lets add the points
+                    line_chart_SVG
+                    // First we need to enter in a group
+                    .selectAll("myDots")
+                    .data(dataReady_line_chart)
+                    .enter()
+                        .append('g')
+                        .style("fill", function(d){ return colors_year(d.name) })
+                    // Second we need to enter in the 'values' part of this group
+                    .selectAll("myPoints")
+                    .data(function(d){ return d.values })
+                    .enter()
+                    .append("circle")
+                        .attr("cx", function(d) { return x_line_chart(d.time) } )
+                        .attr("cy", function(d) { return y_line_chart(d.value) } )
+                        .attr("r", 5)
+                        .attr("stroke", "white")
+                        .on("mouseover", function(event, d) {
+                            // Incrise the size of the point
+                            d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .attr("r", 8)
+                                .attr("stroke-width", 2);
+                            // Define the tooltip
+                            var tooltip = d3.select("body")
+                                .append("div")
+                                .attr("class", "tooltip")
+                                .style("position", "absolute")
+                                .style("visibility", "visible")
+                                .style("background", "rgba(0, 0, 0, 0.6)")
+                                .style("color", "white")
+                                .style("padding", "8px")
+                                .style("border-radius", "4px")
+                                .style("opacity", 0);
+                            // Make a transition on its appear
+                            tooltip.transition()
+                                .duration(600)
+                                .style("opacity", .9);
+                            // Plot the information
+                            tooltip.html("Year: " + d3.select(this.parentNode).datum().name + "<br>Course: " + d.time + "<br>Grade: " + d.value)
+                                .style("left", (event.pageX + 10) + "px")
+                                .style("top", (event.pageY - 15) + "px");
+                        })
+                        .on("mouseout", function(d) {
+                            // Reset radius and stroke width
+                            d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .attr("r", 5)
+                                .attr("stroke-width", 1);
+                            // Remove the tooltip
+                            d3.select(".tooltip")
+                                .remove();
+                        });
+
+                    // Add a legend at the end of each line
+                    line_chart_SVG.selectAll("myLabels")
+                    .data(dataReady_line_chart)
+                    .enter()
+                        .append('g')
+                        .append("text")
+                        .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; }) // keep only the last value of each time series
+                        .attr("transform", function(d) { return "translate(" + x_line_chart(d.value.time) + "," + y_line_chart(d.value.value) + ")"; }) // Put the text at the position of the last point
+                        .attr("x", 12) // shift the text a bit more right
+                        .text(function(d) { return d.name; })
+                        .style("fill", function(d){ return colors_year(d.name) })
+                        .style("font-size", 15);
+
+
+                    /* ----------------------------------------- */
+                
+                }) // End of data_last_grade dataset
+
+            }) // End of tota_dataset dataset
+
+        } // End of the year_selection function
 
     </script>
 
