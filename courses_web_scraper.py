@@ -49,7 +49,7 @@ def scrap_page(url, w, year, university, wanted_courses):
 def url_maker(year,university_code):
     return "https://dges.gov.pt/coloc/" + year + "/col1listamin.asp?CodR=11&CodEstab=" + university_code
 
-universities = ['0300', '6800', '0203', '0400', '0501','0602','1503','1307','1000','0903','1203','3023','3043','3053','3065','3064','3092','3102','3122','3138','3135','3152','3242','3163','3182','2910','2920','4375','2100','1350','2750','2410','2500','4602','4442','4530','4640','4572']
+universities = ["0300", "0501", "1503", "3135", "3064"]
 courses = ['9119']
 years = ['2021','2022','2023']
 filename = 'Dataset_LEI_2021_2023.csv'
