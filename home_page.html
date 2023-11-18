@@ -64,9 +64,19 @@
             align-items: center;
         }
 
-        /* Style of the buttons */
-        .buttons_DETI{
+        /* Style of the selected buttons */
+        .buttons_Unselected {
             background-color: lightblue;
+            color: black;
+            font-size: 20px;
+            margin-left: 5px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        /* Style of the unselected buttons */
+        .buttons_Selected {
+            background-color: lightcoral;
             color: black;
             font-size: 20px;
             margin-left: 5px;
@@ -116,12 +126,17 @@
 
     <!-- Define the Buttons for each DETI course -->
     <div class="buttons_DETI_courses">
-        <button class="buttons_DETI" id="button_Aer_Eng"> Aerospace Engineering</button>
-        <button class="buttons_DETI" id="button_CS_Eng"> Computer Science and Engineering</button>
-        <button class="buttons_DETI" id="button_Comp_Eng"> Computational Engineering</button>
-        <button class="buttons_DETI" id="button_CompEng_Inf"> Computer Engineering and Informatics</button>
-        <button class="buttons_DETI" id="button_EleComp_Eng"> Electrical and Computer Engineering</button>
-        <button class="buttons_DETI" id="button_IndAut_Eng"> Industrial Automation Engineering</button>
+        <button class="buttons_Selected" id="button_Home" onclick="redirectHomePage()"> Home Page</button>
+        <button class="buttons_Unselected" id="button_L221" value="L221" onclick="redirectPage(value)"> Engenharia
+            Aeroespacial</button>
+        <button class="buttons_Unselected" id="button_L223" value="L223" onclick="redirectPage(value)"> Engenharia
+            Computacional</button>
+        <button class="buttons_Unselected" id="button_L217" value="L217" onclick="redirectPage(value)"> Engenharia de
+            Computadores e Informática</button>
+        <button class="buttons_Unselected" id="button_L209" value="L209" onclick="redirectPage(value)"> Engenharia
+            Eletrotécnica e de Computadores</button>
+        <button class="buttons_Unselected" id="button_9119" value="9119" onclick="redirectPage(value)"> Engenharia
+            Informática</button>
     </div>
 
     <!-- Container for H2 title and the DropList with curriculam years -->
@@ -141,6 +156,17 @@
     <!-- D3 Section - Front Page -->
     <div class="div_d3"> </div>
     <div class="div_d3_v2"> </div>
+
+    <script>
+        function redirectPage(value) {
+            localStorage.setItem("course_code", value)
+            window.location.href = "course_page.html"
+        }
+
+        function redirectHomePage() {
+            location.reload()
+        }
+    </script>
 
     <!-- Script that has all the charts -->
     <script type="text/javascript">
