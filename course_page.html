@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="http://d3js.org/d3.v6.js"></script>
+
+    <!-- Title tha appe ars in the searcher tab  -->
+    <title>DETI - Engenharia Informática</title>
+
+    <!-- CSS -->
+    <style>
+        /* Config of entery site */
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* For the Main Title */
+        h1 {
+            font-family: Arial, sans-serif;
+            color: black;
+            /* Cores: https://www.w3schools.com/cssref/css_colors.php */
+            font-size: 50px;
+            text-align: center;
+            background-image: linear-gradient(90deg, white, lightblue, white);
+            background-size: 100% 3px;
+            background-position: 0 100%;
+            padding: 20px 0;
+        }
+
+        /* To the H2 Title */
+        h2 {
+            color: black;
+            font-size: 25px;
+            padding-left: 5px;
+        }
+
+        /* Confi the H2 and the dropList*/
+        .H2_dropList {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Configuration of the droplist */
+        .droplist_year {
+            font-family: Arial, sans-serif;
+            color: black;
+            font-size: 25px;
+            border: none;
+            margin-left: 5px;
+        }
+
+        /* Config the Buttons*/
+        .buttons_DETI_courses {
+            display: flex;
+            flex-direction: linear;
+            align-items: center;
+        }
+
+        /* Style of the buttons */
+        .buttons_Unselected {
+            background-color: lightblue;
+            color: black;
+            font-size: 20px;
+            margin-left: 5px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        .buttons_Selected {
+            background-color: lightcoral;
+            color: black;
+            font-size: 20px;
+            margin-left: 5px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        /* Config do d3 */
+        .flex-container {
+            display: flex;
+
+        }
+
+        .flex-child {
+            flex: 1;
+        }
+
+        .flex-child:first-child {
+            margin-right: 2px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- Main Title -->
+    <h1 id="H1_Title"></h1>
+
+    <!-- Define the Buttons for each DETI course -->
+    <div class="buttons_DETI_courses">
+        <button class="buttons_Unselected" id="button_Home" onclick="redirectHomePage()"> Home Page</button>
+        <button class="buttons_Unselected" id="button_L221" value="L221" onclick="redirectPage(value)"> Engenharia
+            Aeroespacial</button>
+        <button class="buttons_Unselected" id="button_L223" value="L223" onclick="redirectPage(value)"> Engenharia
+            Computacional</button>
+        <button class="buttons_Unselected" id="button_L217" value="L217" onclick="redirectPage(value)"> Engenharia de
+            Computadores e Informática</button>
+        <button class="buttons_Unselected" id="button_L209" value="L209" onclick="redirectPage(value)"> Engenharia
+            Eletrotécnica e de Computadores</button>
+        <button class="buttons_Unselected" id="button_9119" value="9119" onclick="redirectPage(value)"> Engenharia
+            Informática</button>
+    </div>
+
+    <div class="flex-container" style="margin-top: 15px;">
+        <div id="applicants_grade_div" class="flex-child"></div>
+        <div id="applicants_year_div" class="flex-child"></div>
+    </div>
+    
+    <div class="flex-container" style="margin-top: 15px;">
+        <div id="uni_comparison_div" class="flex-child"></div>
+    </div>
+
+    <script>
+        function redirectPage(value) {
+            localStorage.setItem("course_code", value)
+            window.location.href = "course_page.html"
+        }
+
+        function redirectHomePage() {
+            window.location.href = "home_page.html"
+        }
+    </script>
+
+    <script>
+        window.onload = function () {
+            course_code = localStorage.getItem("course_code")
+            var course_name = document.getElementById("button_" + course_code).textContent
+            document.getElementById("button_" + course_code).className = "buttons_Selected"
+            document.getElementById("H1_Title").innerHTML = course_name;
+            document.title = course_name
+        }
+    </script>
+
+    <!-- Script that has grades and n_applicants the charts -->
+    <script type="text/javascript">
+
+        // Set the dimensions and margins of the graph
+        const margin = { top: 50, right: 20, bottom: 50, left: 60 },
+            all_width = 500
+        all_height = 500
+        width = all_width - margin.left - margin.right,
+            height = all_height - margin.top - margin.bottom;
+
+        // Create the SVG (the space) to put the Bar Chart of the number of applicants by DETI course
+        const applicants_grade_div = d3.select("#applicants_grade_div")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .style("background", "#DCDCDC"); // Just to see the space
+
+        const applicants_year_div = d3.select("#applicants_year_div")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .style("background", "#DCDCDC");
+
+        const application_grades_svg = applicants_grade_div.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Just to see the space
+        const application_year_svg = applicants_year_div.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        applicants_grade_div.append("text")
+            .attr("x", all_width / 2)
+            .attr("y", margin.top - 10)
+            .attr("text-anchor", "middle")
+            .style("font-size", "25px")
+            .text("Applicant's Grades Distribution");
+
+        applicants_year_div.append("text")
+            .attr("x", all_width / 2)
+            .attr("y", margin.top - 10)
+            .attr("text-anchor", "middle")
+            .style("font-size", "25px")
+            .text("Applicants per Year");
+
+        d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Applicants_2021_2023.csv?token=GHSAT0AAAAAACJ32OOFC7YF6MSVXECN6KJMZKI52DQ").then(function (applicants_data) {
+
+            // List of groups (here I have one group per column)
+            const years = ["2021", "2022", "2023"]
+
+            const applicants_grade_final = {}
+
+            const n_applicants_final = {}
+
+            var max_number_aplicants = 0
+
+            years.forEach(year => {
+                const applicants_grades_by_value = {}
+
+                const data_by_course_year_university = applicants_data.filter(d => d['University Code'] === "0300" && d['Year'] === year && d['Course Code'] === course_code);
+
+                const n_applicants = data_by_course_year_university.length
+
+                //console.log(n_applicants)
+                //console.log(applicants_data)
+                //console.log(data_by_course_year_university)
+
+                data_by_course_year_university.forEach(element => {
+                    grade = parseInt(parseFloat(element["Applicant Grade"]) / 10);
+                    if (grade in applicants_grades_by_value) {
+                        applicants_grades_by_value[grade] += 1;
+                    } else {
+                        applicants_grades_by_value[grade] = 1;
+                    }
+                });
+
+                n_applicants_final[year] = n_applicants
+
+                applicants_grade_final[year] = applicants_grades_by_value
+
+                if (max_number_aplicants < Math.max(...Object.values(applicants_grades_by_value))) {
+                    max_number_aplicants = Math.max(...Object.values(applicants_grades_by_value))
+                }
+            });
+
+            //console.log(applicants_grade_final)
+
+            var max_applicants_rounded_10 = Math.ceil(max_number_aplicants / 10) * 10
+
+            var domain = max_applicants_rounded_10 + Math.floor(max_applicants_rounded_10 / 50) * 10
+
+            const data_applicants_grade = Object.keys(applicants_grade_final).map(year => {
+                return {
+                    "Year": year, "Grades": Object.keys(applicants_grade_final[year]).map(grade => {
+                        return { "Grade": grade, "Num_Applicants": applicants_grade_final[year][grade] }
+                    })
+                }
+            })
+
+            const data_n_applicants_year = Object.keys(n_applicants_final).map(year => {
+                return {
+                    "Year": year, "N_Applicants": n_applicants_final[year]
+                }
+            })
+
+            console.log(data_applicants_grade)
+
+            console.log(data_n_applicants_year)
+
+            // A color scale: one color for each group
+            const myColor = d3.scaleOrdinal()
+                .domain(years)
+                .range(d3.schemeSet2);
+
+            // Add X axis --> it is a date format
+            const x = d3.scaleLinear()
+                .domain([10, 20])
+                .range([0, width]);
+            application_grades_svg.append("g")
+                .attr("transform", `translate(0, ${height})`)
+                .call(d3.axisBottom(x));
+
+            // Add X axis label 
+            application_grades_svg.append("text")
+                .attr("class", "x label")
+                .attr("text-anchor", "end")
+                .attr("x", all_width - margin.right - margin.left)
+                .attr("y", all_height - margin.bottom - 10)
+                .text("Grade interval ([x.0, x.9])");
+
+            // Add Y axis
+            const y = d3.scaleLinear()
+                .domain([0, domain])
+                .range([height, 0]);
+            application_grades_svg.append("g")
+                .call(d3.axisLeft(y));
+
+            //Add Y axis label
+            application_grades_svg.append("text")
+                .attr("class", "y label")
+                .attr("text-anchor", "end")
+                .attr("y", -50)
+                .attr("dy", ".75em")
+                .attr("transform", "rotate(-90)")
+                .text("Number of applicants");
+
+            // Add the lines
+            const line = d3.line()
+                .x(d => x(+d.Grade))
+                .y(d => y(+d.Num_Applicants))
+
+            application_grades_svg.selectAll("myLines")
+                .data(data_applicants_grade)
+                .join("path")
+                .attr("class", d => "Year" + d.Year)
+                .attr("d", d => line(d.Grades))
+                .attr("stroke", d => myColor(d.Year))
+                .style("stroke-width", 4)
+                .style("fill", "none")
+
+            // Add the points
+            application_grades_svg
+                // First we need to enter in a group
+                .selectAll("myDots")
+                .data(data_applicants_grade)
+                .join('g')
+                .style("fill", d => myColor(d.Year))
+                .attr("class", d => "Year" + d.Year)
+                // Second we need to enter in the 'values' part of this group
+                .selectAll("myPoints")
+                .data(d => d.Grades)
+                .join("circle")
+                .attr("cx", d => x(d.Grade))
+                .attr("cy", d => y(d.Num_Applicants))
+                .attr("r", 5)
+                .attr("stroke", "white")
+
+            // // Add a label at the end of each line
+            // application_grades_svg
+            // .selectAll("myLabels")
+            // .data(data_applicants_grade)
+            // .join('g')
+            //     .append("text")
+            //     .attr("class", d => "Year" + d.Year)
+            //     .datum(d => { return {Year: d.Year, value: d.Grades[d.Grades.length - 1]}; }) // keep only the last value of each time series
+            //     .attr("transform", d => `translate(${x(d.value.Grade)},${y(d.value.Num_Applicants)})`) // Put the text at the position of the last point
+            //     .attr("x", 12) // shift the text a bit more right
+            //     .text(d => d.Year)
+            //     .style("fill", d => myColor(d.Year))
+            //     .style("font-size", 15)
+
+            // Add a legend (interactive)
+            var buttons = application_grades_svg
+                .selectAll("myLegend")
+                .data(data_applicants_grade)
+                .enter()
+                .append('g')
+                .attr("class", d => "Button" + d.Year)
+            // .selectAll("g.Button")
+            // .data(data_applicants_grade)
+
+            buttons
+                .append("rect")
+                .attr('x', (d, i) => 30 + i * 60)
+                .attr('y', 10)
+                //.style("outline", "thin solid black")
+                .style("height", "20")
+                .style("width", "50")
+                .style("fill", d => myColor(d.Year))
+                .on("click", function (event, d) {
+                    // is the element currently visible ?
+                    currentOpacity = d3.selectAll("." + "Year" + d.Year).style("opacity")
+                    // Change the opacity: from 0 to 1 or from 1 to 0
+                    d3.selectAll("." + "Year" + d.Year).transition().style("opacity", currentOpacity == 1 ? 0 : 1)
+                })
+
+            buttons
+                .append("text")
+                .attr('x', (d, i) => 30 + i * 60 + 10)
+                .attr('y', 25)
+                .text(d => d.Year)
+                .style("fill", "black")
+                .style("font-size", 15)
+                .on("click", function (event, d) {
+                    // is the element currently visible ?
+                    currentOpacity = d3.selectAll("." + "Year" + d.Year).style("opacity")
+                    // Change the opacity: from 0 to 1 or from 1 to 0
+                    d3.selectAll("." + "Year" + d.Year).transition().style("opacity", currentOpacity == 1 ? 0 : 1)
+                })
+
+            //Bar Plot for Applicants per Year
+
+            const x_domain = d3.scaleBand()
+                .range([0, width])
+                .domain(years)
+                .padding(0.2);
+
+            application_year_svg.append("g")
+                .attr("transform", `translate(0, ${height})`)
+                .call(d3.axisBottom(x_domain))
+                .selectAll("text")
+                .attr("transform", "translate(-10,0)rotate(-45)")
+                .style("text-anchor", "end");
+
+            const y_domain = d3.scaleLinear()
+                .domain([0, d3.max(data_n_applicants_year, d => d.N_Applicants) + margin.bottom])
+                .range([height, 0]);
+
+            application_year_svg.selectAll("mybar")
+                .data(data_n_applicants_year)
+                .join("rect")
+                .attr("x", d => x_domain(d.Year))
+                .attr("y", d => y_domain(d.N_Applicants))
+                .attr("width", x_domain.bandwidth())
+                .attr("height", d => height - y_domain(d.N_Applicants))
+                .attr("fill", "#69b3a2")
+                .each(function (d, i) {
+                    application_year_svg.append("text")
+                        .attr("x", function () {
+                            return i * (width / data_n_applicants_year.length) + ((width / data_n_applicants_year.length) / 2);
+                        })
+                        .attr("y", y_domain(d.N_Applicants) - 10)
+                        .attr("text-anchor", "middle")
+                        .style("font-size", "20px")
+                        .text(d.N_Applicants)
+                });
+
+        })
+
+    </script>
+
+    <script type="text/javascript">
+
+        const uni_comparison_div = d3.select("#uni_comparison_div")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .style("background", "#DCDCDC"); // Just to see the space
+
+        const uni_comparison_svg = uni_comparison_div.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        uni_comparison_div.append("text")
+            .attr("x", all_width / 2)
+            .attr("y", margin.top - 10)
+            .attr("text-anchor", "middle")
+            .style("font-size", "25px")
+            .text("Grade of Last Place Applicant");
+    </script>
+
+</body>
+
+</html>
