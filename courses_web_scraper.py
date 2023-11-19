@@ -50,9 +50,9 @@ def url_maker(year,university_code):
     return "https://dges.gov.pt/coloc/" + year + "/col1listamin.asp?CodR=11&CodEstab=" + university_code
 
 universities = ["0300", "0501", "1503", "3135", "3064"]
-courses = ['9119']
+courses = ['9119', 'L221', 'L223', 'L202', 'L217', 'L209']
 years = ['2021','2022','2023']
-filename = 'Dataset_LEI_2021_2023.csv'
+filename = 'Dataset_Courses_2021_2023.csv'
 
 with open(filename, 'w', newline='',encoding='utf-8-sig') as f: 
         w = csv.DictWriter(f,['Course Code','Course Name','Course Type','Last Placed Candidate Grade', 'University Code', 'Year']) 
