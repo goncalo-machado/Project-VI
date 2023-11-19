@@ -167,24 +167,30 @@
         function drawGraphs(course_code) {
 
             // Set the dimensions and margins of the graph
-            const margin = { top: 50, right: 20, bottom: 50, left: 60 },
-                all_width = 500,
-                all_height = 500,
+            const margin = { top: 50, right: 100, bottom: 120, left: 50 }, // Space for axis legends
+                all_width = 800,
+                all_height = 800,
                 width = all_width - margin.left - margin.right,
                 height = all_height - margin.top - margin.bottom;
+
+            // const margin = { top: 50, right: 20, bottom: 50, left: 60 },
+            //     all_width = 500,
+            //     all_height = 500,
+            //     width = all_width - margin.left - margin.right,
+            //     height = all_height - margin.top - margin.bottom;
 
             // Create the SVG (the space) to put the Bar Chart of the number of applicants by DETI course
             const applicants_grade_div = d3.select("#applicants_grade_div")
                 .append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
-                .style("background", "#DCDCDC"); // Just to see the space
+                //.style("background", "#DCDCDC"); // Just to see the space
 
             const applicants_year_div = d3.select("#applicants_year_div")
                 .append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
-                .style("background", "#DCDCDC");
+                //.style("background", "#DCDCDC");
 
             const application_grades_svg = applicants_grade_div.append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
@@ -439,11 +445,17 @@
 
         function drawGraphs2(course_code) {
 
-            const margin = { top: 50, right: 20, bottom: 50, left: 60 },
-                all_width = 500,
-                all_height = 500,
+            const margin = { top: 50, right: 100, bottom: 120, left: 50 }, // Space for axis legends
+                all_width = 800,
+                all_height = 800,
                 width = all_width - margin.left - margin.right,
                 height = all_height - margin.top - margin.bottom;
+
+            // const margin = { top: 50, right: 20, bottom: 50, left: 60 },
+            //     all_width = 500,
+            //     all_height = 500,
+            //     width = all_width - margin.left - margin.right,
+            //     height = all_height - margin.top - margin.bottom;
 
             var university_code_to_name = {
                 "0300": "UA", "0501": "FCTUC", "1503": "FCUL", "3135": "ISEP", "3064": "ISEC"
@@ -455,7 +467,7 @@
                     .append("svg")
                     .attr("width", width + margin.left + margin.right)
                     .attr("height", height + margin.top + margin.bottom)
-                    .style("background", "#DCDCDC"); // Just to see the space
+                    //.style("background", "#DCDCDC"); // Just to see the space
 
                 const uni_comparison_svg = uni_comparison_div.append("g")
                     .attr("transform", `translate(${margin.left},${margin.top})`);
