@@ -279,7 +279,8 @@
                 // A color scale: one color for each group
                 const myColor = d3.scaleOrdinal()
                     .domain(years)
-                    .range(d3.schemeSet2);
+                    .range(d3.schemeBlues[years.length]);
+                    //.range(d3.schemeSet2);
 
                 // Add X axis --> it is a date format
                 const x = d3.scaleLinear()
@@ -422,7 +423,7 @@
                     .attr("y", d => y_domain(d.N_Applicants))
                     .attr("width", x_domain.bandwidth())
                     .attr("height", d => height - y_domain(d.N_Applicants))
-                    .attr("fill", "#69b3a2")
+                    .attr("fill", "steelblue")
                     .each(function (d, i) {
                         application_year_svg.append("text")
                             .attr("x", function () {
@@ -520,7 +521,8 @@
                     // A color scale: one color for each group
                     const myColor = d3.scaleOrdinal()
                         .domain(years)
-                        .range(d3.schemeSet2);
+                        .range(d3.schemeBlues[years.length]);
+                        //.range(d3.schemeSet2);
 
                     console.log(Object.keys(university_grades_final[years[0]]))
 
