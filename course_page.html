@@ -272,9 +272,9 @@
                     }
                 })
 
-                console.log(data_applicants_grade)
+                //console.log(data_applicants_grade)
 
-                console.log(data_n_applicants_year)
+                //console.log(data_n_applicants_year)
 
                 // A color scale: one color for each group
                 const myColor = d3.scaleOrdinal()
@@ -462,178 +462,187 @@
                 "0300": "UA", "0501": "FCTUC", "1503": "FCUL", "3135": "ISEP", "3064": "ISEC"
             }
 
-            if (course_code == "9119") {
+            const uni_comparison_div = d3.select("#uni_comparison_div")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                //.style("background", "#DCDCDC"); // Just to see the space
 
-                const uni_comparison_div = d3.select("#uni_comparison_div")
-                    .append("svg")
-                    .attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom)
-                    //.style("background", "#DCDCDC"); // Just to see the space
+            const uni_comparison_svg = uni_comparison_div.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
 
-                const uni_comparison_svg = uni_comparison_div.append("g")
-                    .attr("transform", `translate(${margin.left},${margin.top})`);
+            uni_comparison_div.append("text")
+                .attr("x", all_width / 2)
+                .attr("y", margin.top - 10)
+                .attr("text-anchor", "middle")
+                .style("font-size", "25px")
+                .text("Grade of Last Place Applicant");
 
-                uni_comparison_div.append("text")
-                    .attr("x", all_width / 2)
-                    .attr("y", margin.top - 10)
-                    .attr("text-anchor", "middle")
-                    .style("font-size", "25px")
-                    .text("Grade of Last Place Applicant");
+            d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Courses_2021_2023.csv").then(function (grades_data) {
 
-                d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_LEI_2021_2023.csv").then(function (grades_data) {
+                // List of groups (here I have one group per column)
+                const years = ["2021", "2022", "2023"]
 
-                    // List of groups (here I have one group per column)
-                    const years = ["2021", "2022", "2023"]
+                const university_grades_final = {}
 
-                    const university_grades_final = {}
+                const universities_compare = []
 
-                    years.forEach(year => {
-                        const data_year = {}
+                years.forEach(year => {
+                    const data_year = {}
 
-                        const data_by_year_university = grades_data.filter(d => d['Year'] === year && d['Course Code'] === course_code)
+                    const data_by_year_university = grades_data.filter(d => d['Year'] === year && d['Course Code'] === course_code)
 
-                        //console.log(data_by_year_university)
-                        //console.log(applicants_data)
-                        //console.log(data_by_course_year_university)
+                    //console.log(data_by_year_university)
+                    //console.log(applicants_data)
+                    //console.log(data_by_course_year_university)
 
-                        data_by_year_university.forEach(element => {
-                            data_year[element["University Code"]] = parseFloat(element["Last Placed Candidate Grade"]) / 10
-                        })
+                    data_by_year_university.forEach(element => {
+                        data_year[element["University Code"]] = parseFloat(element["Last Placed Candidate Grade"]) / 10
 
-                        //console.log(data_year)
-
-                        university_grades_final[year] = data_year
-
-                    });
-
-                    //console.log(university_grades_final)
-
-                    const data_university_grades = Object.keys(university_grades_final).map(year => {
-                        return {
-                            "Year": year, "Grades": Object.keys(university_grades_final[year]).map(university_code => {
-                                return { "University_Code": university_code, "Last_Placed_Applicant_Grade": parseFloat((university_grades_final[year][university_code]).toFixed(2)) }
-                            })
+                        if (! universities_compare.includes(element["University Code"])){
+                            universities_compare.push(element["University Code"])
                         }
                     })
 
-                    console.log(data_university_grades)
+                    //TODO FIRST: FOR EACH WITH UNIVERSITY_TO_NAME INSTEAD OF data_by_year_university
 
-                    // A color scale: one color for each group
-                    const myColor = d3.scaleOrdinal()
-                        .domain(years)
-                        .range(d3.schemeBlues[years.length]);
-                        //.range(d3.schemeSet2);
+                    //TODO : SORT LIST FOR UNIVERSITY_COMPARE ORDER
 
-                    console.log(Object.keys(university_grades_final[years[0]]))
+                    //console.log(data_year)
 
-                    // Add X axis
-                    const x = d3.scaleBand()
-                        .range([0, width])
-                        .domain(Object.keys(university_grades_final[years[0]]))
+                    university_grades_final[year] = data_year
 
-                    var x_axis_generator = d3.axisBottom(x)
-                    x_axis_generator.tickFormat((d) => university_code_to_name[d])
+                });
 
-                    uni_comparison_svg.append("g")
-                        .attr("transform", `translate(0, ${height})`)
-                        .call(x_axis_generator);
+                //console.log(university_grades_final)
 
-                    // Add X axis label 
-                    uni_comparison_svg.append("text")
-                        .attr("class", "x label")
-                        .attr("text-anchor", "end")
-                        .attr("x", all_width - margin.right - margin.left)
-                        .attr("y", all_height - margin.bottom - 10)
-                        .text("University");
-
-                    // Add Y axis
-                    const y = d3.scaleLinear()
-                        .domain([10, 20])
-                        .range([height, 0]);
-                    uni_comparison_svg.append("g")
-                        .call(d3.axisLeft(y));
-
-                    //Add Y axis label
-                    uni_comparison_svg.append("text")
-                        .attr("class", "y label")
-                        .attr("text-anchor", "end")
-                        .attr("y", -50)
-                        .attr("dy", ".75em")
-                        .attr("transform", "rotate(-90)")
-                        .text("Grade");
-
-                    // Add the lines
-                    const line = d3.line()
-                        .x(d => x(d.University_Code) + x.bandwidth() / 2)
-                        .y(d => y(d.Last_Placed_Applicant_Grade))
-
-                    uni_comparison_svg.selectAll("myLines")
-                        .data(data_university_grades)
-                        .join("path")
-                        .attr("class", d => "Uni_Year" + d.Year)
-                        .attr("d", d => line(d.Grades))
-                        .attr("stroke", d => myColor(d.Year))
-                        .style("stroke-width", 4)
-                        .style("fill", "none")
-
-                    // Add the points
-                    uni_comparison_svg
-                        // First we need to enter in a group
-                        .selectAll("myDots")
-                        .data(data_university_grades)
-                        .join('g')
-                        .style("fill", d => myColor(d.Year))
-                        .attr("class", d => "Uni_Year" + d.Year)
-                        // Second we need to enter in the 'values' part of this group
-                        .selectAll("myPoints")
-                        .data(d => d.Grades)
-                        .join("circle")
-                        .attr("cx", d => x(d.University_Code) + x.bandwidth() / 2)
-                        .attr("cy", d => y(d.Last_Placed_Applicant_Grade))
-                        .attr("r", 5)
-                        .attr("stroke", "white")
-
-                    // Add a legend (interactive)
-                    var buttons = uni_comparison_svg
-                        .selectAll("myLegend")
-                        .data(data_university_grades)
-                        .enter()
-                        .append('g')
-                        .attr("class", d => "Button" + d.Year)
-                    // .selectAll("g.Button")
-                    // .data(data_applicants_grade)
-
-                    buttons
-                        .append("rect")
-                        .attr('x', (d, i) => 30 + i * 60)
-                        .attr('y', 10)
-                        //.style("outline", "thin solid black")
-                        .style("height", "20")
-                        .style("width", "50")
-                        .style("fill", d => myColor(d.Year))
-                        .on("click", function (event, d) {
-                            // is the element currently visible ?
-                            currentOpacity = d3.selectAll("." + "Uni_Year" + d.Year).style("opacity")
-                            // Change the opacity: from 0 to 1 or from 1 to 0
-                            d3.selectAll("." + "Uni_Year" + d.Year).transition().style("opacity", currentOpacity == 1 ? 0 : 1)
+                const data_university_grades = Object.keys(university_grades_final).map(year => {
+                    return {
+                        "Year": year, "Grades": Object.keys(university_grades_final[year]).map(university_code => {
+                            return { "University_Code": university_code, "Last_Placed_Applicant_Grade": parseFloat((university_grades_final[year][university_code]).toFixed(2)) }
                         })
-
-                    buttons
-                        .append("text")
-                        .attr('x', (d, i) => 30 + i * 60 + 10)
-                        .attr('y', 25)
-                        .text(d => d.Year)
-                        .style("fill", "black")
-                        .style("font-size", 15)
-                        .on("click", function (event, d) {
-                            // is the element currently visible ?
-                            currentOpacity = d3.selectAll("." + "Uni_Year" + d.Year).style("opacity")
-                            // Change the opacity: from 0 to 1 or from 1 to 0
-                            d3.selectAll("." + "Uni_Year" + d.Year).transition().style("opacity", currentOpacity == 1 ? 0 : 1)
-                        })
-
+                    }
                 })
-            }
+
+                console.log(data_university_grades)
+                console.log(universities_compare)
+
+                // A color scale: one color for each group
+                const myColor = d3.scaleOrdinal()
+                    .domain(years)
+                    .range(d3.schemeBlues[years.length]);
+                    //.range(d3.schemeSet2);
+
+                //console.log(Object.keys(university_grades_final[years[0]]))
+
+                // Add X axis
+                const x = d3.scaleBand()
+                    .range([0, width])
+                    .domain(universities_compare) //TODO
+
+                var x_axis_generator = d3.axisBottom(x)
+                x_axis_generator.tickFormat((d) => university_code_to_name[d]) //TODO: FIX
+
+                uni_comparison_svg.append("g")
+                    .attr("transform", `translate(0, ${height})`)
+                    .call(x_axis_generator);
+
+                // Add X axis label 
+                uni_comparison_svg.append("text")
+                    .attr("class", "x label")
+                    .attr("text-anchor", "end")
+                    .attr("x", all_width - margin.right - margin.left)
+                    .attr("y", all_height - margin.bottom - 10)
+                    .text("University");
+
+                // Add Y axis
+                const y = d3.scaleLinear()
+                    .domain([10, 20])
+                    .range([height, 0]);
+                uni_comparison_svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                //Add Y axis label
+                uni_comparison_svg.append("text")
+                    .attr("class", "y label")
+                    .attr("text-anchor", "end")
+                    .attr("y", -50)
+                    .attr("dy", ".75em")
+                    .attr("transform", "rotate(-90)")
+                    .text("Grade");
+
+                // Add the lines
+                const line = d3.line()
+                    .x(d => x(d.University_Code) + x.bandwidth() / 2)
+                    .y(d => y(d.Last_Placed_Applicant_Grade))
+
+                uni_comparison_svg.selectAll("myLines")
+                    .data(data_university_grades)
+                    .join("path")
+                    .attr("class", d => "Uni_Year" + d.Year)
+                    .attr("d", d => line(d.Grades))
+                    .attr("stroke", d => myColor(d.Year))
+                    .style("stroke-width", 4)
+                    .style("fill", "none")
+
+                // Add the points
+                uni_comparison_svg
+                    // First we need to enter in a group
+                    .selectAll("myDots")
+                    .data(data_university_grades)
+                    .join('g')
+                    .style("fill", d => myColor(d.Year))
+                    .attr("class", d => "Uni_Year" + d.Year)
+                    // Second we need to enter in the 'values' part of this group
+                    .selectAll("myPoints")
+                    .data(d => d.Grades)
+                    .join("circle")
+                    .attr("cx", d => x(d.University_Code) + x.bandwidth() / 2)
+                    .attr("cy", d => y(d.Last_Placed_Applicant_Grade))
+                    .attr("r", 5)
+                    .attr("stroke", "white")
+
+                // Add a legend (interactive)
+                var buttons = uni_comparison_svg
+                    .selectAll("myLegend")
+                    .data(data_university_grades)
+                    .enter()
+                    .append('g')
+                    .attr("class", d => "Button" + d.Year)
+                // .selectAll("g.Button")
+                // .data(data_applicants_grade)
+
+                buttons
+                    .append("rect")
+                    .attr('x', (d, i) => 30 + i * 60)
+                    .attr('y', 10)
+                    //.style("outline", "thin solid black")
+                    .style("height", "20")
+                    .style("width", "50")
+                    .style("fill", d => myColor(d.Year))
+                    .on("click", function (event, d) {
+                        // is the element currently visible ?
+                        currentOpacity = d3.selectAll("." + "Uni_Year" + d.Year).style("opacity")
+                        // Change the opacity: from 0 to 1 or from 1 to 0
+                        d3.selectAll("." + "Uni_Year" + d.Year).transition().style("opacity", currentOpacity == 1 ? 0 : 1)
+                    })
+
+                buttons
+                    .append("text")
+                    .attr('x', (d, i) => 30 + i * 60 + 10)
+                    .attr('y', 25)
+                    .text(d => d.Year)
+                    .style("fill", "black")
+                    .style("font-size", 15)
+                    .on("click", function (event, d) {
+                        // is the element currently visible ?
+                        currentOpacity = d3.selectAll("." + "Uni_Year" + d.Year).style("opacity")
+                        // Change the opacity: from 0 to 1 or from 1 to 0
+                        d3.selectAll("." + "Uni_Year" + d.Year).transition().style("opacity", currentOpacity == 1 ? 0 : 1)
+                    })
+
+            })
+            
         }
 
     </script>
