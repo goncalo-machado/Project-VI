@@ -167,9 +167,9 @@
         function drawGraphs(course_code) {
 
             // Set the dimensions and margins of the graph
-            const margin = { top: 50, right: 100, bottom: 120, left: 50 }, // Space for axis legends
-                all_width = 800,
-                all_height = 800,
+            const margin = { top: 50, right: 50, bottom: 120, left: 70 }, // Space for axis legends
+                all_width = 700,
+                all_height = 700,
                 width = all_width - margin.left - margin.right,
                 height = all_height - margin.top - margin.bottom;
 
@@ -344,6 +344,44 @@
                     .attr("cy", d => y(d.Num_Applicants))
                     .attr("r", 5)
                     .attr("stroke", "white")
+                    .on("mouseover", function(event, d) {
+                            // Incrise the size of the point
+                            d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .attr("r", 8)
+                                .attr("stroke-width", 2);
+                            // Define the tooltip
+                            var tooltip = d3.select("body")
+                                .append("div")
+                                .attr("class", "tooltip")
+                                .style("position", "absolute")
+                                .style("visibility", "visible")
+                                .style("background", "rgba(0, 0, 0, 0.6)")
+                                .style("color", "white")
+                                .style("padding", "8px")
+                                .style("border-radius", "4px")
+                                .style("opacity", 0);
+                            // Make a transition on its appear
+                            tooltip.transition()
+                                .duration(600)
+                                .style("opacity", .9);
+                            // Plot the information
+                            tooltip.html("Year: " + d3.select(this.parentNode).datum().Year + "<br>Number of Applicants: " + d.Num_Applicants + "<br>Grade: " + d.Grade + ".0 to " + d.Grade + ".9" )
+                                .style("left", (event.pageX + 10) + "px")
+                                .style("top", (event.pageY - 15) + "px");
+                        })
+                        .on("mouseout", function(d) {
+                            // Reset radius and stroke width
+                            d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .attr("r", 5)
+                                .attr("stroke-width", 1);
+                            // Remove the tooltip
+                            d3.select(".tooltip")
+                                .remove();
+                        });
 
                 // // Add a label at the end of each line
                 // application_grades_svg
@@ -446,9 +484,9 @@
 
         function drawGraphs2(course_code) {
 
-            const margin = { top: 50, right: 100, bottom: 120, left: 50 }, // Space for axis legends
-                all_width = 800,
-                all_height = 800,
+            const margin = { top: 50, right: 50, bottom: 120, left: 70 }, // Space for axis legends
+                all_width = 700,
+                all_height = 700,
                 width = all_width - margin.left - margin.right,
                 height = all_height - margin.top - margin.bottom;
 
@@ -460,6 +498,10 @@
 
             var university_code_to_name = {
                 "0300": "UA", "0501": "FCTUC", "1503": "FCUL", "3135": "ISEP", "3064": "ISEC"
+            }
+
+            var university_code_to_full_name = {
+                "0300": "Universidade de Aveiro", "0501": "Faculdade de Ciências e Tecnologia da Universidade de Coimbra", "1503": "Faculdade de Ciências da Universidade de Lisboa", "3135": "Instituto Superior de Engenharia do Porto", "3064": "Instituto Superior de Engenharia de Coimbra"
             }
 
             //console.log(university_code_to_name)
@@ -595,6 +637,8 @@
                     .style("stroke-width", 4)
                     .style("fill", "none")
 
+                console.log(data_university_grades)
+
                 // Add the points
                 uni_comparison_svg
                     // First we need to enter in a group
@@ -611,6 +655,44 @@
                     .attr("cy", d => y(d.Last_Placed_Applicant_Grade))
                     .attr("r", 5)
                     .attr("stroke", "white")
+                    .on("mouseover", function(event, d) {
+                            // Incrise the size of the point
+                            d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .attr("r", 8)
+                                .attr("stroke-width", 2);
+                            // Define the tooltip
+                            var tooltip = d3.select("body")
+                                .append("div")
+                                .attr("class", "tooltip")
+                                .style("position", "absolute")
+                                .style("visibility", "visible")
+                                .style("background", "rgba(0, 0, 0, 0.6)")
+                                .style("color", "white")
+                                .style("padding", "8px")
+                                .style("border-radius", "4px")
+                                .style("opacity", 0);
+                            // Make a transition on its appear
+                            tooltip.transition()
+                                .duration(600)
+                                .style("opacity", .9);
+                            // Plot the information
+                            tooltip.html("Year: " + d3.select(this.parentNode).datum().Year + "<br>University: " + university_code_to_full_name[d.University_Code] + "<br>Grade: " + d.Last_Placed_Applicant_Grade)
+                                .style("left", (event.pageX + 10) + "px")
+                                .style("top", (event.pageY - 15) + "px");
+                        })
+                        .on("mouseout", function(d) {
+                            // Reset radius and stroke width
+                            d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .attr("r", 5)
+                                .attr("stroke-width", 1);
+                            // Remove the tooltip
+                            d3.select(".tooltip")
+                                .remove();
+                        });
 
                 // Add a legend (interactive)
                 var buttons = uni_comparison_svg
