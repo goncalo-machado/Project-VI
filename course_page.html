@@ -184,13 +184,13 @@
                 .append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
-                //.style("background", "#DCDCDC"); // Just to see the space
+            //.style("background", "#DCDCDC"); // Just to see the space
 
             const applicants_year_div = d3.select("#applicants_year_div")
                 .append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
-                //.style("background", "#DCDCDC");
+            //.style("background", "#DCDCDC");
 
             const application_grades_svg = applicants_grade_div.append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
@@ -280,7 +280,7 @@
                 const myColor = d3.scaleOrdinal()
                     .domain(years)
                     .range(d3.schemeBlues[years.length]);
-                    //.range(d3.schemeSet2);
+                //.range(d3.schemeSet2);
 
                 // Add X axis --> it is a date format
                 const x = d3.scaleLinear()
@@ -462,11 +462,13 @@
                 "0300": "UA", "0501": "FCTUC", "1503": "FCUL", "3135": "ISEP", "3064": "ISEC"
             }
 
+            //console.log(university_code_to_name)
+
             const uni_comparison_div = d3.select("#uni_comparison_div")
                 .append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
-                //.style("background", "#DCDCDC"); // Just to see the space
+            //.style("background", "#DCDCDC"); // Just to see the space
 
             const uni_comparison_svg = uni_comparison_div.append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
@@ -499,16 +501,12 @@
                     data_by_year_university.forEach(element => {
                         data_year[element["University Code"]] = parseFloat(element["Last Placed Candidate Grade"]) / 10
 
-                        if (! universities_compare.includes(element["University Code"])){
+                        if (!universities_compare.includes(element["University Code"])) {
                             universities_compare.push(element["University Code"])
                         }
                     })
 
-                    //TODO FIRST: FOR EACH WITH UNIVERSITY_TO_NAME INSTEAD OF data_by_year_university
-
-                    //TODO : SORT LIST FOR UNIVERSITY_COMPARE ORDER
-
-                    //console.log(data_year)
+                    universities_compare.sort(function (a, b) { return a - b })
 
                     university_grades_final[year] = data_year
 
@@ -524,21 +522,33 @@
                     }
                 })
 
-                console.log(data_university_grades)
-                console.log(universities_compare)
+                data_university_grades.forEach(element => {
+                    element["Grades"].sort((a, b) => a["University_Code"] - b["University_Code"])
+                })
 
                 // A color scale: one color for each group
                 const myColor = d3.scaleOrdinal()
                     .domain(years)
                     .range(d3.schemeBlues[years.length]);
-                    //.range(d3.schemeSet2);
+                //.range(d3.schemeSet2);
 
                 //console.log(Object.keys(university_grades_final[years[0]]))
 
                 // Add X axis
+                // const x = d3.scaleBand()
+                //     .range([0, width])
+                //     .domain([
+                //         "1503",
+                //         "3064",
+                //         "3135",
+                //         "0300",
+                //         "0501"
+                //     ]) //TODO
+
+                // Add X axis
                 const x = d3.scaleBand()
                     .range([0, width])
-                    .domain(universities_compare) //TODO
+                    .domain(universities_compare)
 
                 var x_axis_generator = d3.axisBottom(x)
                 x_axis_generator.tickFormat((d) => university_code_to_name[d]) //TODO: FIX
@@ -642,7 +652,7 @@
                     })
 
             })
-            
+
         }
 
     </script>
