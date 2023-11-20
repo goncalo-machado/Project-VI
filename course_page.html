@@ -471,9 +471,24 @@
                             .attr("text-anchor", "middle")
                             .style("font-size", "20px")
                             .text(d.N_Applicants)
+                            // Start of the animation of the text on top of each bar
+                                .style("opacity", 0)
+                                .transition()
+                                .duration(2000)
+                                .style("opacity", 1)
+                                .delay(function() { return i * 100; });
                     });
 
-            })
+                // Add the total DETI applicants
+                application_year_svg.selectAll("rect")
+                        .transition()
+                        .duration(1000)
+                        .attr("x", function(d, i) {
+                            return i * (width / data_n_applicants_year.length) + ((width / data_n_applicants_year.length) / 7);
+                        })
+                        .delay(function(d,i){ return(i*100)});
+
+            });
         }
 
 
