@@ -85,7 +85,11 @@
             border-radius: 5px;
             border: none;
         }
-
+        /* To users notice that course buttons are clickable */
+        button:hover {
+            cursor: pointer;
+            background-color: steelblue;
+        }
         /* Config do d3 */
         .flex-container {
             display: flex;
@@ -417,6 +421,13 @@
                     .style("height", "20")
                     .style("width", "50")
                     .style("fill", d => myColor(d.Year))
+                    .style("cursor", "pointer")
+                    .on("mouseover", function (event, d) {
+                        d3.select(this).style("fill", "lightgrey"); // Change color on hover
+                    })
+                    .on("mouseout", function (event, d) {
+                        d3.select(this).style("fill", d => myColor(d.Year)); // Restore original color on mouseout
+                    })
                     .on("click", function (event, d) {
                         // is the element currently visible ?
                         currentOpacity = d3.selectAll("." + "Year" + d.Year).style("opacity")
@@ -431,6 +442,13 @@
                     .text(d => d.Year)
                     .style("fill", "black")
                     .style("font-size", 15)
+                    .style("cursor", "pointer")
+                    .on("mouseover", function (event, d) {
+                        d3.select(this).style("fill", "grey"); // Change text color on hover
+                    })
+                    .on("mouseout", function (event, d) {
+                        d3.select(this).style("fill", "black"); // Restore original text color on mouseout
+                    })
                     .on("click", function (event, d) {
                         // is the element currently visible ?
                         currentOpacity = d3.selectAll("." + "Year" + d.Year).style("opacity")
@@ -739,6 +757,13 @@
                     .style("height", "20")
                     .style("width", "50")
                     .style("fill", d => myColor(d.Year))
+                    .style("cursor", "pointer")
+                    .on("mouseover", function (event, d) {
+                        d3.select(this).style("fill", "lightgrey"); // Change color on hover
+                    })
+                    .on("mouseout", function (event, d) {
+                        d3.select(this).style("fill", d => myColor(d.Year)); // Restore original color on mouseout
+                    })
                     .on("click", function (event, d) {
                         // is the element currently visible ?
                         currentOpacity = d3.selectAll("." + "Uni_Year" + d.Year).style("opacity")
@@ -753,6 +778,13 @@
                     .text(d => d.Year)
                     .style("fill", "black")
                     .style("font-size", 15)
+                    .style("cursor", "pointer")
+                    .on("mouseover", function (event, d) {
+                        d3.select(this).style("fill", "grey"); // Change text color on hover
+                    })
+                    .on("mouseout", function (event, d) {
+                        d3.select(this).style("fill", "black"); // Restore original text color on mouseout
+                    })
                     .on("click", function (event, d) {
                         // is the element currently visible ?
                         currentOpacity = d3.selectAll("." + "Uni_Year" + d.Year).style("opacity")
