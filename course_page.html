@@ -130,6 +130,7 @@
 
     <div class="flex-container" style="margin-top: 15px;">
         <div id="uni_comparison_div" class="flex-child"></div>
+        <div id="option_comparison_div" class="flex-child"></div>
     </div>
 
     <script>
@@ -143,6 +144,7 @@
             document.getElementById("applicants_grade_div").textContent = ''
             document.getElementById("applicants_year_div").textContent = ''
             document.getElementById("uni_comparison_div").textContent = ''
+            document.getElementById("option_comparison_div").textContent = ''
             var course_name = document.getElementById("button_" + course_code).textContent
             document.getElementById("button_" + course_code).className = "buttons_Selected"
             document.getElementById("H1_Title").innerHTML = course_name;
@@ -344,44 +346,44 @@
                     .attr("cy", d => y(d.Num_Applicants))
                     .attr("r", 5)
                     .attr("stroke", "white")
-                    .on("mouseover", function(event, d) {
-                            // Incrise the size of the point
-                            d3.select(this)
-                                .transition()
-                                .duration(200)
-                                .attr("r", 8)
-                                .attr("stroke-width", 2);
-                            // Define the tooltip
-                            var tooltip = d3.select("body")
-                                .append("div")
-                                .attr("class", "tooltip")
-                                .style("position", "absolute")
-                                .style("visibility", "visible")
-                                .style("background", "rgba(0, 0, 0, 0.6)")
-                                .style("color", "white")
-                                .style("padding", "8px")
-                                .style("border-radius", "4px")
-                                .style("opacity", 0);
-                            // Make a transition on its appear
-                            tooltip.transition()
-                                .duration(600)
-                                .style("opacity", .9);
-                            // Plot the information
-                            tooltip.html("Year: " + d3.select(this.parentNode).datum().Year + "<br>Number of Applicants: " + d.Num_Applicants + "<br>Grade: " + d.Grade + ".0 to " + d.Grade + ".9" )
-                                .style("left", (event.pageX + 10) + "px")
-                                .style("top", (event.pageY - 15) + "px");
-                        })
-                        .on("mouseout", function(d) {
-                            // Reset radius and stroke width
-                            d3.select(this)
-                                .transition()
-                                .duration(200)
-                                .attr("r", 5)
-                                .attr("stroke-width", 1);
-                            // Remove the tooltip
-                            d3.select(".tooltip")
-                                .remove();
-                        });
+                    .on("mouseover", function (event, d) {
+                        // Incrise the size of the point
+                        d3.select(this)
+                            .transition()
+                            .duration(200)
+                            .attr("r", 8)
+                            .attr("stroke-width", 2);
+                        // Define the tooltip
+                        var tooltip = d3.select("body")
+                            .append("div")
+                            .attr("class", "tooltip")
+                            .style("position", "absolute")
+                            .style("visibility", "visible")
+                            .style("background", "rgba(0, 0, 0, 0.6)")
+                            .style("color", "white")
+                            .style("padding", "8px")
+                            .style("border-radius", "4px")
+                            .style("opacity", 0);
+                        // Make a transition on its appear
+                        tooltip.transition()
+                            .duration(600)
+                            .style("opacity", .9);
+                        // Plot the information
+                        tooltip.html("Year: " + d3.select(this.parentNode).datum().Year + "<br>Number of Applicants: " + d.Num_Applicants + "<br>Grade: " + d.Grade + ".0 to " + d.Grade + ".9")
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 15) + "px");
+                    })
+                    .on("mouseout", function (d) {
+                        // Reset radius and stroke width
+                        d3.select(this)
+                            .transition()
+                            .duration(200)
+                            .attr("r", 5)
+                            .attr("stroke-width", 1);
+                        // Remove the tooltip
+                        d3.select(".tooltip")
+                            .remove();
+                    });
 
                 // // Add a label at the end of each line
                 // application_grades_svg
@@ -505,12 +507,6 @@
                 width = all_width - margin.left - margin.right,
                 height = all_height - margin.top - margin.bottom;
 
-            // const margin = { top: 50, right: 20, bottom: 50, left: 60 },
-            //     all_width = 500,
-            //     all_height = 500,
-            //     width = all_width - margin.left - margin.right,
-            //     height = all_height - margin.top - margin.bottom;
-
             var university_code_to_name = {
                 "0300": "UA", "0501": "FCTUC", "1503": "FCUL", "3135": "ISEP", "3064": "ISEC"
             }
@@ -536,6 +532,22 @@
                 .attr("text-anchor", "middle")
                 .style("font-size", "25px")
                 .text("Grade of Last Place Applicant");
+
+            const option_comparison_div = d3.select("#option_comparison_div")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+            //.style("background", "#DCDCDC"); // Just to see the space
+
+            const option_comparison_svg = option_comparison_div.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                option_comparison_div.append("text")
+                .attr("x", all_width / 2)
+                .attr("y", margin.top - 10)
+                .attr("text-anchor", "middle")
+                .style("font-size", "25px")
+                .text("Option chosen by Applicants (%)");
 
             d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Courses_2021_2023.csv").then(function (grades_data) {
 
@@ -670,44 +682,44 @@
                     .attr("cy", d => y(d.Last_Placed_Applicant_Grade))
                     .attr("r", 5)
                     .attr("stroke", "white")
-                    .on("mouseover", function(event, d) {
-                            // Incrise the size of the point
-                            d3.select(this)
-                                .transition()
-                                .duration(200)
-                                .attr("r", 8)
-                                .attr("stroke-width", 2);
-                            // Define the tooltip
-                            var tooltip = d3.select("body")
-                                .append("div")
-                                .attr("class", "tooltip")
-                                .style("position", "absolute")
-                                .style("visibility", "visible")
-                                .style("background", "rgba(0, 0, 0, 0.6)")
-                                .style("color", "white")
-                                .style("padding", "8px")
-                                .style("border-radius", "4px")
-                                .style("opacity", 0);
-                            // Make a transition on its appear
-                            tooltip.transition()
-                                .duration(600)
-                                .style("opacity", .9);
-                            // Plot the information
-                            tooltip.html("Year: " + d3.select(this.parentNode).datum().Year + "<br>University: " + university_code_to_full_name[d.University_Code] + "<br>Grade: " + d.Last_Placed_Applicant_Grade)
-                                .style("left", (event.pageX + 10) + "px")
-                                .style("top", (event.pageY - 15) + "px");
-                        })
-                        .on("mouseout", function(d) {
-                            // Reset radius and stroke width
-                            d3.select(this)
-                                .transition()
-                                .duration(200)
-                                .attr("r", 5)
-                                .attr("stroke-width", 1);
-                            // Remove the tooltip
-                            d3.select(".tooltip")
-                                .remove();
-                        });
+                    .on("mouseover", function (event, d) {
+                        // Incrise the size of the point
+                        d3.select(this)
+                            .transition()
+                            .duration(200)
+                            .attr("r", 8)
+                            .attr("stroke-width", 2);
+                        // Define the tooltip
+                        var tooltip = d3.select("body")
+                            .append("div")
+                            .attr("class", "tooltip")
+                            .style("position", "absolute")
+                            .style("visibility", "visible")
+                            .style("background", "rgba(0, 0, 0, 0.6)")
+                            .style("color", "white")
+                            .style("padding", "8px")
+                            .style("border-radius", "4px")
+                            .style("opacity", 0);
+                        // Make a transition on its appear
+                        tooltip.transition()
+                            .duration(600)
+                            .style("opacity", .9);
+                        // Plot the information
+                        tooltip.html("Year: " + d3.select(this.parentNode).datum().Year + "<br>University: " + university_code_to_full_name[d.University_Code] + "<br>Grade: " + d.Last_Placed_Applicant_Grade)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 15) + "px");
+                    })
+                    .on("mouseout", function (d) {
+                        // Reset radius and stroke width
+                        d3.select(this)
+                            .transition()
+                            .duration(200)
+                            .attr("r", 5)
+                            .attr("stroke-width", 1);
+                        // Remove the tooltip
+                        d3.select(".tooltip")
+                            .remove();
+                    });
 
                 // Add a legend (interactive)
                 var buttons = uni_comparison_svg
