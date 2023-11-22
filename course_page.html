@@ -886,8 +886,27 @@
                             .attr("y", function(d) { return y_axis_groupedBar_count(d.value); })
                             .attr("width", x_axis_eachBar.bandwidth())
                             .attr("height", function(d) { return height - y_axis_groupedBar_count(d.value); })
-                            .attr("fill", function(d) { return color_groupBar(d.key); });
-
+                            .attr("fill", function(d) { return color_groupBar(d.key); })
+                            .each(function(d, i) {
+                                // Append text on top of each bar with count value
+                                d3.select(this.parentNode) // Select the parent g element
+                                    .append("text")
+                                    .attr("x", function() {
+                                        return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
+                                    })
+                                    .attr("y", y_axis_groupedBar_count(d.value) - 10)
+                                    .attr("text-anchor", "middle")
+                                    .style("font-size", "14px") // Adjust the font size as needed
+                                    .text(d.value)
+                                    // Start of the animation of the text on top of each bar
+                                    .style("opacity", 0)
+                                    .transition()
+                                    .duration(2000)
+                                    .style("opacity", 1)
+                                    .delay(function() {
+                                        return i * 100;
+                                    });
+                            });
 
                     // Create a legend container
                     var legend = option_comparison_div.append("g")
