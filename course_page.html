@@ -793,6 +793,31 @@
                         });
 
                     /* ---------- GROUPED BAR CHART ---------- */
+                    // Define a variable to keep track of the current state
+                    let showPercentage = true;
+                    // Append a button to the SVG
+                    const button = option_comparison_div
+                        .append("g")
+                        .attr("transform", "translate(" + (width - 80) + ", 10)") // Adjust the position as needed
+                        .append("rect")
+                        .attr("width", 70)
+                        .attr("height", 30)
+                        .attr("rx", 5) // Rounded corners
+                        .attr("ry", 5) // Rounded corners
+                        .style("fill", "steelblue")
+                        .style("cursor", "pointer") // Make the button clickable
+                        .on("click", handleClick); // Attach a click event listener to the button
+                    // Append text to the button
+                    button
+                        .append("text")
+                        .attr("x", 35)
+                        .attr("y", 20)
+                        .attr("text-anchor", "middle")
+                        .style("fill", "black")
+                        .style("font-size", "12px")
+                        .style("pointer-events", "none") // Make text not interfere with button clicks
+                        .text("%");
+
                     
                     // Filter the data needed for X, that is, choise options
                     const choice_options = ["1", "2", "3", "4", "5", "6"];
@@ -845,15 +870,14 @@
                     // Convert the data_groupedBar_transformed into array
                     const data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
                         const yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
-                        const total = Object.values(yearCounts).reduce((sum, count) => sum + count, 0); // Total for each year
 
                         // Create an object with 'Option Number' and counts for each 'Year'
                         return {
                             'Option Number': optionNumber,
-                            ...yearCounts,
-                            Total: total // You can include the total count if needed
+                            ...yearCounts
                         };
                     });
+
                     console.log("Data for Grouped Bar:");
                     console.log(data_groupedBar_ready);
 
@@ -971,6 +995,380 @@
                         .on("mouseout", function (event, d) {
                             d3.select(this).style("fill", "black"); // Restore original text color
                         });
+                    
+                    // Define the click event handler function
+                    function handleClick() {
+                        // If showPercentage is true, display the %
+                        if (showPercentage) {
+                            // Remove previews graph
+                            option_comparison_div.selectAll('*').remove();
+                            // Title
+                            option_comparison_div.append("text")
+                                .attr("x", width / 2)
+                                .attr("y", 0)
+                                .attr("text-anchor", "middle")
+                                .style("font-size", "25px")
+                                .text("Option chosen by Applicants in %");
+                            // Append a button to the SVG
+                            const button = option_comparison_div
+                                .append("g")
+                                .attr("transform", "translate(" + (width - 80) + ", 10)") // Adjust the position as needed
+                                .append("rect")
+                                .attr("width", 70)
+                                .attr("height", 30)
+                                .attr("rx", 5) // Rounded corners
+                                .attr("ry", 5) // Rounded corners
+                                .style("fill", "steelblue")
+                                .style("cursor", "pointer") // Make the button clickable
+                                .on("click", handleClick); // Attach a click event listener to the button
+                            // Append text to the button
+                            button
+                                .append("text")
+                                .attr("x", 35)
+                                .attr("y", 20)
+                                .attr("text-anchor", "middle")
+                                .style("fill", "black")
+                                .style("font-size", "12px")
+                                .style("pointer-events", "none") // Make text not interfere with button clicks
+                                .text("Vals");
+                            
+                            // Filter the data needed for X, that is, choise options
+                            const choice_options = ["1", "2", "3", "4", "5", "6"];
+                            // Get the X information, that is, choise options to X axis
+                            const x_axis_groupedBar = d3.scaleBand()
+                                        .domain(choice_options)
+                                        .range([ 0, width ])
+                                        .padding([0.2]);
+                            // Plot the X information in the axis
+                            option_comparison_div.append("g")
+                                            .attr("transform", `translate(0, ${height})`)
+                                            .call(d3.axisBottom(x_axis_groupedBar))
+                                        .selectAll("text")
+                                            .style("text-anchor", "middle");
+                            // Another scale for subgroup position?
+                            const x_axis_eachBar = d3.scaleBand()
+                                        .domain(years)
+                                        .range([0, x_axis_groupedBar.bandwidth()])
+                                        .padding([0.05])
+                            
+                            // Colors for each the years
+                            const color_groupBar = d3.scaleOrdinal()
+                                .domain(years)
+                                .range(d3.schemeBlues[years.length]);
+
+                            // Get the data needed
+                            const data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code)
+                                                            .map(d => ({ Year: d['Year'], 'Option Number': d['Option Number'] }));
+                            // Define the new dataset
+                            const data_groupedBar_transformed = {};
+                            // Transform the data
+                            data_groupedBar.forEach(item => {
+                                const { Year, 'Option Number': optionNumber } = item;
+
+                                // If the data_groupedBar_transformed do not have an entry for that option number, create one
+                                if (!data_groupedBar_transformed[optionNumber]) {
+                                    data_groupedBar_transformed[optionNumber] = {};
+                                }
+
+                                // If the data_groupedBar_transformed object for the current Option Number doesn't have an Year, create one and inicialize
+                                if (!data_groupedBar_transformed[optionNumber][Year]) {
+                                    data_groupedBar_transformed[optionNumber][Year] = 1;
+                                }
+                                // If the data_groupedBar_transformed object for the current Option Number and Year already exists, increment it
+                                else {
+                                    data_groupedBar_transformed[optionNumber][Year]++;
+                                }
+                            });
+
+                            // Convert the data_groupedBar_transformed into array
+                            const data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
+                                const yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
+
+                                // Calculate the sum of values for each column (excluding 'Option Number')
+                                const columnSums = Object.keys(yearCounts).reduce((sums, key) => {
+                                    if (key !== 'Option Number') {
+                                        sums[key] = Object.values(data_groupedBar_transformed).reduce((total, option) => total + option[key], 0);
+                                    }
+                                    return sums;
+                                }, {});
+
+                                // Create an object with 'Option Number' and counts for each 'Year', normalized by the sum of the respective column
+                                const normalizedCounts = Object.keys(yearCounts).reduce((normalized, key) => {
+                                    if (key !== 'Option Number') {
+                                        normalized[key] = (yearCounts[key] / columnSums[key]) * 100;
+                                    } else {
+                                        normalized[key] = yearCounts[key];
+                                    }
+                                    return normalized;
+                                }, {});
+
+                                return normalizedCounts;
+                            });
+
+                            console.log("Data for Grouped Bar:");
+                            console.log(data_groupedBar_ready);
+
+                            // Define Y domains for count
+                            var y_axis_groupedBar_count = d3.scaleLinear()
+                                .domain([0, 100])
+                                .range([ height, 0 ]);
+
+                            // Plot the bars
+                            option_comparison_div.append("g")
+                                .selectAll("g")
+                                .data(data_groupedBar_ready)
+                                .enter()
+                                .append("g")
+                                .attr("transform", function (d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
+                                .selectAll("rect")
+                                .data(function (d) { return years.map(function (key) { return { key: key, value: d[key] }; }); })
+                                .enter().append("rect")
+                                .attr("class", function (d) { return "bar OptionYear" + d.key; }) // Add a class for each bar
+                                .attr("x", function (d) { return x_axis_eachBar(d.key); })
+                                .attr("y", function (d) { return y_axis_groupedBar_count(d.value); })
+                                .attr("width", x_axis_eachBar.bandwidth())
+                                .attr("height", function (d) { return height - y_axis_groupedBar_count(d.value); })
+                                .attr("fill", function (d) { return color_groupBar(d.key); })
+                                .each(function (d, i) {
+                                    // Append text on top of each bar with count value
+                                    d3.select(this.parentNode) // Select the parent g element
+                                        .append("text")
+                                        .attr("class", function (d) { return "bar-text OptionYear" + d.key; }) // Add a class for each text element
+                                        .attr("x", function () {
+                                            return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
+                                        })
+                                        .attr("y", y_axis_groupedBar_count(d.value) - 10)
+                                        .attr("text-anchor", "middle")
+                                        .style("font-size", "14px") // Adjust the font size as needed
+                                        .text(parseFloat(d.value).toFixed(2))
+                                        // Start of the animation of the text on top of each bar
+                                        .style("opacity", 0)
+                                        .transition()
+                                        .duration(2000)
+                                        .style("opacity", 1)
+                                        .delay(function () {
+                                            return i * 100;
+                                        });
+                                });
+
+                            // Update the state
+                            showPercentage = false;
+                        }
+                        // If showPercentage is false, display the grouped bar chart
+                        else {
+                            // Remove previews graph
+                            option_comparison_div.selectAll('*').remove();
+                            // Title
+                            option_comparison_div.append("text")
+                                .attr("x", width / 2)
+                                .attr("y", 0)
+                                .attr("text-anchor", "middle")
+                                .style("font-size", "25px")
+                                .text("Option chosen by Applicants");
+                            // Append a button to the SVG
+                            const button = option_comparison_div
+                                .append("g")
+                                .attr("transform", "translate(" + (width - 80) + ", 10)") // Adjust the position as needed
+                                .append("rect")
+                                .attr("width", 70)
+                                .attr("height", 30)
+                                .attr("rx", 5) // Rounded corners
+                                .attr("ry", 5) // Rounded corners
+                                .style("fill", "steelblue")
+                                .style("cursor", "pointer") // Make the button clickable
+                                .on("click", handleClick); // Attach a click event listener to the button
+                            // Append text to the button
+                            button
+                                .append("text")
+                                .attr("x", 35)
+                                .attr("y", 20)
+                                .attr("text-anchor", "middle")
+                                .style("fill", "black")
+                                .style("font-size", "12px")
+                                .style("pointer-events", "none") // Make text not interfere with button clicks
+                                .text("%");
+                            
+                            // Filter the data needed for X, that is, choise options
+                            const choice_options = ["1", "2", "3", "4", "5", "6"];
+                            // Get the X information, that is, choise options to X axis
+                            const x_axis_groupedBar = d3.scaleBand()
+                                        .domain(choice_options)
+                                        .range([ 0, width ])
+                                        .padding([0.2]);
+                            // Plot the X information in the axis
+                            option_comparison_div.append("g")
+                                            .attr("transform", `translate(0, ${height})`)
+                                            .call(d3.axisBottom(x_axis_groupedBar))
+                                        .selectAll("text")
+                                            .style("text-anchor", "middle");
+                            // Another scale for subgroup position?
+                            const x_axis_eachBar = d3.scaleBand()
+                                        .domain(years)
+                                        .range([0, x_axis_groupedBar.bandwidth()])
+                                        .padding([0.05])
+                            
+                            // Colors for each the years
+                            const color_groupBar = d3.scaleOrdinal()
+                                .domain(years)
+                                .range(d3.schemeBlues[years.length]);
+
+                            // Get the data needed
+                            const data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code)
+                                                            .map(d => ({ Year: d['Year'], 'Option Number': d['Option Number'] }));
+                            // Define the new dataset
+                            const data_groupedBar_transformed = {};
+                            // Transform the data
+                            data_groupedBar.forEach(item => {
+                                const { Year, 'Option Number': optionNumber } = item;
+
+                                // If the data_groupedBar_transformed do not have an entry for that option number, create one
+                                if (!data_groupedBar_transformed[optionNumber]) {
+                                    data_groupedBar_transformed[optionNumber] = {};
+                                }
+
+                                // If the data_groupedBar_transformed object for the current Option Number doesn't have an Year, create one and inicialize
+                                if (!data_groupedBar_transformed[optionNumber][Year]) {
+                                    data_groupedBar_transformed[optionNumber][Year] = 1;
+                                }
+                                // If the data_groupedBar_transformed object for the current Option Number and Year already exists, increment it
+                                else {
+                                    data_groupedBar_transformed[optionNumber][Year]++;
+                                }
+                            });
+
+                            // Convert the data_groupedBar_transformed into array
+                            const data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
+                                const yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
+
+                                // Create an object with 'Option Number' and counts for each 'Year'
+                                return {
+                                    'Option Number': optionNumber,
+                                    ...yearCounts
+                                };
+                            });
+
+                            console.log("Data for Grouped Bar:");
+                            console.log(data_groupedBar_ready);
+
+                            // Max value of the data, not inckuding the total
+                            let max_Y_Count = 0;
+                            data_groupedBar_ready.forEach(item => {
+                                // Exclude 'Total' column
+                                Object.keys(item).forEach(key => {
+                                    if (key !== 'Total') {
+                                        max_Y_Count = Math.max(max_Y_Count, item[key]);
+                                    }
+                                });
+                            });
+                            // Define Y domains for count
+                            var y_axis_groupedBar_count = d3.scaleLinear()
+                                .domain([0, max_Y_Count + 5])
+                                .range([ height, 0 ]);
+
+                            // Plot the bars
+                            option_comparison_div.append("g")
+                                .selectAll("g")
+                                .data(data_groupedBar_ready)
+                                .enter()
+                                .append("g")
+                                .attr("transform", function (d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
+                                .selectAll("rect")
+                                .data(function (d) { return years.map(function (key) { return { key: key, value: d[key] }; }); })
+                                .enter().append("rect")
+                                .attr("class", function (d) { return "bar OptionYear" + d.key; }) // Add a class for each bar
+                                .attr("x", function (d) { return x_axis_eachBar(d.key); })
+                                .attr("y", function (d) { return y_axis_groupedBar_count(d.value); })
+                                .attr("width", x_axis_eachBar.bandwidth())
+                                .attr("height", function (d) { return height - y_axis_groupedBar_count(d.value); })
+                                .attr("fill", function (d) { return color_groupBar(d.key); })
+                                .each(function (d, i) {
+                                    // Append text on top of each bar with count value
+                                    d3.select(this.parentNode) // Select the parent g element
+                                        .append("text")
+                                        .attr("class", function (d) { return "bar-text OptionYear" + d.key; }) // Add a class for each text element
+                                        .attr("x", function () {
+                                            return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
+                                        })
+                                        .attr("y", y_axis_groupedBar_count(d.value) - 10)
+                                        .attr("text-anchor", "middle")
+                                        .style("font-size", "14px") // Adjust the font size as needed
+                                        .text(d.value)
+                                        // Start of the animation of the text on top of each bar
+                                        .style("opacity", 0)
+                                        .transition()
+                                        .duration(2000)
+                                        .style("opacity", 1)
+                                        .delay(function () {
+                                            return i * 100;
+                                        });
+                                });
+
+                            // Create a legend container
+                            var legend = option_comparison_div.append("g")
+                                .attr("class", "legend-item-option")
+                                .attr("transform", "translate(-50, 10)"); // Adjust the values here for positioning
+
+                            // Bind data to the legend container
+                            var legendItems = legend.selectAll(".legend-item-option")
+                                .data(years)
+                                .enter().append("g")
+                                .attr("class", "legend-item-option")
+                                .attr("transform", function (d, i) {
+                                    return "translate(0," + i * 20 + ")";
+                                });
+
+                            // Append rectangles or circles to represent legend items
+                            legendItems.append("rect")
+                                .attr("x", 0)
+                                .attr("width", 18)
+                                .attr("height", 18)
+                                .style("fill", function (d) {
+                                    return color_groupBar(d)
+                                })
+                                .style("cursor", "pointer")  // Make the legend item clickable
+                                
+                                .on("click", function (event, d) {
+                                    // Toggle the visibility of bars with the corresponding class
+                                    const bars = d3.selectAll(".OptionYear" + d);
+                                    const currentOpacity = bars.style("opacity");
+                                    bars.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
+
+                                    // Toggle the visibility of text elements with the corresponding class
+                                    const texts = d3.selectAll(".bar-text.OptionYear" + d);
+                                    texts.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
+                                });
+
+                            // Append labels for legend items
+                            legendItems.append("text")
+                                .attr("x", 25)
+                                .attr("y", 9)
+                                .attr("dy", ".35em")
+                                .style("text-anchor", "start")
+                                .text(function (d) {
+                                    return d;
+                                })
+                                .style("cursor", "pointer")  // Make the legend item clickable
+                                .on("click", function (event, d) {
+                                    // Toggle the visibility of bars with the corresponding class
+                                    const bars = d3.selectAll(".OptionYear" + d);
+                                    const currentOpacity = bars.style("opacity");
+                                    bars.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
+
+                                    // Toggle the visibility of text elements with the corresponding class
+                                    const texts = d3.selectAll(".bar-text.OptionYear" + d);
+                                    texts.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
+                                })
+                                .on("mouseover", function (event, d) {
+                                    d3.select(this).style("fill", "grey"); // Change text color on hover
+                                })
+                                .on("mouseout", function (event, d) {
+                                    d3.select(this).style("fill", "black"); // Restore original text color
+                                });
+
+                            // Update the state
+                            showPercentage = true;
+                        }
+                    }
 
                     /* --------------------------------------- */
 
