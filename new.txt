@@ -1,0 +1,48 @@
+                            // Get the data needed
+                            const data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code)
+                                                            .map(d => ({ Year: d['Year'], 'Option Number': d['Option Number'] }));
+                            // Define the new dataset
+                            const data_groupedBar_transformed = {};
+                            // Transform the data
+                            data_groupedBar.forEach(item => {
+                                const { Year, 'Option Number': optionNumber } = item;
+
+                                // If the data_groupedBar_transformed do not have an entry for that option number, create one
+                                if (!data_groupedBar_transformed[optionNumber]) {
+                                    data_groupedBar_transformed[optionNumber] = {};
+                                }
+
+                                // If the data_groupedBar_transformed object for the current Option Number doesn't have an Year, create one and inicialize
+                                if (!data_groupedBar_transformed[optionNumber][Year]) {
+                                    data_groupedBar_transformed[optionNumber][Year] = 1;
+                                }
+                                // If the data_groupedBar_transformed object for the current Option Number and Year already exists, increment it
+                                else {
+                                    data_groupedBar_transformed[optionNumber][Year]++;
+                                }
+                            });
+
+                            // Convert the data_groupedBar_transformed into array
+                            const data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
+                                const yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
+
+                                // Calculate the sum of values for each column (excluding 'Option Number')
+                                const columnSums = Object.keys(yearCounts).reduce((sums, key) => {
+                                    if (key !== 'Option Number') {
+                                        sums[key] = Object.values(data_groupedBar_transformed).reduce((total, option) => total + option[key], 0);
+                                    }
+                                    return sums;
+                                }, {});
+
+                                // Create an object with 'Option Number' and counts for each 'Year', normalized by the sum of the respective column
+                                const normalizedCounts = Object.keys(yearCounts).reduce((normalized, key) => {
+                                    if (key !== 'Option Number') {
+                                        normalized[key] = (yearCounts[key] / columnSums[key]) * 100;
+                                    } else {
+                                        normalized[key] = yearCounts[key];
+                                    }
+                                    return normalized;
+                                }, {});
+
+                                return normalizedCounts;
+                            });
