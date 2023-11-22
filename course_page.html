@@ -1171,7 +1171,7 @@
 
                             // Define Y domains for count
                             var y_axis_groupedBar_count = d3.scaleLinear()
-                                .domain([0, 100])
+                                .domain([0, 50])
                                 .range([ height, 0 ]);
 
                             // Plot the bars
@@ -1199,7 +1199,7 @@
                                         })
                                         .attr("y", y_axis_groupedBar_count(d.value) - 10)
                                         .attr("text-anchor", "middle")
-                                        .style("font-size", "14px") // Adjust the font size as needed
+                                        .style("font-size", "9px") // Adjust the font size as needed
                                         .text(parseFloat(d.value).toFixed(2))
                                         // Start of the animation of the text on top of each bar
                                         .style("opacity", 0)
