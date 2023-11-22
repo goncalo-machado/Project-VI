@@ -843,7 +843,7 @@
                     const button = option_comparison_div
                         .append("g")
                         .attr("transform", "translate(" + (width - 80) + ", 10)") // Adjust the position as needed
-                        .append("rect")
+                    button.append("rect")
                         .attr("width", 70)
                         .attr("height", 30)
                         .attr("rx", 5) // Rounded corners
@@ -922,7 +922,7 @@
                         };
                     });
 
-                    console.log("Data for Grouped Bar:");
+                    console.log("Data for Grouped Bar1:");
                     console.log(data_groupedBar_ready);
 
                     // Max value of the data, not inckuding the total
@@ -1057,7 +1057,7 @@
                             const button = option_comparison_div
                                 .append("g")
                                 .attr("transform", "translate(" + (width - 80) + ", 10)") // Adjust the position as needed
-                                .append("rect")
+                            button.append("rect")
                                 .attr("width", 70)
                                 .attr("height", 30)
                                 .attr("rx", 5) // Rounded corners
@@ -1074,7 +1074,7 @@
                                 .style("fill", "black")
                                 .style("font-size", "12px")
                                 .style("pointer-events", "none") // Make text not interfere with button clicks
-                                .text("Vals");
+                                .text("Abs");
                             
                             // Filter the data needed for X, that is, choise options
                             const choice_options = ["1", "2", "3", "4", "5", "6"];
@@ -1124,6 +1124,9 @@
                                 }
                             });
 
+                            console.log("Teste2: ")
+                            console.log(data_groupedBar_transformed)
+
                             // Convert the data_groupedBar_transformed into array
                             const data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
                                 const yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
@@ -1146,10 +1149,24 @@
                                     return normalized;
                                 }, {});
 
-                                return normalizedCounts;
+                                return {
+                                    'Option Number': optionNumber,
+                                    ...normalizedCounts
+                                }
                             });
 
-                            console.log("Data for Grouped Bar:");
+                            // // Convert the data_groupedBar_transformed into array
+                            // const data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
+                            //     const yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
+
+                            //     // Create an object with 'Option Number' and counts for each 'Year'
+                            //     return {
+                            //         'Option Number': optionNumber,
+                            //         ...yearCounts
+                            //     };
+                            // });
+
+                            console.log("Data for Grouped Bar2:");
                             console.log(data_groupedBar_ready);
 
                             // Define Y domains for count
@@ -1161,8 +1178,7 @@
                             option_comparison_div.append("g")
                                 .selectAll("g")
                                 .data(data_groupedBar_ready)
-                                .enter()
-                                .append("g")
+                                .join("g")
                                 .attr("transform", function (d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
                                 .selectAll("rect")
                                 .data(function (d) { return years.map(function (key) { return { key: key, value: d[key] }; }); })
@@ -1177,7 +1193,7 @@
                                     // Append text on top of each bar with count value
                                     d3.select(this.parentNode) // Select the parent g element
                                         .append("text")
-                                        .attr("class", "bar-text OptionYear tt" + d.key) // Add a class for each text element
+                                        .attr("class", "bar-text OptionYear" + d.key) // Add a class for each text element
                                         .attr("x", function () {
                                             return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
                                         })
@@ -1275,7 +1291,7 @@
                             const button = option_comparison_div
                                 .append("g")
                                 .attr("transform", "translate(" + (width - 80) + ", 10)") // Adjust the position as needed
-                                .append("rect")
+                            button.append("rect")
                                 .attr("width", 70)
                                 .attr("height", 30)
                                 .attr("rx", 5) // Rounded corners
@@ -1346,6 +1362,8 @@
                             const data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
                                 const yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
 
+                                console.log("test")
+
                                 // Create an object with 'Option Number' and counts for each 'Year'
                                 return {
                                     'Option Number': optionNumber,
@@ -1353,7 +1371,7 @@
                                 };
                             });
 
-                            console.log("Data for Grouped Bar:");
+                            console.log("Data for Grouped Bar3:");
                             console.log(data_groupedBar_ready);
 
                             // Max value of the data, not inckuding the total
@@ -1375,8 +1393,7 @@
                             option_comparison_div.append("g")
                                 .selectAll("g")
                                 .data(data_groupedBar_ready)
-                                .enter()
-                                .append("g")
+                                .join("g")
                                 .attr("transform", function (d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
                                 .selectAll("rect")
                                 .data(function (d) { return years.map(function (key) { return { key: key, value: d[key] }; }); })
@@ -1391,7 +1408,7 @@
                                     // Append text on top of each bar with count value
                                     d3.select(this.parentNode) // Select the parent g element
                                         .append("text")
-                                        .attr("class", function (d) { return "bar-text OptionYear" + d.key; }) // Add a class for each text element
+                                        .attr("class", "bar-text OptionYear" + d.key) // Add a class for each text element
                                         .attr("x", function () {
                                             return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
                                         })
