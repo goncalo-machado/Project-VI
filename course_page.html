@@ -560,8 +560,8 @@
                     .attr("transform",`translate(${margin.left},${margin.top})`);
 
             option_comparison_div.append("text")
-                .attr("x", all_width / 2)
-                .attr("y", margin.top - 10)
+                .attr("x", width / 2)
+                .attr("y", 0)
                 .attr("text-anchor", "middle")
                 .style("font-size", "25px")
                 .text("Option chosen by Applicants (%)");
@@ -807,7 +807,6 @@
                                     .call(d3.axisBottom(x_axis_groupedBar))
                                 .selectAll("text")
                                     .style("text-anchor", "middle");
-                    
                     // Another scale for subgroup position?
                     const x_axis_eachBar = d3.scaleBand()
                                 .domain(years)
@@ -820,7 +819,75 @@
                         .range(d3.schemeBlues[years.length]);
 
                     // Get the data needed
-                    const data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code);
+                    const data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code)
+                                                      .map(d => ({ Year: d['Year'], 'Option Number': d['Option Number'] }));
+                    // Define the new dataset
+                    const data_groupedBar_transformed = {};
+                    // Transform the data
+                    data_groupedBar.forEach(item => {
+                        const { Year, 'Option Number': optionNumber } = item;
+
+                        // If the data_groupedBar_transformed do not have an entry for that option number, create one
+                        if (!data_groupedBar_transformed[optionNumber]) {
+                            data_groupedBar_transformed[optionNumber] = {};
+                        }
+
+                        // If the data_groupedBar_transformed object for the current Option Number doesn't have an Year, create one and inicialize
+                        if (!data_groupedBar_transformed[optionNumber][Year]) {
+                            data_groupedBar_transformed[optionNumber][Year] = 1;
+                        }
+                        // If the data_groupedBar_transformed object for the current Option Number and Year already exists, increment it
+                        else {
+                            data_groupedBar_transformed[optionNumber][Year]++;
+                        }
+                    });
+
+                    // Convert the data_groupedBar_transformed into array
+                    const data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
+                        const yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
+                        const total = Object.values(yearCounts).reduce((sum, count) => sum + count, 0); // Total for each year
+
+                        // Create an object with 'Option Number' and counts for each 'Year'
+                        return {
+                            'Option Number': optionNumber,
+                            ...yearCounts,
+                            Total: total // You can include the total count if needed
+                        };
+                    });
+                    console.log("Data for Grouped Bar:");
+                    console.log(data_groupedBar_ready);
+
+                    // Max value of the data, not inckuding the total
+                    let max_Y_Count = 0;
+                    data_groupedBar_ready.forEach(item => {
+                        // Exclude 'Total' column
+                        Object.keys(item).forEach(key => {
+                            if (key !== 'Total') {
+                                max_Y_Count = Math.max(max_Y_Count, item[key]);
+                            }
+                        });
+                    });
+                    // Define Y domains for count
+                    var y_axis_groupedBar_count = d3.scaleLinear()
+                        .domain([0, max_Y_Count])
+                        .range([ height, 0 ]);
+
+                    // Plot the bars
+                    option_comparison_div.append("g")
+                        .selectAll("g")
+                        .data(data_groupedBar_ready)
+                        .enter()
+                        .append("g")
+                            .attr("transform", function(d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
+                        .selectAll("rect")
+                        .data(function(d) { return years.map(function(key) { return {key: key, value: d[key]}; }); })
+                        .enter().append("rect")
+                            .attr("x", function(d) { return x_axis_eachBar(d.key); })
+                            .attr("y", function(d) { return y_axis_groupedBar_count(d.value); })
+                            .attr("width", x_axis_eachBar.bandwidth())
+                            .attr("height", function(d) { return height - y_axis_groupedBar_count(d.value); })
+                            .attr("fill", function(d) { return color_groupBar(d.key); });
+
                     /* --------------------------------------- */
 
                 });
