@@ -555,7 +555,7 @@
                 .append("svg")
                     .attr("width", width + margin.left + margin.right)
                     .attr("height", height + margin.top + margin.bottom)
-                    .style("background", "#DCDCDC") // Just to see the space
+                    //.style("background", "#DCDCDC") // Just to see the space
                 .append("g") // Section to plot the axis legends
                     .attr("transform",`translate(${margin.left},${margin.top})`);
 
@@ -878,46 +878,48 @@
                         .data(data_groupedBar_ready)
                         .enter()
                         .append("g")
-                            .attr("transform", function(d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
+                        .attr("transform", function (d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
                         .selectAll("rect")
-                        .data(function(d) { return years.map(function(key) { return {key: key, value: d[key]}; }); })
+                        .data(function (d) { return years.map(function (key) { return { key: key, value: d[key] }; }); })
                         .enter().append("rect")
-                            .attr("x", function(d) { return x_axis_eachBar(d.key); })
-                            .attr("y", function(d) { return y_axis_groupedBar_count(d.value); })
-                            .attr("width", x_axis_eachBar.bandwidth())
-                            .attr("height", function(d) { return height - y_axis_groupedBar_count(d.value); })
-                            .attr("fill", function(d) { return color_groupBar(d.key); })
-                            .each(function(d, i) {
-                                // Append text on top of each bar with count value
-                                d3.select(this.parentNode) // Select the parent g element
-                                    .append("text")
-                                    .attr("x", function() {
-                                        return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
-                                    })
-                                    .attr("y", y_axis_groupedBar_count(d.value) - 10)
-                                    .attr("text-anchor", "middle")
-                                    .style("font-size", "14px") // Adjust the font size as needed
-                                    .text(d.value)
-                                    // Start of the animation of the text on top of each bar
-                                    .style("opacity", 0)
-                                    .transition()
-                                    .duration(2000)
-                                    .style("opacity", 1)
-                                    .delay(function() {
-                                        return i * 100;
-                                    });
-                            });
+                        .attr("class", function (d) { return "bar OptionYear" + d.key; }) // Add a class for each bar
+                        .attr("x", function (d) { return x_axis_eachBar(d.key); })
+                        .attr("y", function (d) { return y_axis_groupedBar_count(d.value); })
+                        .attr("width", x_axis_eachBar.bandwidth())
+                        .attr("height", function (d) { return height - y_axis_groupedBar_count(d.value); })
+                        .attr("fill", function (d) { return color_groupBar(d.key); })
+                        .each(function (d, i) {
+                            // Append text on top of each bar with count value
+                            d3.select(this.parentNode) // Select the parent g element
+                                .append("text")
+                                .attr("class", function (d) { return "bar-text OptionYear" + d.key; }) // Add a class for each text element
+                                .attr("x", function () {
+                                    return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
+                                })
+                                .attr("y", y_axis_groupedBar_count(d.value) - 10)
+                                .attr("text-anchor", "middle")
+                                .style("font-size", "14px") // Adjust the font size as needed
+                                .text(d.value)
+                                // Start of the animation of the text on top of each bar
+                                .style("opacity", 0)
+                                .transition()
+                                .duration(2000)
+                                .style("opacity", 1)
+                                .delay(function () {
+                                    return i * 100;
+                                });
+                        });
 
                     // Create a legend container
                     var legend = option_comparison_div.append("g")
-                        .attr("class", "legend")
+                        .attr("class", "legend-item-option")
                         .attr("transform", "translate(-50, 10)"); // Adjust the values here for positioning
 
                     // Bind data to the legend container
-                    var legendItems = legend.selectAll(".legend-item")
+                    var legendItems = legend.selectAll(".legend-item-option")
                         .data(years)
                         .enter().append("g")
-                        .attr("class", "legend-item")
+                        .attr("class", "legend-item-option")
                         .attr("transform", function (d, i) {
                             return "translate(0," + i * 20 + ")";
                         });
@@ -928,7 +930,19 @@
                         .attr("width", 18)
                         .attr("height", 18)
                         .style("fill", function (d) {
-                            return color_groupBar(d);
+                            return color_groupBar(d)
+                        })
+                        .style("cursor", "pointer")  // Make the legend item clickable
+                        
+                        .on("click", function (event, d) {
+                            // Toggle the visibility of bars with the corresponding class
+                            const bars = d3.selectAll(".OptionYear" + d);
+                            const currentOpacity = bars.style("opacity");
+                            bars.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
+
+                            // Toggle the visibility of text elements with the corresponding class
+                            const texts = d3.selectAll(".bar-text.OptionYear" + d);
+                            texts.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
                         });
 
                     // Append labels for legend items
@@ -939,7 +953,25 @@
                         .style("text-anchor", "start")
                         .text(function (d) {
                             return d;
+                        })
+                        .style("cursor", "pointer")  // Make the legend item clickable
+                        .on("click", function (event, d) {
+                            // Toggle the visibility of bars with the corresponding class
+                            const bars = d3.selectAll(".OptionYear" + d);
+                            const currentOpacity = bars.style("opacity");
+                            bars.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
+
+                            // Toggle the visibility of text elements with the corresponding class
+                            const texts = d3.selectAll(".bar-text.OptionYear" + d);
+                            texts.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
+                        })
+                        .on("mouseover", function (event, d) {
+                            d3.select(this).style("fill", "grey"); // Change text color on hover
+                        })
+                        .on("mouseout", function (event, d) {
+                            d3.select(this).style("fill", "black"); // Restore original text color
                         });
+
                     /* --------------------------------------- */
 
                 });
