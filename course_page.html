@@ -519,7 +519,7 @@
 
         function drawGraphs2(course_code) {
 
-            const margin = { top: 50, right: 50, bottom: 120, left: 70 }, // Space for axis legends
+            const margin = { top: 50, right: 50, bottom: 50, left: 70 }, // Space for axis legends
                 all_width = 700,
                 all_height = 700,
                 width = all_width - margin.left - margin.right,
@@ -564,7 +564,7 @@
                 .attr("y", 0)
                 .attr("text-anchor", "middle")
                 .style("font-size", "25px")
-                .text("Option chosen by Applicants (%)");
+                .text("Option chosen by Applicants");
             
             d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Applicants_2021_2023.csv?token=GHSAT0AAAAAACJ32OOFC7YF6MSVXECN6KJMZKI52DQ").then(function(total_data) {
                 d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Courses_2021_2023.csv").then(function (grades_data) {
@@ -869,7 +869,7 @@
                     });
                     // Define Y domains for count
                     var y_axis_groupedBar_count = d3.scaleLinear()
-                        .domain([0, max_Y_Count])
+                        .domain([0, max_Y_Count + 5])
                         .range([ height, 0 ]);
 
                     // Plot the bars
@@ -888,6 +888,39 @@
                             .attr("height", function(d) { return height - y_axis_groupedBar_count(d.value); })
                             .attr("fill", function(d) { return color_groupBar(d.key); });
 
+
+                    // Create a legend container
+                    var legend = option_comparison_div.append("g")
+                        .attr("class", "legend")
+                        .attr("transform", "translate(-50, 10)"); // Adjust the values here for positioning
+
+                    // Bind data to the legend container
+                    var legendItems = legend.selectAll(".legend-item")
+                        .data(years)
+                        .enter().append("g")
+                        .attr("class", "legend-item")
+                        .attr("transform", function (d, i) {
+                            return "translate(0," + i * 20 + ")";
+                        });
+
+                    // Append rectangles or circles to represent legend items
+                    legendItems.append("rect")
+                        .attr("x", 0)
+                        .attr("width", 18)
+                        .attr("height", 18)
+                        .style("fill", function (d) {
+                            return color_groupBar(d);
+                        });
+
+                    // Append labels for legend items
+                    legendItems.append("text")
+                        .attr("x", 25)
+                        .attr("y", 9)
+                        .attr("dy", ".35em")
+                        .style("text-anchor", "start")
+                        .text(function (d) {
+                            return d;
+                        });
                     /* --------------------------------------- */
 
                 });
