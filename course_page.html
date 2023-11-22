@@ -1168,10 +1168,21 @@
 
                             console.log("Data for Grouped Bar2:");
                             console.log(data_groupedBar_ready);
+                            
+                            // Max value of the data, not inckuding the total
+                            let max_Y_Count = 0;
+                            data_groupedBar_ready.forEach(item => {
+                                // Exclude 'Total' column
+                                Object.keys(item).forEach(key => {
+                                    if (key !== 'Total') {
+                                        max_Y_Count = Math.max(max_Y_Count, item[key]);
+                                    }
+                                });
+                            });
 
                             // Define Y domains for count
                             var y_axis_groupedBar_count = d3.scaleLinear()
-                                .domain([0, 50])
+                                .domain([0, max_Y_Count + 5])
                                 .range([ height, 0 ]);
 
                             // Plot the bars
