@@ -949,7 +949,7 @@
                         .attr("transform", function (d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
                         .selectAll("rect")
                         .data(function (d) { return years.map(function (key) { return { key: key, value: d[key] }; }); })
-                        .enter().append("rect")
+                        .join("rect")
                         .attr("class", function (d) { return "bar OptionYear" + d.key; }) // Add a class for each bar
                         .attr("x", function (d) { return x_axis_eachBar(d.key); })
                         .attr("y", function (d) { return y_axis_groupedBar_count(d.value); })
@@ -960,7 +960,7 @@
                             // Append text on top of each bar with count value
                             d3.select(this.parentNode) // Select the parent g element
                                 .append("text")
-                                .attr("class", function (d) { return "bar-text OptionYear" + d.key; }) // Add a class for each text element
+                                .attr("class", "bar-text OptionYear" + d.key) // Add a class for each text element
                                 .attr("x", function () {
                                     return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
                                 })
@@ -1166,7 +1166,7 @@
                                 .attr("transform", function (d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
                                 .selectAll("rect")
                                 .data(function (d) { return years.map(function (key) { return { key: key, value: d[key] }; }); })
-                                .enter().append("rect")
+                                .join("rect")
                                 .attr("class", function (d) { return "bar OptionYear" + d.key; }) // Add a class for each bar
                                 .attr("x", function (d) { return x_axis_eachBar(d.key); })
                                 .attr("y", function (d) { return y_axis_groupedBar_count(d.value); })
@@ -1177,7 +1177,7 @@
                                     // Append text on top of each bar with count value
                                     d3.select(this.parentNode) // Select the parent g element
                                         .append("text")
-                                        .attr("class", function (d) { return "bar-text OptionYear" + d.key; }) // Add a class for each text element
+                                        .attr("class", "bar-text OptionYear tt" + d.key) // Add a class for each text element
                                         .attr("x", function () {
                                             return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
                                         })
