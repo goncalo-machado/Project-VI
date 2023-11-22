@@ -1151,6 +1151,68 @@
                                         });
                                 });
 
+                            // Create a legend container
+                            var legend = option_comparison_div.append("g")
+                                .attr("class", "legend-item-option")
+                                .attr("transform", "translate(-50, 10)"); // Adjust the values here for positioning
+
+                            // Bind data to the legend container
+                            var legendItems = legend.selectAll(".legend-item-option")
+                                .data(years)
+                                .enter().append("g")
+                                .attr("class", "legend-item-option")
+                                .attr("transform", function (d, i) {
+                                    return "translate(0," + i * 20 + ")";
+                                });
+
+                            // Append rectangles or circles to represent legend items
+                            legendItems.append("rect")
+                                .attr("x", 0)
+                                .attr("width", 18)
+                                .attr("height", 18)
+                                .style("fill", function (d) {
+                                    return color_groupBar(d)
+                                })
+                                .style("cursor", "pointer")  // Make the legend item clickable
+                                
+                                .on("click", function (event, d) {
+                                    // Toggle the visibility of bars with the corresponding class
+                                    const bars = d3.selectAll(".OptionYear" + d);
+                                    const currentOpacity = bars.style("opacity");
+                                    bars.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
+
+                                    // Toggle the visibility of text elements with the corresponding class
+                                    const texts = d3.selectAll(".bar-text.OptionYear" + d);
+                                    texts.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
+                                });
+
+                            // Append labels for legend items
+                            legendItems.append("text")
+                                .attr("x", 25)
+                                .attr("y", 9)
+                                .attr("dy", ".35em")
+                                .style("text-anchor", "start")
+                                .text(function (d) {
+                                    return d;
+                                })
+                                .style("cursor", "pointer")  // Make the legend item clickable
+                                .on("click", function (event, d) {
+                                    // Toggle the visibility of bars with the corresponding class
+                                    const bars = d3.selectAll(".OptionYear" + d);
+                                    const currentOpacity = bars.style("opacity");
+                                    bars.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
+
+                                    // Toggle the visibility of text elements with the corresponding class
+                                    const texts = d3.selectAll(".bar-text.OptionYear" + d);
+                                    texts.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
+                                })
+                                .on("mouseover", function (event, d) {
+                                    d3.select(this).style("fill", "grey"); // Change text color on hover
+                                })
+                                .on("mouseout", function (event, d) {
+                                    d3.select(this).style("fill", "black"); // Restore original text color
+                                });
+
                             // Update the state
                             showPercentage = false;
                         }
