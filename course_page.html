@@ -85,11 +85,13 @@
             border-radius: 5px;
             border: none;
         }
+
         /* To users notice that course buttons are clickable */
         button:hover {
             cursor: pointer;
             background-color: steelblue;
         }
+
         /* Config do d3 */
         .flex-container {
             display: flex;
@@ -328,71 +330,78 @@
                 application_grades_svg.selectAll("myLines")
                     .data(data_applicants_grade)
                     .join("path")
-                    .attr("class", d => "Year" + d.Year)
+                    .attr("class", d => "Applicant Path Year" + d.Year)
                     .attr("d", d => line(d.Grades))
                     .attr("stroke", d => myColor(d.Year))
                     .style("stroke-width", 4)
                     .style("fill", "none")
 
-                    function dots_mouseout (d) {
-                        // Reset radius and stroke width
-                        d3.select(this)
-                            .transition()
-                            .duration(200)
-                            .attr("r", 5)
-                            .attr("stroke-width", 1);
-                        // Remove the tooltip
-                        d3.select(".tooltip")
-                            .remove();
-                    }
-
-                    function dots_mouseover (event, d) {
-                         // Incrise the size of the point
-                         d3.select(this)
-                            .transition()
-                            .duration(200)
-                            .attr("r", 8)
-                            .attr("stroke-width", 2);
-                        // Define the tooltip
-                        var tooltip = d3.select("body")
-                            .append("div")
-                            .attr("class", "tooltip")
-                            .style("position", "absolute")
-                            .style("visibility", "visible")
-                            .style("background", "rgba(0, 0, 0, 0.6)")
-                            .style("color", "white")
-                            .style("padding", "8px")
-                            .style("border-radius", "4px")
-                            .style("opacity", 0);
-                        // Make a transition on its appear
-                        tooltip.transition()
-                            .duration(600)
-                            .style("opacity", .9);
-                        // Plot the information
-                        tooltip.html("Year: " + d3.select(this.parentNode).datum().Year + "<br>Number of Applicants: " + d.Num_Applicants + "<br>Grade: " + d.Grade + ".0 to " + d.Grade + ".9")
-                            .style("left", (event.pageX + 10) + "px")
-                            .style("top", (event.pageY - 15) + "px");
-                    }
-
-                    // Add the points
-                    var dots = application_grades_svg
-                        // First we need to enter in a group
-                        .selectAll("myDots")
-                        .data(data_applicants_grade)
-                        .join('g')
-                        .style("fill", d => myColor(d.Year))
-                        .attr("class", d => "Year" + d.Year)
-                        // Second we need to enter in the 'values' part of this group
-                        .selectAll("myPoints")
-                        .data(d => d.Grades)
-                        .join("circle")
-                        .attr("cx", d => x(d.Grade))
-                        .attr("cy", d => y(d.Num_Applicants))
+                function dots_mouseout(d) {
+                    // Reset radius and stroke width
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
                         .attr("r", 5)
-                        .attr("stroke", "white");
-                    
-                    dots.on("mouseover", dots_mouseover)
+                        .attr("stroke-width", 1);
+                    // Remove the tooltip
+                    d3.select(".tooltip")
+                        .remove();
+                }
+
+                function dots_mouseover(event, d) {
+                    // Incrise the size of the point
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr("r", 8)
+                        .attr("stroke-width", 2);
+                    // Define the tooltip
+                    var tooltip = d3.select("body")
+                        .append("div")
+                        .attr("class", "tooltip")
+                        .style("position", "absolute")
+                        .style("visibility", "visible")
+                        .style("background", "rgba(0, 0, 0, 0.6)")
+                        .style("color", "white")
+                        .style("padding", "8px")
+                        .style("border-radius", "4px")
+                        .style("opacity", 0);
+                    // Make a transition on its appear
+                    tooltip.transition()
+                        .duration(600)
+                        .style("opacity", .9);
+                    // Plot the information
+                    tooltip.html("Year: " + d3.select(this.parentNode).datum().Year + "<br>Number of Applicants: " + d.Num_Applicants + "<br>Grade: " + d.Grade + ".0 to " + d.Grade + ".9")
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 15) + "px");
+                }
+
+                // Add the points
+                var dots = application_grades_svg
+                    // First we need to enter in a group
+                    .selectAll("myDots")
+                    .data(data_applicants_grade)
+                    .join('g')
+                    .style("fill", d => myColor(d.Year))
+                    .attr("class", d => "Applicant Dots Year" + d.Year)
+                    // Second we need to enter in the 'values' part of this group
+                    .selectAll("myPoints")
+                    .data(d => d.Grades)
+                    .join("circle")
+                    .attr("cx", d => x(d.Grade))
+                    .attr("cy", d => y(d.Num_Applicants))
+                    .attr("r", 5)
+                    .attr("stroke", "white");
+
+                dots.on("mouseover", dots_mouseover)
                     .on("mouseout", dots_mouseout);
+
+                console.log("DOTS:")
+                console.log(dots)
+
+                var temp = d3.selectAll(".Applicant.Dots.Year2021").selectChildren();
+                console.log("TEMP:")
+                console.log(temp)
 
 
                 // // Add a label at the end of each line
@@ -436,16 +445,23 @@
                     })
                     .on("click", function (event, d) {
                         // is the element currently visible ?
-                        currentOpacity = d3.selectAll("." + "Year" + d.Year).style("opacity")
+                        currentOpacity = d3.selectAll(".Applicant.Path.Year" + d.Year).style("opacity")
                         // Change the opacity: from 0 to 1 or from 1 to 0
-                        if (currentOpacity == 1){
-                            d3.selectAll("." + "Year" + d.Year).transition().style("opacity", 0)
-                            dots.on('mouseout',null);
-                            dots.on('mouseover',null);
-                        }else{
-                            d3.selectAll("." + "Year" + d.Year).transition().style("opacity", 1)
-                            dots.on('mouseout',dots_mouseout);
-                            dots.on('mouseover',dots_mouseover);
+                        if (currentOpacity == 1) {
+                            d3.selectAll(".Applicant.Path.Year" + d.Year).transition().style("opacity", 0)
+                            d3.selectAll(".Applicant.Dots.Year" + d.Year).transition().style("opacity", 0)
+                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseout', null);
+                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseover', null);
+                            // dots.on('mouseout',null);
+                            // dots.on('mouseover',null);
+                        } else {
+                            d3.selectAll(".Applicant.Path.Year" + d.Year).transition().style("opacity", 1)
+                            d3.selectAll(".Applicant.Dots.Year" + d.Year).transition().style("opacity", 1)
+                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseout', dots_mouseout);
+                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseover', dots_mouseover);
+                            // d3.selectAll("." + "Year" + d.Year).transition().style("opacity", 1)
+                            // dots.on('mouseout',dots_mouseout);
+                            // dots.on('mouseover',dots_mouseover);
                         }
                     })
 
@@ -465,16 +481,23 @@
                     })
                     .on("click", function (event, d) {
                         // is the element currently visible ?
-                        currentOpacity = d3.selectAll("." + "Year" + d.Year).style("opacity")
+                        currentOpacity = d3.selectAll(".Applicant.Path.Year" + d.Year).style("opacity")
                         // Change the opacity: from 0 to 1 or from 1 to 0
-                        if (currentOpacity == 1){
-                            d3.selectAll("." + "Year" + d.Year).transition().style("opacity", 0)
-                            dots.on('mouseout',null);
-                            dots.on('mouseover',null);
-                        }else{
-                            d3.selectAll("." + "Year" + d.Year).transition().style("opacity", 1)
-                            dots.on('mouseout',dots_mouseout);
-                            dots.on('mouseover',dots_mouseover);
+                        if (currentOpacity == 1) {
+                            d3.selectAll(".Applicant.Path.Year" + d.Year).transition().style("opacity", 0)
+                            d3.selectAll(".Applicant.Dots.Year" + d.Year).transition().style("opacity", 0)
+                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseout', null);
+                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseover', null);
+                            // dots.on('mt',null);
+                            // dots.on('mouseover',null);
+                        } else {
+                            d3.selectAll(".Applicant.Path.Year" + d.Year).transition().style("opacity", 1)
+                            d3.selectAll(".Applicant.Dots.Year" + d.Year).transition().style("opacity", 1)
+                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseout', dots_mouseout);
+                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseover', dots_mouseover);
+                            // d3.selectAll("." + "Year" + d.Year).transition().style("opacity", 1)
+                            // dots.on('mouseout',dots_mouseout);
+                            // dots.on('mouseover',dots_mouseover);
                         }
                     })
 
@@ -514,21 +537,21 @@
                             .style("font-size", "20px")
                             .text(d.N_Applicants)
                             // Start of the animation of the text on top of each bar
-                                .style("opacity", 0)
-                                .transition()
-                                .duration(2000)
-                                .style("opacity", 1)
-                                .delay(function() { return i * 100; });
+                            .style("opacity", 0)
+                            .transition()
+                            .duration(2000)
+                            .style("opacity", 1)
+                            .delay(function () { return i * 100; });
                     });
 
                 // Add the total DETI applicants
                 application_year_svg.selectAll("rect")
-                        .transition()
-                        .duration(1000)
-                        .attr("x", function(d, i) {
-                            return i * (width / data_n_applicants_year.length) + ((width / data_n_applicants_year.length) / 7);
-                        })
-                        .delay(function(d,i){ return(i*100)});
+                    .transition()
+                    .duration(1000)
+                    .attr("x", function (d, i) {
+                        return i * (width / data_n_applicants_year.length) + ((width / data_n_applicants_year.length) / 7);
+                    })
+                    .delay(function (d, i) { return (i * 100) });
 
             });
         }
@@ -575,11 +598,11 @@
 
             const option_comparison_div = d3.select("#option_comparison_div")
                 .append("svg")
-                    .attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom)
-                    //.style("background", "#DCDCDC") // Just to see the space
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                //.style("background", "#DCDCDC") // Just to see the space
                 .append("g") // Section to plot the axis legends
-                    .attr("transform",`translate(${margin.left},${margin.top})`);
+                .attr("transform", `translate(${margin.left},${margin.top})`);
 
             option_comparison_div.append("text")
                 .attr("x", width / 2)
@@ -587,8 +610,8 @@
                 .attr("text-anchor", "middle")
                 .style("font-size", "25px")
                 .text("Option chosen by Applicants");
-            
-            d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Applicants_2021_2023.csv?token=GHSAT0AAAAAACJ32OOFC7YF6MSVXECN6KJMZKI52DQ").then(function(total_data) {
+
+            d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Applicants_2021_2023.csv?token=GHSAT0AAAAAACJ32OOFC7YF6MSVXECN6KJMZKI52DQ").then(function (total_data) {
                 d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Courses_2021_2023.csv").then(function (grades_data) {
 
                     // List of groups (here I have one group per column)
@@ -698,7 +721,7 @@
                     uni_comparison_svg.selectAll("myLines")
                         .data(data_university_grades)
                         .join("path")
-                        .attr("class", d => "Uni_Year" + d.Year)
+                        .attr("class", d => "Uni Path Year" + d.Year)
                         .attr("d", d => line(d.Grades))
                         .attr("stroke", d => myColor(d.Year))
                         .style("stroke-width", 4)
@@ -706,7 +729,7 @@
 
                     console.log(data_university_grades)
 
-                    function dots_mouseout (d) {
+                    function dots_mouseout(d) {
                         // Reset radius and stroke width
                         d3.select(this)
                             .transition()
@@ -718,7 +741,7 @@
                             .remove();
                     }
 
-                    function dots_mouseover (event, d) {
+                    function dots_mouseover(event, d) {
                         // Incrise the size of the point
                         d3.select(this)
                             .transition()
@@ -753,7 +776,7 @@
                         .data(data_university_grades)
                         .join('g')
                         .style("fill", d => myColor(d.Year))
-                        .attr("class", d => "Uni_Year" + d.Year)
+                        .attr("class", d => "Uni Dots Year" + d.Year)
                         // Second we need to enter in the 'values' part of this group
                         .selectAll("myPoints")
                         .data(d => d.Grades)
@@ -762,8 +785,8 @@
                         .attr("cy", d => y(d.Last_Placed_Applicant_Grade))
                         .attr("r", 5)
                         .attr("stroke", "white");
-                        
-                        dots.on("mouseover", dots_mouseover)
+
+                    dots.on("mouseover", dots_mouseover)
                         .on("mouseout", dots_mouseout);
 
                     // Add a legend (interactive)
@@ -792,19 +815,25 @@
                             d3.select(this).style("fill", d => myColor(d.Year)); // Restore original color on mouseout
                         })
                         .on("click", function (event, d) {
-                            // is the element currently visible ?
-                            currentOpacity = d3.selectAll("." + "Uni_Year" + d.Year).style("opacity")
+                            currentOpacity = d3.selectAll(".Uni.Path.Year" + d.Year).style("opacity")
                             // Change the opacity: from 0 to 1 or from 1 to 0
-                            if (currentOpacity == 1){
-                                d3.selectAll("." + "Uni_Year" + d.Year).transition().style("opacity", 0)
-                                dots.on('mouseout',null);
-                                dots.on('mouseover',null);
-                            }else{
-                                d3.selectAll("." + "Uni_Year" + d.Year).transition().style("opacity", 1)
-                                dots.on('mouseout',dots_mouseout);
-                                dots.on('mouseover',dots_mouseover);
+                            if (currentOpacity == 1) {
+                                d3.selectAll(".Uni.Path.Year" + d.Year).transition().style("opacity", 0)
+                                d3.selectAll(".Uni.Dots.Year" + d.Year).transition().style("opacity", 0)
+                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseout', null);
+                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseover', null);
+                                // dots.on('mt',null);
+                                // dots.on('mouseover',null);
+                            } else {
+                                d3.selectAll(".Uni.Path.Year" + d.Year).transition().style("opacity", 1)
+                                d3.selectAll(".Uni.Dots.Year" + d.Year).transition().style("opacity", 1)
+                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseout', dots_mouseout);
+                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseover', dots_mouseover);
+                                // d3.selectAll("." + "Year" + d.Year).transition().style("opacity", 1)
+                                // dots.on('mouseout',dots_mouseout);
+                                // dots.on('mouseover',dots_mouseover);
                             }
-                                                        
+
                         })
 
                     buttons
@@ -822,17 +851,23 @@
                             d3.select(this).style("fill", "black"); // Restore original text color on mouseout
                         })
                         .on("click", function (event, d) {
-                            // is the element currently visible ?
-                            currentOpacity = d3.selectAll("." + "Uni_Year" + d.Year).style("opacity")
+                            currentOpacity = d3.selectAll(".Uni.Path.Year" + d.Year).style("opacity")
                             // Change the opacity: from 0 to 1 or from 1 to 0
-                            if (currentOpacity == 1){
-                                d3.selectAll("." + "Uni_Year" + d.Year).transition().style("opacity", 0)
-                                dots.on('mouseout',null);
-                                dots.on('mouseover',null);
-                            }else{
-                                d3.selectAll("." + "Uni_Year" + d.Year).transition().style("opacity", 1)
-                                dots.on('mouseout',dots_mouseout);
-                                dots.on('mouseover',dots_mouseover);
+                            if (currentOpacity == 1) {
+                                d3.selectAll(".Uni.Path.Year" + d.Year).transition().style("opacity", 0)
+                                d3.selectAll(".Uni.Dots.Year" + d.Year).transition().style("opacity", 0)
+                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseout', null);
+                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseover', null);
+                                // dots.on('mt',null);
+                                // dots.on('mouseover',null);
+                            } else {
+                                d3.selectAll(".Uni.Path.Year" + d.Year).transition().style("opacity", 1)
+                                d3.selectAll(".Uni.Dots.Year" + d.Year).transition().style("opacity", 1)
+                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseout', dots_mouseout);
+                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseover', dots_mouseover);
+                                // d3.selectAll("." + "Year" + d.Year).transition().style("opacity", 1)
+                                // dots.on('mouseout',dots_mouseout);
+                                // dots.on('mouseover',dots_mouseover);
                             }
                         });
 
@@ -862,26 +897,26 @@
                         .style("pointer-events", "none") // Make text not interfere with button clicks
                         .text("%");
 
-                    
+
                     // Filter the data needed for X, that is, choise options
                     const choice_options = ["1", "2", "3", "4", "5", "6"];
                     // Get the X information, that is, choise options to X axis
                     const x_axis_groupedBar = d3.scaleBand()
-                                .domain(choice_options)
-                                .range([ 0, width ])
-                                .padding([0.2]);
+                        .domain(choice_options)
+                        .range([0, width])
+                        .padding([0.2]);
                     // Plot the X information in the axis
                     option_comparison_div.append("g")
-                                    .attr("transform", `translate(0, ${height})`)
-                                    .call(d3.axisBottom(x_axis_groupedBar))
-                                .selectAll("text")
-                                    .style("text-anchor", "middle");
+                        .attr("transform", `translate(0, ${height})`)
+                        .call(d3.axisBottom(x_axis_groupedBar))
+                        .selectAll("text")
+                        .style("text-anchor", "middle");
                     // Another scale for subgroup position?
                     const x_axis_eachBar = d3.scaleBand()
-                                .domain(years)
-                                .range([0, x_axis_groupedBar.bandwidth()])
-                                .padding([0.05])
-                    
+                        .domain(years)
+                        .range([0, x_axis_groupedBar.bandwidth()])
+                        .padding([0.05])
+
                     // Colors for each the years
                     const color_groupBar = d3.scaleOrdinal()
                         .domain(years)
@@ -889,7 +924,7 @@
 
                     // Get the data needed
                     const data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code)
-                                                      .map(d => ({ Year: d['Year'], 'Option Number': d['Option Number'] }));
+                        .map(d => ({ Year: d['Year'], 'Option Number': d['Option Number'] }));
                     // Define the new dataset
                     const data_groupedBar_transformed = {};
                     // Transform the data
@@ -938,7 +973,7 @@
                     // Define Y domains for count
                     var y_axis_groupedBar_count = d3.scaleLinear()
                         .domain([0, max_Y_Count + 5])
-                        .range([ height, 0 ]);
+                        .range([height, 0]);
 
                     // Plot the bars
                     option_comparison_div.append("g")
@@ -1001,7 +1036,7 @@
                             return color_groupBar(d)
                         })
                         .style("cursor", "pointer")  // Make the legend item clickable
-                        
+
                         .on("click", function (event, d) {
                             // Toggle the visibility of bars with the corresponding class
                             const bars = d3.selectAll(".OptionYear" + d);
@@ -1039,7 +1074,7 @@
                         .on("mouseout", function (event, d) {
                             d3.select(this).style("fill", "black"); // Restore original text color
                         });
-                    
+
                     // Define the click event handler function
                     function handleClick() {
                         // If showPercentage is true, display the %
@@ -1075,26 +1110,26 @@
                                 .style("font-size", "12px")
                                 .style("pointer-events", "none") // Make text not interfere with button clicks
                                 .text("Abs");
-                            
+
                             // Filter the data needed for X, that is, choise options
                             const choice_options = ["1", "2", "3", "4", "5", "6"];
                             // Get the X information, that is, choise options to X axis
                             const x_axis_groupedBar = d3.scaleBand()
-                                        .domain(choice_options)
-                                        .range([ 0, width ])
-                                        .padding([0.2]);
+                                .domain(choice_options)
+                                .range([0, width])
+                                .padding([0.2]);
                             // Plot the X information in the axis
                             option_comparison_div.append("g")
-                                            .attr("transform", `translate(0, ${height})`)
-                                            .call(d3.axisBottom(x_axis_groupedBar))
-                                        .selectAll("text")
-                                            .style("text-anchor", "middle");
+                                .attr("transform", `translate(0, ${height})`)
+                                .call(d3.axisBottom(x_axis_groupedBar))
+                                .selectAll("text")
+                                .style("text-anchor", "middle");
                             // Another scale for subgroup position?
                             const x_axis_eachBar = d3.scaleBand()
-                                        .domain(years)
-                                        .range([0, x_axis_groupedBar.bandwidth()])
-                                        .padding([0.05])
-                            
+                                .domain(years)
+                                .range([0, x_axis_groupedBar.bandwidth()])
+                                .padding([0.05])
+
                             // Colors for each the years
                             const color_groupBar = d3.scaleOrdinal()
                                 .domain(years)
@@ -1102,7 +1137,7 @@
 
                             // Get the data needed
                             const data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code)
-                                                            .map(d => ({ Year: d['Year'], 'Option Number': d['Option Number'] }));
+                                .map(d => ({ Year: d['Year'], 'Option Number': d['Option Number'] }));
                             // Define the new dataset
                             const data_groupedBar_transformed = {};
                             // Transform the data
@@ -1168,7 +1203,7 @@
 
                             console.log("Data for Grouped Bar2:");
                             console.log(data_groupedBar_ready);
-                            
+
                             // Max value of the data, not inckuding the total
                             let max_Y_Count = 0;
                             data_groupedBar_ready.forEach(item => {
@@ -1183,7 +1218,7 @@
                             // Define Y domains for count
                             var y_axis_groupedBar_count = d3.scaleLinear()
                                 .domain([0, max_Y_Count + 5])
-                                .range([ height, 0 ]);
+                                .range([height, 0]);
 
                             // Plot the bars
                             option_comparison_div.append("g")
@@ -1245,7 +1280,7 @@
                                     return color_groupBar(d)
                                 })
                                 .style("cursor", "pointer")  // Make the legend item clickable
-                                
+
                                 .on("click", function (event, d) {
                                     // Toggle the visibility of bars with the corresponding class
                                     const bars = d3.selectAll(".OptionYear" + d);
@@ -1320,26 +1355,26 @@
                                 .style("font-size", "12px")
                                 .style("pointer-events", "none") // Make text not interfere with button clicks
                                 .text("%");
-                            
+
                             // Filter the data needed for X, that is, choise options
                             const choice_options = ["1", "2", "3", "4", "5", "6"];
                             // Get the X information, that is, choise options to X axis
                             const x_axis_groupedBar = d3.scaleBand()
-                                        .domain(choice_options)
-                                        .range([ 0, width ])
-                                        .padding([0.2]);
+                                .domain(choice_options)
+                                .range([0, width])
+                                .padding([0.2]);
                             // Plot the X information in the axis
                             option_comparison_div.append("g")
-                                            .attr("transform", `translate(0, ${height})`)
-                                            .call(d3.axisBottom(x_axis_groupedBar))
-                                        .selectAll("text")
-                                            .style("text-anchor", "middle");
+                                .attr("transform", `translate(0, ${height})`)
+                                .call(d3.axisBottom(x_axis_groupedBar))
+                                .selectAll("text")
+                                .style("text-anchor", "middle");
                             // Another scale for subgroup position?
                             const x_axis_eachBar = d3.scaleBand()
-                                        .domain(years)
-                                        .range([0, x_axis_groupedBar.bandwidth()])
-                                        .padding([0.05])
-                            
+                                .domain(years)
+                                .range([0, x_axis_groupedBar.bandwidth()])
+                                .padding([0.05])
+
                             // Colors for each the years
                             const color_groupBar = d3.scaleOrdinal()
                                 .domain(years)
@@ -1347,7 +1382,7 @@
 
                             // Get the data needed
                             const data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code)
-                                                            .map(d => ({ Year: d['Year'], 'Option Number': d['Option Number'] }));
+                                .map(d => ({ Year: d['Year'], 'Option Number': d['Option Number'] }));
                             // Define the new dataset
                             const data_groupedBar_transformed = {};
                             // Transform the data
@@ -1398,7 +1433,7 @@
                             // Define Y domains for count
                             var y_axis_groupedBar_count = d3.scaleLinear()
                                 .domain([0, max_Y_Count + 5])
-                                .range([ height, 0 ]);
+                                .range([height, 0]);
 
                             // Plot the bars
                             option_comparison_div.append("g")
@@ -1460,7 +1495,7 @@
                                     return color_groupBar(d)
                                 })
                                 .style("cursor", "pointer")  // Make the legend item clickable
-                                
+
                                 .on("click", function (event, d) {
                                     // Toggle the visibility of bars with the corresponding class
                                     const bars = d3.selectAll(".OptionYear" + d);
