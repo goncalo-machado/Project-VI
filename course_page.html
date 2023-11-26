@@ -142,19 +142,19 @@
     <script>
 
         function redirectHomePage() {
-            window.location.href = "index.html"
+            window.location.href = "index.html";
         }
 
         function change_course(course_code) {
-            document.getElementsByClassName("buttons_Selected")[0].className = "buttons_Unselected"
-            document.getElementById("applicants_grade_div").textContent = ''
-            document.getElementById("applicants_year_div").textContent = ''
-            document.getElementById("uni_comparison_div").textContent = ''
-            document.getElementById("option_comparison_div").textContent = ''
-            var course_name = document.getElementById("button_" + course_code).textContent
-            document.getElementById("button_" + course_code).className = "buttons_Selected"
+            document.getElementsByClassName("buttons_Selected")[0].className = "buttons_Unselected";
+            document.getElementById("applicants_grade_div").textContent = '';
+            document.getElementById("applicants_year_div").textContent = '';
+            document.getElementById("uni_comparison_div").textContent = '';
+            document.getElementById("option_comparison_div").textContent = '';
+            let course_name = document.getElementById("button_" + course_code).textContent;
+            document.getElementById("button_" + course_code).className = "buttons_Selected";
             document.getElementById("H1_Title").innerHTML = course_name;
-            document.title = course_name
+            document.title = course_name;
             drawGraphs(course_code);
             drawGraphs2(course_code);
             localStorage.setItem("course_code", course_code);
@@ -164,8 +164,8 @@
 
     <script>
         window.onload = function () {
-            var course_code = localStorage.getItem("course_code")
-            change_course(course_code)
+            let course_code = localStorage.getItem("course_code");
+            change_course(course_code);
         }
     </script>
 
@@ -175,35 +175,27 @@
         function drawGraphs(course_code) {
 
             // Set the dimensions and margins of the graph
-            const margin = { top: 50, right: 50, bottom: 120, left: 70 }, // Space for axis legends
+            let margin = { top: 50, right: 50, bottom: 120, left: 70 }, // Space for axis legends
                 all_width = 700,
                 all_height = 700,
                 width = all_width - margin.left - margin.right,
                 height = all_height - margin.top - margin.bottom;
 
-            // const margin = { top: 50, right: 20, bottom: 50, left: 60 },
-            //     all_width = 500,
-            //     all_height = 500,
-            //     width = all_width - margin.left - margin.right,
-            //     height = all_height - margin.top - margin.bottom;
-
             // Create the SVG (the space) to put the Bar Chart of the number of applicants by DETI course
-            const applicants_grade_div = d3.select("#applicants_grade_div")
+            let applicants_grade_div = d3.select("#applicants_grade_div")
                 .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-            //.style("background", "#DCDCDC"); // Just to see the space
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom);
 
-            const applicants_year_div = d3.select("#applicants_year_div")
+            let applicants_year_div = d3.select("#applicants_year_div")
                 .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-            //.style("background", "#DCDCDC");
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom);
 
-            const application_grades_svg = applicants_grade_div.append("g")
+            let application_grades_svg = applicants_grade_div.append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 
-            const application_year_svg = applicants_year_div.append("g")
+            let application_year_svg = applicants_year_div.append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 
             applicants_grade_div.append("text")
@@ -223,24 +215,20 @@
             d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Applicants_2021_2023.csv?token=GHSAT0AAAAAACJ32OOFC7YF6MSVXECN6KJMZKI52DQ").then(function (applicants_data) {
 
                 // List of groups (here I have one group per column)
-                const years = ["2021", "2022", "2023"]
+                let years = ["2021", "2022", "2023"];
 
-                const applicants_grade_final = {}
+                let applicants_grade_final = {};
 
-                const n_applicants_final = {}
+                let n_applicants_final = {};
 
-                var max_number_aplicants = 0
+                let max_number_aplicants = 0;
 
                 years.forEach(year => {
-                    const applicants_grades_by_value = {}
+                    let applicants_grades_by_value = {};
 
-                    const data_by_course_year_university = applicants_data.filter(d => d['University Code'] === "0300" && d['Year'] === year && d['Course Code'] === course_code);
+                    let data_by_course_year_university = applicants_data.filter(d => d['University Code'] === "0300" && d['Year'] === year && d['Course Code'] === course_code);
 
-                    const n_applicants = data_by_course_year_university.length
-
-                    //console.log(n_applicants)
-                    //console.log(applicants_data)
-                    //console.log(data_by_course_year_university)
+                    let n_applicants = data_by_course_year_university.length;
 
                     data_by_course_year_university.forEach(element => {
                         grade = parseInt(parseFloat(element["Applicant Grade"]) / 10);
@@ -251,47 +239,40 @@
                         }
                     });
 
-                    n_applicants_final[year] = n_applicants
+                    n_applicants_final[year] = n_applicants;
 
-                    applicants_grade_final[year] = applicants_grades_by_value
+                    applicants_grade_final[year] = applicants_grades_by_value;
 
                     if (max_number_aplicants < Math.max(...Object.values(applicants_grades_by_value))) {
-                        max_number_aplicants = Math.max(...Object.values(applicants_grades_by_value))
+                        max_number_aplicants = Math.max(...Object.values(applicants_grades_by_value));
                     }
                 });
 
-                //console.log(applicants_grade_final)
+                let max_applicants_rounded_10 = Math.ceil(max_number_aplicants / 10) * 10;
 
-                var max_applicants_rounded_10 = Math.ceil(max_number_aplicants / 10) * 10
+                let domain = max_applicants_rounded_10 + Math.floor(max_applicants_rounded_10 / 50) * 10;
 
-                var domain = max_applicants_rounded_10 + Math.floor(max_applicants_rounded_10 / 50) * 10
-
-                const data_applicants_grade = Object.keys(applicants_grade_final).map(year => {
+                let data_applicants_grade = Object.keys(applicants_grade_final).map(year => {
                     return {
                         "Year": year, "Grades": Object.keys(applicants_grade_final[year]).map(grade => {
-                            return { "Grade": grade, "Num_Applicants": applicants_grade_final[year][grade] }
+                            return { "Grade": grade, "Num_Applicants": applicants_grade_final[year][grade] };
                         })
                     }
-                })
+                });
 
-                const data_n_applicants_year = Object.keys(n_applicants_final).map(year => {
+                let data_n_applicants_year = Object.keys(n_applicants_final).map(year => {
                     return {
                         "Year": year, "N_Applicants": n_applicants_final[year]
                     }
-                })
-
-                //console.log(data_applicants_grade)
-
-                //console.log(data_n_applicants_year)
+                });
 
                 // A color scale: one color for each group
-                const myColor = d3.scaleOrdinal()
+                let myColor = d3.scaleOrdinal()
                     .domain(years)
                     .range(d3.schemeBlues[years.length]);
-                //.range(d3.schemeSet2);
 
                 // Add X axis --> it is a date format
-                const x = d3.scaleLinear()
+                let x = d3.scaleLinear()
                     .domain([10, 20])
                     .range([0, width]);
                 application_grades_svg.append("g")
@@ -307,7 +288,7 @@
                     .text("Grade interval ([x.0, x.9])");
 
                 // Add Y axis
-                const y = d3.scaleLinear()
+                let y = d3.scaleLinear()
                     .domain([0, domain])
                     .range([height, 0]);
                 application_grades_svg.append("g")
@@ -323,18 +304,18 @@
                     .text("Number of applicants");
 
                 // Add the lines
-                const line = d3.line()
+                let line = d3.line()
                     .x(d => x(+d.Grade))
-                    .y(d => y(+d.Num_Applicants))
+                    .y(d => y(+d.Num_Applicants));
 
                 application_grades_svg.selectAll("myLines")
                     .data(data_applicants_grade)
                     .join("path")
-                    .attr("class", d => "Applicant Path Year" + d.Year)
-                    .attr("d", d => line(d.Grades))
-                    .attr("stroke", d => myColor(d.Year))
-                    .style("stroke-width", 4)
-                    .style("fill", "none")
+                        .attr("class", d => "Applicant Path Year" + d.Year)
+                        .attr("d", d => line(d.Grades))
+                        .attr("stroke", d => myColor(d.Year))
+                        .style("stroke-width", 4)
+                        .style("fill", "none");
 
                 function dots_mouseout(d) {
                     // Reset radius and stroke width
@@ -343,6 +324,7 @@
                         .duration(200)
                         .attr("r", 5)
                         .attr("stroke-width", 1);
+                    
                     // Remove the tooltip
                     d3.select(".tooltip")
                         .remove();
@@ -356,16 +338,16 @@
                         .attr("r", 8)
                         .attr("stroke-width", 2);
                     // Define the tooltip
-                    var tooltip = d3.select("body")
+                    let tooltip = d3.select("body")
                         .append("div")
-                        .attr("class", "tooltip")
-                        .style("position", "absolute")
-                        .style("visibility", "visible")
-                        .style("background", "rgba(0, 0, 0, 0.6)")
-                        .style("color", "white")
-                        .style("padding", "8px")
-                        .style("border-radius", "4px")
-                        .style("opacity", 0);
+                            .attr("class", "tooltip")
+                            .style("position", "absolute")
+                            .style("visibility", "visible")
+                            .style("background", "rgba(0, 0, 0, 0.6)")
+                            .style("color", "white")
+                            .style("padding", "8px")
+                            .style("border-radius", "4px")
+                            .style("opacity", 0);
                     // Make a transition on its appear
                     tooltip.transition()
                         .duration(600)
@@ -377,133 +359,96 @@
                 }
 
                 // Add the points
-                var dots = application_grades_svg
-                    // First we need to enter in a group
-                    .selectAll("myDots")
+                let dots = application_grades_svg.selectAll("myDots")
                     .data(data_applicants_grade)
                     .join('g')
-                    .style("fill", d => myColor(d.Year))
-                    .attr("class", d => "Applicant Dots Year" + d.Year)
-                    // Second we need to enter in the 'values' part of this group
-                    .selectAll("myPoints")
-                    .data(d => d.Grades)
-                    .join("circle")
-                    .attr("cx", d => x(d.Grade))
-                    .attr("cy", d => y(d.Num_Applicants))
-                    .attr("r", 5)
-                    .attr("stroke", "white");
+                        .style("fill", d => myColor(d.Year))
+                        .attr("class", d => "Applicant Dots Year" + d.Year)
+                        // Second we need to enter in the 'values' part of this group
+                        .selectAll("myPoints")
+                            .data(d => d.Grades)
+                            .join("circle")
+                                .attr("cx", d => x(d.Grade))
+                                .attr("cy", d => y(d.Num_Applicants))
+                                .attr("r", 5)
+                                .attr("stroke", "white");
 
                 dots.on("mouseover", dots_mouseover)
                     .on("mouseout", dots_mouseout);
 
-                console.log("DOTS:")
-                console.log(dots)
-
-                var temp = d3.selectAll(".Applicant.Dots.Year2021").selectChildren();
-                console.log("TEMP:")
-                console.log(temp)
-
-
-                // // Add a label at the end of each line
-                // application_grades_svg
-                // .selectAll("myLabels")
-                // .data(data_applicants_grade)
-                // .join('g')
-                //     .append("text")
-                //     .attr("class", d => "Year" + d.Year)
-                //     .datum(d => { return {Year: d.Year, value: d.Grades[d.Grades.length - 1]}; }) // keep only the last value of each time series
-                //     .attr("transform", d => `translate(${x(d.value.Grade)},${y(d.value.Num_Applicants)})`) // Put the text at the position of the last point
-                //     .attr("x", 12) // shift the text a bit more right
-                //     .text(d => d.Year)
-                //     .style("fill", d => myColor(d.Year))
-                //     .style("font-size", 15)
-
                 // Add a legend (interactive)
-                var buttons = application_grades_svg
-                    .selectAll("myLegend")
+                let buttons = application_grades_svg.selectAll("myLegend")
                     .data(data_applicants_grade)
                     .enter()
                     .append('g')
-                    .attr("class", d => "Button" + d.Year)
-                // .selectAll("g.Button")
-                // .data(data_applicants_grade)
+                        .attr("class", d => "Button" + d.Year);
 
                 buttons
                     .append("rect")
-                    .attr('x', (d, i) => 30 + i * 60)
-                    .attr('y', 10)
-                    //.style("outline", "thin solid black")
-                    .style("height", "20")
-                    .style("width", "50")
-                    .style("fill", d => myColor(d.Year))
-                    .style("cursor", "pointer")
-                    .on("mouseover", function (event, d) {
-                        d3.select(this).style("fill", "lightgrey"); // Change color on hover
-                    })
-                    .on("mouseout", function (event, d) {
-                        d3.select(this).style("fill", d => myColor(d.Year)); // Restore original color on mouseout
-                    })
-                    .on("click", function (event, d) {
-                        // is the element currently visible ?
-                        currentOpacity = d3.selectAll(".Applicant.Path.Year" + d.Year).style("opacity")
-                        // Change the opacity: from 0 to 1 or from 1 to 0
-                        if (currentOpacity == 1) {
-                            d3.selectAll(".Applicant.Path.Year" + d.Year).transition().style("opacity", 0)
-                            d3.selectAll(".Applicant.Dots.Year" + d.Year).transition().style("opacity", 0)
-                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseout', null);
-                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseover', null);
-                            // dots.on('mouseout',null);
-                            // dots.on('mouseover',null);
-                        } else {
-                            d3.selectAll(".Applicant.Path.Year" + d.Year).transition().style("opacity", 1)
-                            d3.selectAll(".Applicant.Dots.Year" + d.Year).transition().style("opacity", 1)
-                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseout', dots_mouseout);
-                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseover', dots_mouseover);
-                            // d3.selectAll("." + "Year" + d.Year).transition().style("opacity", 1)
-                            // dots.on('mouseout',dots_mouseout);
-                            // dots.on('mouseover',dots_mouseover);
-                        }
-                    })
+                        .attr('x', (d, i) => 30 + i * 60)
+                        .attr('y', 10)
+                        .style("height", "20")
+                        .style("width", "50")
+                        .style("fill", d => myColor(d.Year))
+                        .style("cursor", "pointer")
+                        .on("mouseover", function (event, d) {
+                            d3.select(this).style("fill", "lightgrey"); // Change color on hover
+                        })
+                        .on("mouseout", function (event, d) {
+                            d3.select(this).style("fill", d => myColor(d.Year)); // Restore original color on mouseout
+                        })
+                        .on("click", function (event, d) {
+                            // is the element currently visible ?
+                            currentOpacity = d3.selectAll(".Applicant.Path.Year" + d.Year).style("opacity");
+                            // Change the opacity: from 0 to 1 or from 1 to 0
+                            if (currentOpacity == 1) {
+                                d3.selectAll(".Applicant.Path.Year" + d.Year).transition().style("opacity", 0);
+                                d3.selectAll(".Applicant.Dots.Year" + d.Year).transition().style("opacity", 0);
+                                d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseout', null);
+                                d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseover', null);
+                            } else {
+                                d3.selectAll(".Applicant.Path.Year" + d.Year).transition().style("opacity", 1);
+                                d3.selectAll(".Applicant.Dots.Year" + d.Year).transition().style("opacity", 1);
+                                d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseout', dots_mouseout);
+                                d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseover', dots_mouseover);
+                            }
+                        });
 
                 buttons
                     .append("text")
-                    .attr('x', (d, i) => 30 + i * 60 + 10)
-                    .attr('y', 25)
-                    .text(d => d.Year)
-                    .style("fill", "black")
-                    .style("font-size", 15)
-                    .style("cursor", "pointer")
-                    .on("mouseover", function (event, d) {
-                        d3.select(this).style("fill", "grey"); // Change text color on hover
-                    })
-                    .on("mouseout", function (event, d) {
-                        d3.select(this).style("fill", "black"); // Restore original text color on mouseout
-                    })
-                    .on("click", function (event, d) {
-                        // is the element currently visible ?
-                        currentOpacity = d3.selectAll(".Applicant.Path.Year" + d.Year).style("opacity")
-                        // Change the opacity: from 0 to 1 or from 1 to 0
-                        if (currentOpacity == 1) {
-                            d3.selectAll(".Applicant.Path.Year" + d.Year).transition().style("opacity", 0)
-                            d3.selectAll(".Applicant.Dots.Year" + d.Year).transition().style("opacity", 0)
-                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseout', null);
-                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseover', null);
-                            // dots.on('mt',null);
-                            // dots.on('mouseover',null);
-                        } else {
-                            d3.selectAll(".Applicant.Path.Year" + d.Year).transition().style("opacity", 1)
-                            d3.selectAll(".Applicant.Dots.Year" + d.Year).transition().style("opacity", 1)
-                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseout', dots_mouseout);
-                            d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseover', dots_mouseover);
-                            // d3.selectAll("." + "Year" + d.Year).transition().style("opacity", 1)
-                            // dots.on('mouseout',dots_mouseout);
-                            // dots.on('mouseover',dots_mouseover);
-                        }
-                    })
+                        .attr('x', (d, i) => 30 + i * 60 + 10)
+                        .attr('y', 25)
+                        .text(d => d.Year)
+                        .style("fill", "black")
+                        .style("font-size", 15)
+                        .style("cursor", "pointer")
+                        .on("mouseover", function (event, d) {
+                            d3.select(this).style("fill", "grey"); // Change text color on hover
+                        })
+                        .on("mouseout", function (event, d) {
+                            d3.select(this).style("fill", "black"); // Restore original text color on mouseout
+                        })
+                        .on("click", function (event, d) {
+                            // is the element currently visible ?
+                            currentOpacity = d3.selectAll(".Applicant.Path.Year" + d.Year).style("opacity")
+                            // Change the opacity: from 0 to 1 or from 1 to 0
+                            if (currentOpacity == 1) {
+                                d3.selectAll(".Applicant.Path.Year" + d.Year).transition().style("opacity", 0);
+                                d3.selectAll(".Applicant.Dots.Year" + d.Year).transition().style("opacity", 0);
+                                d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseout', null);
+                                d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseover', null);
+
+                            } else {
+                                d3.selectAll(".Applicant.Path.Year" + d.Year).transition().style("opacity", 1);
+                                d3.selectAll(".Applicant.Dots.Year" + d.Year).transition().style("opacity", 1);
+                                d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseout', dots_mouseout);
+                                d3.selectAll(".Applicant.Dots.Year" + d.Year).selectChildren().on('mouseover', dots_mouseover);
+                            }
+                        });
 
                 //Bar Plot for Applicants per Year
 
-                const x_domain = d3.scaleBand()
+                let x_domain = d3.scaleBand()
                     .range([0, width])
                     .domain(years)
                     .padding(0.2);
@@ -512,37 +457,37 @@
                     .attr("transform", `translate(0, ${height})`)
                     .call(d3.axisBottom(x_domain))
                     .selectAll("text")
-                    .attr("transform", "translate(-10,0)rotate(-45)")
-                    .style("text-anchor", "end");
+                        .attr("transform", "translate(-10,0)rotate(-45)")
+                        .style("text-anchor", "end");
 
-                const y_domain = d3.scaleLinear()
+                let y_domain = d3.scaleLinear()
                     .domain([0, d3.max(data_n_applicants_year, d => d.N_Applicants) + margin.bottom])
                     .range([height, 0]);
 
                 application_year_svg.selectAll("mybar")
                     .data(data_n_applicants_year)
                     .join("rect")
-                    .attr("x", d => x_domain(d.Year))
-                    .attr("y", d => y_domain(d.N_Applicants))
-                    .attr("width", x_domain.bandwidth())
-                    .attr("height", d => height - y_domain(d.N_Applicants))
-                    .attr("fill", "steelblue")
-                    .each(function (d, i) {
-                        application_year_svg.append("text")
-                            .attr("x", function () {
-                                return i * (width / data_n_applicants_year.length) + ((width / data_n_applicants_year.length) / 2);
-                            })
-                            .attr("y", y_domain(d.N_Applicants) - 10)
-                            .attr("text-anchor", "middle")
-                            .style("font-size", "20px")
-                            .text(d.N_Applicants)
-                            // Start of the animation of the text on top of each bar
-                            .style("opacity", 0)
-                            .transition()
-                            .duration(2000)
-                            .style("opacity", 1)
-                            .delay(function () { return i * 100; });
-                    });
+                        .attr("x", d => x_domain(d.Year))
+                        .attr("y", d => y_domain(d.N_Applicants))
+                        .attr("width", x_domain.bandwidth())
+                        .attr("height", d => height - y_domain(d.N_Applicants))
+                        .attr("fill", "steelblue")
+                        .each(function (d, i) {
+                            application_year_svg.append("text")
+                                .attr("x", function () {
+                                    return i * (width / data_n_applicants_year.length) + ((width / data_n_applicants_year.length) / 2);
+                                })
+                                .attr("y", y_domain(d.N_Applicants) - 10)
+                                .attr("text-anchor", "middle")
+                                .style("font-size", "20px")
+                                .text(d.N_Applicants)
+                                // Start of the animation of the text on top of each bar
+                                .style("opacity", 0)
+                                .transition()
+                                .duration(2000)
+                                .style("opacity", 1)
+                                .delay(function () { return i * 100; });
+                        });
 
                 // Add the total DETI applicants
                 application_year_svg.selectAll("rect")
@@ -564,29 +509,26 @@
 
         function drawGraphs2(course_code) {
 
-            const margin = { top: 50, right: 50, bottom: 50, left: 70 }, // Space for axis legends
+            let margin = { top: 50, right: 50, bottom: 50, left: 70 }, // Space for axis legends
                 all_width = 700,
                 all_height = 700,
                 width = all_width - margin.left - margin.right,
                 height = all_height - margin.top - margin.bottom;
 
-            var university_code_to_name = {
+            let university_code_to_name = {
                 "0300": "UA", "0501": "FCTUC", "1503": "FCUL", "3135": "ISEP", "3064": "ISEC"
-            }
+            };
 
-            var university_code_to_full_name = {
+            let university_code_to_full_name = {
                 "0300": "Universidade de Aveiro", "0501": "Faculdade de Ciências e Tecnologia da Universidade de Coimbra", "1503": "Faculdade de Ciências da Universidade de Lisboa", "3135": "Instituto Superior de Engenharia do Porto", "3064": "Instituto Superior de Engenharia de Coimbra"
-            }
+            };
 
-            //console.log(university_code_to_name)
-
-            const uni_comparison_div = d3.select("#uni_comparison_div")
+            let uni_comparison_div = d3.select("#uni_comparison_div")
                 .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-            //.style("background", "#DCDCDC"); // Just to see the space
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom);
 
-            const uni_comparison_svg = uni_comparison_div.append("g")
+            let uni_comparison_svg = uni_comparison_div.append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 
             uni_comparison_div.append("text")
@@ -596,13 +538,12 @@
                 .style("font-size", "25px")
                 .text("Grade of Last Place Applicant");
 
-            const option_comparison_div = d3.select("#option_comparison_div")
+            let option_comparison_div = d3.select("#option_comparison_div")
                 .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                //.style("background", "#DCDCDC") // Just to see the space
-                .append("g") // Section to plot the axis legends
-                .attr("transform", `translate(${margin.left},${margin.top})`);
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g") // Section to plot the axis legends
+                       .attr("transform", `translate(${margin.left},${margin.top})`);
 
             option_comparison_div.append("text")
                 .attr("x", width / 2)
@@ -615,75 +556,55 @@
                 d3.csv("https://raw.githubusercontent.com/goncalo-machado/Project-VI/main/Dataset_Courses_2021_2023.csv").then(function (grades_data) {
 
                     // List of groups (here I have one group per column)
-                    const years = ["2021", "2022", "2023"]
+                    let years = ["2021", "2022", "2023"];
 
-                    const university_grades_final = {}
+                    let university_grades_final = {};
 
-                    const universities_compare = []
+                    let universities_compare = [];
 
                     years.forEach(year => {
-                        const data_year = {}
+                        let data_year = {};
 
-                        const data_by_year_university = grades_data.filter(d => d['Year'] === year && d['Course Code'] === course_code)
-
-                        //console.log(data_by_year_university)
-                        //console.log(applicants_data)
-                        //console.log(data_by_course_year_university)
+                        let data_by_year_university = grades_data.filter(d => d['Year'] === year && d['Course Code'] === course_code);
 
                         data_by_year_university.forEach(element => {
-                            data_year[element["University Code"]] = parseFloat(element["Last Placed Candidate Grade"]) / 10
+                            data_year[element["University Code"]] = parseFloat(element["Last Placed Candidate Grade"]) / 10;
 
                             if (!universities_compare.includes(element["University Code"])) {
-                                universities_compare.push(element["University Code"])
+                                universities_compare.push(element["University Code"]);
                             }
                         })
 
-                        universities_compare.sort(function (a, b) { return a - b })
+                        universities_compare.sort(function (a, b) { return a - b });
 
-                        university_grades_final[year] = data_year
+                        university_grades_final[year] = data_year;
 
                     });
 
-                    //console.log(university_grades_final)
-
-                    const data_university_grades = Object.keys(university_grades_final).map(year => {
+                    let data_university_grades = Object.keys(university_grades_final).map(year => {
                         return {
                             "Year": year, "Grades": Object.keys(university_grades_final[year]).map(university_code => {
                                 return { "University_Code": university_code, "Last_Placed_Applicant_Grade": parseFloat((university_grades_final[year][university_code]).toFixed(2)) }
                             })
                         }
-                    })
+                    });
 
                     data_university_grades.forEach(element => {
                         element["Grades"].sort((a, b) => a["University_Code"] - b["University_Code"])
-                    })
+                    });
 
                     // A color scale: one color for each group
-                    const myColor = d3.scaleOrdinal()
+                    let myColor = d3.scaleOrdinal()
                         .domain(years)
                         .range(d3.schemeBlues[years.length]);
-                    //.range(d3.schemeSet2);
-
-                    //console.log(Object.keys(university_grades_final[years[0]]))
 
                     // Add X axis
-                    // const x = d3.scaleBand()
-                    //     .range([0, width])
-                    //     .domain([
-                    //         "1503",
-                    //         "3064",
-                    //         "3135",
-                    //         "0300",
-                    //         "0501"
-                    //     ]) //TODO
-
-                    // Add X axis
-                    const x = d3.scaleBand()
+                    let x = d3.scaleBand()
                         .range([0, width])
-                        .domain(universities_compare)
+                        .domain(universities_compare);
 
-                    var x_axis_generator = d3.axisBottom(x)
-                    x_axis_generator.tickFormat((d) => university_code_to_name[d]) //TODO: FIX
+                    let x_axis_generator = d3.axisBottom(x);
+                    x_axis_generator.tickFormat((d) => university_code_to_name[d])
 
                     uni_comparison_svg.append("g")
                         .attr("transform", `translate(0, ${height})`)
@@ -698,9 +619,10 @@
                         .text("University");
 
                     // Add Y axis
-                    const y = d3.scaleLinear()
+                    let y = d3.scaleLinear()
                         .domain([10, 20])
                         .range([height, 0]);
+
                     uni_comparison_svg.append("g")
                         .call(d3.axisLeft(y));
 
@@ -714,20 +636,18 @@
                         .text("Grade");
 
                     // Add the lines
-                    const line = d3.line()
+                    let line = d3.line()
                         .x(d => x(d.University_Code) + x.bandwidth() / 2)
-                        .y(d => y(d.Last_Placed_Applicant_Grade))
+                        .y(d => y(d.Last_Placed_Applicant_Grade));
 
                     uni_comparison_svg.selectAll("myLines")
                         .data(data_university_grades)
                         .join("path")
-                        .attr("class", d => "Uni Path Year" + d.Year)
-                        .attr("d", d => line(d.Grades))
-                        .attr("stroke", d => myColor(d.Year))
-                        .style("stroke-width", 4)
-                        .style("fill", "none")
-
-                    console.log(data_university_grades)
+                            .attr("class", d => "Uni Path Year" + d.Year)
+                            .attr("d", d => line(d.Grades))
+                            .attr("stroke", d => myColor(d.Year))
+                            .style("stroke-width", 4)
+                            .style("fill", "none");
 
                     function dots_mouseout(d) {
                         // Reset radius and stroke width
@@ -736,6 +656,7 @@
                             .duration(200)
                             .attr("r", 5)
                             .attr("stroke-width", 1);
+
                         // Remove the tooltip
                         d3.select(".tooltip")
                             .remove();
@@ -748,17 +669,18 @@
                             .duration(200)
                             .attr("r", 8)
                             .attr("stroke-width", 2);
+
                         // Define the tooltip
-                        var tooltip = d3.select("body")
+                        let tooltip = d3.select("body")
                             .append("div")
-                            .attr("class", "tooltip")
-                            .style("position", "absolute")
-                            .style("visibility", "visible")
-                            .style("background", "rgba(0, 0, 0, 0.6)")
-                            .style("color", "white")
-                            .style("padding", "8px")
-                            .style("border-radius", "4px")
-                            .style("opacity", 0);
+                                .attr("class", "tooltip")
+                                .style("position", "absolute")
+                                .style("visibility", "visible")
+                                .style("background", "rgba(0, 0, 0, 0.6)")
+                                .style("color", "white")
+                                .style("padding", "8px")
+                                .style("border-radius", "4px")
+                                .style("opacity", 0);
                         // Make a transition on its appear
                         tooltip.transition()
                             .duration(600)
@@ -770,114 +692,101 @@
                     }
 
                     // Add the points
-                    var dots = uni_comparison_svg
+                    let dots = uni_comparison_svg
                         // First we need to enter in a group
                         .selectAll("myDots")
-                        .data(data_university_grades)
-                        .join('g')
-                        .style("fill", d => myColor(d.Year))
-                        .attr("class", d => "Uni Dots Year" + d.Year)
-                        // Second we need to enter in the 'values' part of this group
-                        .selectAll("myPoints")
-                        .data(d => d.Grades)
-                        .join("circle")
-                        .attr("cx", d => x(d.University_Code) + x.bandwidth() / 2)
-                        .attr("cy", d => y(d.Last_Placed_Applicant_Grade))
-                        .attr("r", 5)
-                        .attr("stroke", "white");
+                            .data(data_university_grades)
+                            .join('g')
+                                .style("fill", d => myColor(d.Year))
+                                .attr("class", d => "Uni Dots Year" + d.Year)
+                                // Second we need to enter in the 'values' part of this group
+                                .selectAll("myPoints")
+                                    .data(d => d.Grades)
+                                    .join("circle")
+                                        .attr("cx", d => x(d.University_Code) + x.bandwidth() / 2)
+                                        .attr("cy", d => y(d.Last_Placed_Applicant_Grade))
+                                        .attr("r", 5)
+                                        .attr("stroke", "white");
 
                     dots.on("mouseover", dots_mouseover)
                         .on("mouseout", dots_mouseout);
 
                     // Add a legend (interactive)
-                    var buttons = uni_comparison_svg
+                    let buttons = uni_comparison_svg
                         .selectAll("myLegend")
-                        .data(data_university_grades)
-                        .enter()
-                        .append('g')
-                        .attr("class", d => "Button" + d.Year)
-                    // .selectAll("g.Button")
-                    // .data(data_applicants_grade)
+                            .data(data_university_grades)
+                            .enter()
+                            .append('g')
+                                .attr("class", d => "Button" + d.Year);
 
                     buttons
                         .append("rect")
-                        .attr('x', (d, i) => 30 + i * 60)
-                        .attr('y', 10)
-                        //.style("outline", "thin solid black")
-                        .style("height", "20")
-                        .style("width", "50")
-                        .style("fill", d => myColor(d.Year))
-                        .style("cursor", "pointer")
-                        .on("mouseover", function (event, d) {
-                            d3.select(this).style("fill", "lightgrey"); // Change color on hover
-                        })
-                        .on("mouseout", function (event, d) {
-                            d3.select(this).style("fill", d => myColor(d.Year)); // Restore original color on mouseout
-                        })
-                        .on("click", function (event, d) {
-                            currentOpacity = d3.selectAll(".Uni.Path.Year" + d.Year).style("opacity")
-                            // Change the opacity: from 0 to 1 or from 1 to 0
-                            if (currentOpacity == 1) {
-                                d3.selectAll(".Uni.Path.Year" + d.Year).transition().style("opacity", 0)
-                                d3.selectAll(".Uni.Dots.Year" + d.Year).transition().style("opacity", 0)
-                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseout', null);
-                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseover', null);
-                                // dots.on('mt',null);
-                                // dots.on('mouseover',null);
-                            } else {
-                                d3.selectAll(".Uni.Path.Year" + d.Year).transition().style("opacity", 1)
-                                d3.selectAll(".Uni.Dots.Year" + d.Year).transition().style("opacity", 1)
-                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseout', dots_mouseout);
-                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseover', dots_mouseover);
-                                // d3.selectAll("." + "Year" + d.Year).transition().style("opacity", 1)
-                                // dots.on('mouseout',dots_mouseout);
-                                // dots.on('mouseover',dots_mouseover);
-                            }
+                            .attr('x', (d, i) => 30 + i * 60)
+                            .attr('y', 10)
+                            .style("height", "20")
+                            .style("width", "50")
+                            .style("fill", d => myColor(d.Year))
+                            .style("cursor", "pointer")
+                            .on("mouseover", function (event, d) {
+                                d3.select(this).style("fill", "lightgrey"); // Change color on hover
+                            })
+                            .on("mouseout", function (event, d) {
+                                d3.select(this).style("fill", d => myColor(d.Year)); // Restore original color on mouseout
+                            })
+                            .on("click", function (event, d) {
+                                currentOpacity = d3.selectAll(".Uni.Path.Year" + d.Year).style("opacity");
+                                // Change the opacity: from 0 to 1 or from 1 to 0
+                                if (currentOpacity == 1) {
+                                    d3.selectAll(".Uni.Path.Year" + d.Year).transition().style("opacity", 0);
+                                    d3.selectAll(".Uni.Dots.Year" + d.Year).transition().style("opacity", 0);
+                                    d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseout', null);
+                                    d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseover', null);
+                                } else {
+                                    d3.selectAll(".Uni.Path.Year" + d.Year).transition().style("opacity", 1);
+                                    d3.selectAll(".Uni.Dots.Year" + d.Year).transition().style("opacity", 1);
+                                    d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseout', dots_mouseout);
+                                    d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseover', dots_mouseover);
+                                }
 
-                        })
+                            });
 
                     buttons
                         .append("text")
-                        .attr('x', (d, i) => 30 + i * 60 + 10)
-                        .attr('y', 25)
-                        .text(d => d.Year)
-                        .style("fill", "black")
-                        .style("font-size", 15)
-                        .style("cursor", "pointer")
-                        .on("mouseover", function (event, d) {
-                            d3.select(this).style("fill", "grey"); // Change text color on hover
-                        })
-                        .on("mouseout", function (event, d) {
-                            d3.select(this).style("fill", "black"); // Restore original text color on mouseout
-                        })
-                        .on("click", function (event, d) {
-                            currentOpacity = d3.selectAll(".Uni.Path.Year" + d.Year).style("opacity")
-                            // Change the opacity: from 0 to 1 or from 1 to 0
-                            if (currentOpacity == 1) {
-                                d3.selectAll(".Uni.Path.Year" + d.Year).transition().style("opacity", 0)
-                                d3.selectAll(".Uni.Dots.Year" + d.Year).transition().style("opacity", 0)
-                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseout', null);
-                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseover', null);
-                                // dots.on('mt',null);
-                                // dots.on('mouseover',null);
-                            } else {
-                                d3.selectAll(".Uni.Path.Year" + d.Year).transition().style("opacity", 1)
-                                d3.selectAll(".Uni.Dots.Year" + d.Year).transition().style("opacity", 1)
-                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseout', dots_mouseout);
-                                d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseover', dots_mouseover);
-                                // d3.selectAll("." + "Year" + d.Year).transition().style("opacity", 1)
-                                // dots.on('mouseout',dots_mouseout);
-                                // dots.on('mouseover',dots_mouseover);
-                            }
-                        });
+                            .attr('x', (d, i) => 30 + i * 60 + 10)
+                            .attr('y', 25)
+                            .text(d => d.Year)
+                            .style("fill", "black")
+                            .style("font-size", 15)
+                            .style("cursor", "pointer")
+                            .on("mouseover", function (event, d) {
+                                d3.select(this).style("fill", "grey"); // Change text color on hover
+                            })
+                            .on("mouseout", function (event, d) {
+                                d3.select(this).style("fill", "black"); // Restore original text color on mouseout
+                            })
+                            .on("click", function (event, d) {
+                                currentOpacity = d3.selectAll(".Uni.Path.Year" + d.Year).style("opacity");
+                                // Change the opacity: from 0 to 1 or from 1 to 0
+                                if (currentOpacity == 1) {
+                                    d3.selectAll(".Uni.Path.Year" + d.Year).transition().style("opacity", 0);
+                                    d3.selectAll(".Uni.Dots.Year" + d.Year).transition().style("opacity", 0);
+                                    d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseout', null);
+                                    d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseover', null);
+                                } else {
+                                    d3.selectAll(".Uni.Path.Year" + d.Year).transition().style("opacity", 1);
+                                    d3.selectAll(".Uni.Dots.Year" + d.Year).transition().style("opacity", 1);
+                                    d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseout', dots_mouseout);
+                                    d3.selectAll(".Uni.Dots.Year" + d.Year).selectChildren().on('mouseover', dots_mouseover);
+                                }
+                            });
 
                     /* ---------- GROUPED BAR CHART ---------- */
-                    // Define a variable to keep track of the current state
+                    // Define a letiable to keep track of the current state
                     let showPercentage = true;
                     // Append a button to the SVG
-                    const button = option_comparison_div
+                    let button = option_comparison_div
                         .append("g")
-                        .attr("transform", "translate(" + (width - 80) + ", 10)") // Adjust the position as needed
+                            .attr("transform", "translate(" + (width - 80) + ", 10)") // Adjust the position as needed
                     button.append("rect")
                         .attr("width", 70)
                         .attr("height", 30)
@@ -886,22 +795,22 @@
                         .style("fill", "steelblue")
                         .style("cursor", "pointer") // Make the button clickable
                         .on("click", handleClick); // Attach a click event listener to the button
+                    
                     // Append text to the button
                     button
                         .append("text")
-                        .attr("x", 35)
-                        .attr("y", 20)
-                        .attr("text-anchor", "middle")
-                        .style("fill", "black")
-                        .style("font-size", "12px")
-                        .style("pointer-events", "none") // Make text not interfere with button clicks
-                        .text("%");
-
+                            .attr("x", 35)
+                            .attr("y", 20)
+                            .attr("text-anchor", "middle")
+                            .style("fill", "black")
+                            .style("font-size", "12px")
+                            .style("pointer-events", "none") // Make text not interfere with button clicks
+                            .text("%");
 
                     // Filter the data needed for X, that is, choise options
-                    const choice_options = ["1", "2", "3", "4", "5", "6"];
+                    let choice_options = ["1", "2", "3", "4", "5", "6"];
                     // Get the X information, that is, choise options to X axis
-                    const x_axis_groupedBar = d3.scaleBand()
+                    let x_axis_groupedBar = d3.scaleBand()
                         .domain(choice_options)
                         .range([0, width])
                         .padding([0.2]);
@@ -910,26 +819,26 @@
                         .attr("transform", `translate(0, ${height})`)
                         .call(d3.axisBottom(x_axis_groupedBar))
                         .selectAll("text")
-                        .style("text-anchor", "middle");
+                            .style("text-anchor", "middle");
                     // Another scale for subgroup position?
-                    const x_axis_eachBar = d3.scaleBand()
+                    let x_axis_eachBar = d3.scaleBand()
                         .domain(years)
                         .range([0, x_axis_groupedBar.bandwidth()])
                         .padding([0.05])
 
                     // Colors for each the years
-                    const color_groupBar = d3.scaleOrdinal()
+                    let color_groupBar = d3.scaleOrdinal()
                         .domain(years)
                         .range(d3.schemeBlues[years.length]);
 
                     // Get the data needed
-                    const data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code)
+                    let data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code)
                         .map(d => ({ Year: d['Year'], 'Option Number': d['Option Number'] }));
                     // Define the new dataset
-                    const data_groupedBar_transformed = {};
+                    let data_groupedBar_transformed = {};
                     // Transform the data
                     data_groupedBar.forEach(item => {
-                        const { Year, 'Option Number': optionNumber } = item;
+                        let { Year, 'Option Number': optionNumber } = item;
 
                         // If the data_groupedBar_transformed do not have an entry for that option number, create one
                         if (!data_groupedBar_transformed[optionNumber]) {
@@ -947,8 +856,8 @@
                     });
 
                     // Convert the data_groupedBar_transformed into array
-                    const data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
-                        const yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
+                    let data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
+                        let yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
 
                         // Create an object with 'Option Number' and counts for each 'Year'
                         return {
@@ -956,9 +865,6 @@
                             ...yearCounts
                         };
                     });
-
-                    console.log("Data for Grouped Bar1:");
-                    console.log(data_groupedBar_ready);
 
                     // Max value of the data, not inckuding the total
                     let max_Y_Count = 0;
@@ -971,61 +877,61 @@
                         });
                     });
                     // Define Y domains for count
-                    var y_axis_groupedBar_count = d3.scaleLinear()
+                    let y_axis_groupedBar_count = d3.scaleLinear()
                         .domain([0, max_Y_Count + 5])
                         .range([height, 0]);
 
                     // Plot the bars
                     option_comparison_div.append("g")
                         .selectAll("g")
-                        .data(data_groupedBar_ready)
-                        .enter()
-                        .append("g")
-                        .attr("transform", function (d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
-                        .selectAll("rect")
-                        .data(function (d) { return years.map(function (key) { return { key: key, value: d[key] }; }); })
-                        .join("rect")
-                        .attr("class", function (d) { return "bar OptionYear" + d.key; }) // Add a class for each bar
-                        .attr("x", function (d) { return x_axis_eachBar(d.key); })
-                        .attr("y", function (d) { return y_axis_groupedBar_count(d.value); })
-                        .attr("width", x_axis_eachBar.bandwidth())
-                        .attr("height", function (d) { return height - y_axis_groupedBar_count(d.value); })
-                        .attr("fill", function (d) { return color_groupBar(d.key); })
-                        .each(function (d, i) {
-                            // Append text on top of each bar with count value
-                            d3.select(this.parentNode) // Select the parent g element
-                                .append("text")
-                                .attr("class", "bar-text OptionYear" + d.key) // Add a class for each text element
-                                .attr("x", function () {
-                                    return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
-                                })
-                                .attr("y", y_axis_groupedBar_count(d.value) - 10)
-                                .attr("text-anchor", "middle")
-                                .style("font-size", "14px") // Adjust the font size as needed
-                                .text(d.value)
-                                // Start of the animation of the text on top of each bar
-                                .style("opacity", 0)
-                                .transition()
-                                .duration(2000)
-                                .style("opacity", 1)
-                                .delay(function () {
-                                    return i * 100;
-                                });
-                        });
+                            .data(data_groupedBar_ready)
+                            .enter()
+                            .append("g")
+                                .attr("transform", function (d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
+                                .selectAll("rect")
+                                    .data(function (d) { return years.map(function (key) { return { key: key, value: d[key] }; }); })
+                                    .join("rect")
+                                        .attr("class", function (d) { return "bar OptionYear" + d.key; }) // Add a class for each bar
+                                        .attr("x", function (d) { return x_axis_eachBar(d.key); })
+                                        .attr("y", function (d) { return y_axis_groupedBar_count(d.value); })
+                                        .attr("width", x_axis_eachBar.bandwidth())
+                                        .attr("height", function (d) { return height - y_axis_groupedBar_count(d.value); })
+                                        .attr("fill", function (d) { return color_groupBar(d.key); })
+                                        .each(function (d, i) {
+                                            // Append text on top of each bar with count value
+                                            d3.select(this.parentNode) // Select the parent g element
+                                                .append("text")
+                                                    .attr("class", "bar-text OptionYear" + d.key) // Add a class for each text element
+                                                    .attr("x", function () {
+                                                        return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
+                                                    })
+                                                    .attr("y", y_axis_groupedBar_count(d.value) - 10)
+                                                    .attr("text-anchor", "middle")
+                                                    .style("font-size", "14px") // Adjust the font size as needed
+                                                    .text(d.value)
+                                                    // Start of the animation of the text on top of each bar
+                                                    .style("opacity", 0)
+                                                    .transition()
+                                                    .duration(2000)
+                                                    .style("opacity", 1)
+                                                    .delay(function () {
+                                                        return i * 100;
+                                                    });
+                                        });
 
                     // Create a legend container
-                    var legend = option_comparison_div.append("g")
+                    let legend = option_comparison_div.append("g")
                         .attr("class", "legend-item-option")
                         .attr("transform", "translate(-50, 10)"); // Adjust the values here for positioning
 
                     // Bind data to the legend container
-                    var legendItems = legend.selectAll(".legend-item-option")
+                    let legendItems = legend.selectAll(".legend-item-option")
                         .data(years)
                         .enter().append("g")
-                        .attr("class", "legend-item-option")
-                        .attr("transform", function (d, i) {
-                            return "translate(0," + i * 20 + ")";
-                        });
+                            .attr("class", "legend-item-option")
+                            .attr("transform", function (d, i) {
+                                return "translate(0," + i * 20 + ")";
+                            });
 
                     // Append rectangles or circles to represent legend items
                     legendItems.append("rect")
@@ -1039,12 +945,12 @@
 
                         .on("click", function (event, d) {
                             // Toggle the visibility of bars with the corresponding class
-                            const bars = d3.selectAll(".OptionYear" + d);
-                            const currentOpacity = bars.style("opacity");
+                            let bars = d3.selectAll(".OptionYear" + d);
+                            let currentOpacity = bars.style("opacity");
                             bars.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
 
                             // Toggle the visibility of text elements with the corresponding class
-                            const texts = d3.selectAll(".bar-text.OptionYear" + d);
+                            let texts = d3.selectAll(".bar-text.OptionYear" + d);
                             texts.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
                         });
 
@@ -1060,12 +966,12 @@
                         .style("cursor", "pointer")  // Make the legend item clickable
                         .on("click", function (event, d) {
                             // Toggle the visibility of bars with the corresponding class
-                            const bars = d3.selectAll(".OptionYear" + d);
-                            const currentOpacity = bars.style("opacity");
+                            let bars = d3.selectAll(".OptionYear" + d);
+                            let currentOpacity = bars.style("opacity");
                             bars.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
 
                             // Toggle the visibility of text elements with the corresponding class
-                            const texts = d3.selectAll(".bar-text.OptionYear" + d);
+                            let texts = d3.selectAll(".bar-text.OptionYear" + d);
                             texts.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
                         })
                         .on("mouseover", function (event, d) {
@@ -1079,8 +985,10 @@
                     function handleClick() {
                         // If showPercentage is true, display the %
                         if (showPercentage) {
+                            
                             // Remove previews graph
                             option_comparison_div.selectAll('*').remove();
+                            
                             // Title
                             option_comparison_div.append("text")
                                 .attr("x", width / 2)
@@ -1088,10 +996,12 @@
                                 .attr("text-anchor", "middle")
                                 .style("font-size", "25px")
                                 .text("Option chosen by Applicants in %");
+                            
                             // Append a button to the SVG
-                            const button = option_comparison_div
+                            let button = option_comparison_div
                                 .append("g")
-                                .attr("transform", "translate(" + (width - 80) + ", 10)") // Adjust the position as needed
+                                    .attr("transform", "translate(" + (width - 80) + ", 10)"); // Adjust the position as needed
+
                             button.append("rect")
                                 .attr("width", 70)
                                 .attr("height", 30)
@@ -1100,9 +1010,9 @@
                                 .style("fill", "steelblue")
                                 .style("cursor", "pointer") // Make the button clickable
                                 .on("click", handleClick); // Attach a click event listener to the button
+                            
                             // Append text to the button
-                            button
-                                .append("text")
+                            button.append("text")
                                 .attr("x", 35)
                                 .attr("y", 20)
                                 .attr("text-anchor", "middle")
@@ -1112,9 +1022,9 @@
                                 .text("Abs");
 
                             // Filter the data needed for X, that is, choise options
-                            const choice_options = ["1", "2", "3", "4", "5", "6"];
+                            let choice_options = ["1", "2", "3", "4", "5", "6"];
                             // Get the X information, that is, choise options to X axis
-                            const x_axis_groupedBar = d3.scaleBand()
+                            let x_axis_groupedBar = d3.scaleBand()
                                 .domain(choice_options)
                                 .range([0, width])
                                 .padding([0.2]);
@@ -1125,24 +1035,24 @@
                                 .selectAll("text")
                                 .style("text-anchor", "middle");
                             // Another scale for subgroup position?
-                            const x_axis_eachBar = d3.scaleBand()
+                            let x_axis_eachBar = d3.scaleBand()
                                 .domain(years)
                                 .range([0, x_axis_groupedBar.bandwidth()])
-                                .padding([0.05])
+                                .padding([0.05]);
 
                             // Colors for each the years
-                            const color_groupBar = d3.scaleOrdinal()
+                            let color_groupBar = d3.scaleOrdinal()
                                 .domain(years)
                                 .range(d3.schemeBlues[years.length]);
 
                             // Get the data needed
-                            const data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code)
+                            let data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code)
                                 .map(d => ({ Year: d['Year'], 'Option Number': d['Option Number'] }));
                             // Define the new dataset
-                            const data_groupedBar_transformed = {};
+                            let data_groupedBar_transformed = {};
                             // Transform the data
                             data_groupedBar.forEach(item => {
-                                const { Year, 'Option Number': optionNumber } = item;
+                                let { Year, 'Option Number': optionNumber } = item;
 
                                 // If the data_groupedBar_transformed do not have an entry for that option number, create one
                                 if (!data_groupedBar_transformed[optionNumber]) {
@@ -1159,15 +1069,12 @@
                                 }
                             });
 
-                            console.log("Teste2: ")
-                            console.log(data_groupedBar_transformed)
-
                             // Convert the data_groupedBar_transformed into array
-                            const data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
-                                const yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
+                            let data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
+                                let yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
 
                                 // Calculate the sum of values for each column (excluding 'Option Number')
-                                const columnSums = Object.keys(yearCounts).reduce((sums, key) => {
+                                let columnSums = Object.keys(yearCounts).reduce((sums, key) => {
                                     if (key !== 'Option Number') {
                                         sums[key] = Object.values(data_groupedBar_transformed).reduce((total, option) => total + option[key], 0);
                                     }
@@ -1175,7 +1082,7 @@
                                 }, {});
 
                                 // Create an object with 'Option Number' and counts for each 'Year', normalized by the sum of the respective column
-                                const normalizedCounts = Object.keys(yearCounts).reduce((normalized, key) => {
+                                let normalizedCounts = Object.keys(yearCounts).reduce((normalized, key) => {
                                     if (key !== 'Option Number') {
                                         normalized[key] = (yearCounts[key] / columnSums[key]) * 100;
                                     } else {
@@ -1190,20 +1097,6 @@
                                 }
                             });
 
-                            // // Convert the data_groupedBar_transformed into array
-                            // const data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
-                            //     const yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
-
-                            //     // Create an object with 'Option Number' and counts for each 'Year'
-                            //     return {
-                            //         'Option Number': optionNumber,
-                            //         ...yearCounts
-                            //     };
-                            // });
-
-                            console.log("Data for Grouped Bar2:");
-                            console.log(data_groupedBar_ready);
-
                             // Max value of the data, not inckuding the total
                             let max_Y_Count = 0;
                             data_groupedBar_ready.forEach(item => {
@@ -1216,60 +1109,60 @@
                             });
 
                             // Define Y domains for count
-                            var y_axis_groupedBar_count = d3.scaleLinear()
+                            let y_axis_groupedBar_count = d3.scaleLinear()
                                 .domain([0, max_Y_Count + 5])
                                 .range([height, 0]);
 
                             // Plot the bars
                             option_comparison_div.append("g")
                                 .selectAll("g")
-                                .data(data_groupedBar_ready)
-                                .join("g")
-                                .attr("transform", function (d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
-                                .selectAll("rect")
-                                .data(function (d) { return years.map(function (key) { return { key: key, value: d[key] }; }); })
-                                .join("rect")
-                                .attr("class", function (d) { return "bar OptionYear" + d.key; }) // Add a class for each bar
-                                .attr("x", function (d) { return x_axis_eachBar(d.key); })
-                                .attr("y", function (d) { return y_axis_groupedBar_count(d.value); })
-                                .attr("width", x_axis_eachBar.bandwidth())
-                                .attr("height", function (d) { return height - y_axis_groupedBar_count(d.value); })
-                                .attr("fill", function (d) { return color_groupBar(d.key); })
-                                .each(function (d, i) {
-                                    // Append text on top of each bar with count value
-                                    d3.select(this.parentNode) // Select the parent g element
-                                        .append("text")
-                                        .attr("class", "bar-text OptionYear" + d.key) // Add a class for each text element
-                                        .attr("x", function () {
-                                            return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
-                                        })
-                                        .attr("y", y_axis_groupedBar_count(d.value) - 10)
-                                        .attr("text-anchor", "middle")
-                                        .style("font-size", "9px") // Adjust the font size as needed
-                                        .text(parseFloat(d.value).toFixed(2))
-                                        // Start of the animation of the text on top of each bar
-                                        .style("opacity", 0)
-                                        .transition()
-                                        .duration(2000)
-                                        .style("opacity", 1)
-                                        .delay(function () {
-                                            return i * 100;
-                                        });
-                                });
+                                    .data(data_groupedBar_ready)
+                                    .join("g")
+                                        .attr("transform", function (d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
+                                        .selectAll("rect")
+                                            .data(function (d) { return years.map(function (key) { return { key: key, value: d[key] }; }); })
+                                            .join("rect")
+                                                .attr("class", function (d) { return "bar OptionYear" + d.key; }) // Add a class for each bar
+                                                .attr("x", function (d) { return x_axis_eachBar(d.key); })
+                                                .attr("y", function (d) { return y_axis_groupedBar_count(d.value); })
+                                                .attr("width", x_axis_eachBar.bandwidth())
+                                                .attr("height", function (d) { return height - y_axis_groupedBar_count(d.value); })
+                                                .attr("fill", function (d) { return color_groupBar(d.key); })
+                                                .each(function (d, i) {
+                                                    // Append text on top of each bar with count value
+                                                    d3.select(this.parentNode) // Select the parent g element
+                                                        .append("text")
+                                                            .attr("class", "bar-text OptionYear" + d.key) // Add a class for each text element
+                                                            .attr("x", function () {
+                                                                return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
+                                                            })
+                                                            .attr("y", y_axis_groupedBar_count(d.value) - 10)
+                                                            .attr("text-anchor", "middle")
+                                                            .style("font-size", "9px") // Adjust the font size as needed
+                                                            .text(parseFloat(d.value).toFixed(2))
+                                                            // Start of the animation of the text on top of each bar
+                                                            .style("opacity", 0)
+                                                            .transition()
+                                                            .duration(2000)
+                                                            .style("opacity", 1)
+                                                            .delay(function () {
+                                                                return i * 100;
+                                                            });
+                                                });
 
                             // Create a legend container
-                            var legend = option_comparison_div.append("g")
+                            let legend = option_comparison_div.append("g")
                                 .attr("class", "legend-item-option")
                                 .attr("transform", "translate(-50, 10)"); // Adjust the values here for positioning
 
                             // Bind data to the legend container
-                            var legendItems = legend.selectAll(".legend-item-option")
+                            let legendItems = legend.selectAll(".legend-item-option")
                                 .data(years)
                                 .enter().append("g")
-                                .attr("class", "legend-item-option")
-                                .attr("transform", function (d, i) {
-                                    return "translate(0," + i * 20 + ")";
-                                });
+                                    .attr("class", "legend-item-option")
+                                    .attr("transform", function (d, i) {
+                                        return "translate(0," + i * 20 + ")";
+                                    });
 
                             // Append rectangles or circles to represent legend items
                             legendItems.append("rect")
@@ -1283,12 +1176,12 @@
 
                                 .on("click", function (event, d) {
                                     // Toggle the visibility of bars with the corresponding class
-                                    const bars = d3.selectAll(".OptionYear" + d);
-                                    const currentOpacity = bars.style("opacity");
+                                    let bars = d3.selectAll(".OptionYear" + d);
+                                    let currentOpacity = bars.style("opacity");
                                     bars.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
 
                                     // Toggle the visibility of text elements with the corresponding class
-                                    const texts = d3.selectAll(".bar-text.OptionYear" + d);
+                                    let texts = d3.selectAll(".bar-text.OptionYear" + d);
                                     texts.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
                                 });
 
@@ -1304,12 +1197,12 @@
                                 .style("cursor", "pointer")  // Make the legend item clickable
                                 .on("click", function (event, d) {
                                     // Toggle the visibility of bars with the corresponding class
-                                    const bars = d3.selectAll(".OptionYear" + d);
-                                    const currentOpacity = bars.style("opacity");
+                                    let bars = d3.selectAll(".OptionYear" + d);
+                                    let currentOpacity = bars.style("opacity");
                                     bars.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
 
                                     // Toggle the visibility of text elements with the corresponding class
-                                    const texts = d3.selectAll(".bar-text.OptionYear" + d);
+                                    let texts = d3.selectAll(".bar-text.OptionYear" + d);
                                     texts.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
                                 })
                                 .on("mouseover", function (event, d) {
@@ -1334,9 +1227,9 @@
                                 .style("font-size", "25px")
                                 .text("Option chosen by Applicants");
                             // Append a button to the SVG
-                            const button = option_comparison_div
+                            let button = option_comparison_div
                                 .append("g")
-                                .attr("transform", "translate(" + (width - 80) + ", 10)") // Adjust the position as needed
+                                .attr("transform", "translate(" + (width - 80) + ", 10)"); // Adjust the position as needed
                             button.append("rect")
                                 .attr("width", 70)
                                 .attr("height", 30)
@@ -1346,8 +1239,7 @@
                                 .style("cursor", "pointer") // Make the button clickable
                                 .on("click", handleClick); // Attach a click event listener to the button
                             // Append text to the button
-                            button
-                                .append("text")
+                            button.append("text")
                                 .attr("x", 35)
                                 .attr("y", 20)
                                 .attr("text-anchor", "middle")
@@ -1357,9 +1249,9 @@
                                 .text("%");
 
                             // Filter the data needed for X, that is, choise options
-                            const choice_options = ["1", "2", "3", "4", "5", "6"];
+                            let choice_options = ["1", "2", "3", "4", "5", "6"];
                             // Get the X information, that is, choise options to X axis
-                            const x_axis_groupedBar = d3.scaleBand()
+                            let x_axis_groupedBar = d3.scaleBand()
                                 .domain(choice_options)
                                 .range([0, width])
                                 .padding([0.2]);
@@ -1368,26 +1260,26 @@
                                 .attr("transform", `translate(0, ${height})`)
                                 .call(d3.axisBottom(x_axis_groupedBar))
                                 .selectAll("text")
-                                .style("text-anchor", "middle");
+                                    .style("text-anchor", "middle");
                             // Another scale for subgroup position?
-                            const x_axis_eachBar = d3.scaleBand()
+                            let x_axis_eachBar = d3.scaleBand()
                                 .domain(years)
                                 .range([0, x_axis_groupedBar.bandwidth()])
-                                .padding([0.05])
+                                .padding([0.05]);
 
                             // Colors for each the years
-                            const color_groupBar = d3.scaleOrdinal()
+                            let color_groupBar = d3.scaleOrdinal()
                                 .domain(years)
                                 .range(d3.schemeBlues[years.length]);
 
                             // Get the data needed
-                            const data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code)
+                            let data_groupedBar = total_data.filter(d => d['University Code'] === '0300' && d['Course Code'] === course_code)
                                 .map(d => ({ Year: d['Year'], 'Option Number': d['Option Number'] }));
                             // Define the new dataset
-                            const data_groupedBar_transformed = {};
+                            let data_groupedBar_transformed = {};
                             // Transform the data
                             data_groupedBar.forEach(item => {
-                                const { Year, 'Option Number': optionNumber } = item;
+                                let { Year, 'Option Number': optionNumber } = item;
 
                                 // If the data_groupedBar_transformed do not have an entry for that option number, create one
                                 if (!data_groupedBar_transformed[optionNumber]) {
@@ -1405,8 +1297,8 @@
                             });
 
                             // Convert the data_groupedBar_transformed into array
-                            const data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
-                                const yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
+                            let data_groupedBar_ready = Object.keys(data_groupedBar_transformed).map(optionNumber => {
+                                let yearCounts = data_groupedBar_transformed[optionNumber]; // Count for each year
 
                                 console.log("test")
 
@@ -1416,9 +1308,6 @@
                                     ...yearCounts
                                 };
                             });
-
-                            console.log("Data for Grouped Bar3:");
-                            console.log(data_groupedBar_ready);
 
                             // Max value of the data, not inckuding the total
                             let max_Y_Count = 0;
@@ -1431,60 +1320,60 @@
                                 });
                             });
                             // Define Y domains for count
-                            var y_axis_groupedBar_count = d3.scaleLinear()
+                            let y_axis_groupedBar_count = d3.scaleLinear()
                                 .domain([0, max_Y_Count + 5])
                                 .range([height, 0]);
 
                             // Plot the bars
                             option_comparison_div.append("g")
                                 .selectAll("g")
-                                .data(data_groupedBar_ready)
-                                .join("g")
-                                .attr("transform", function (d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
-                                .selectAll("rect")
-                                .data(function (d) { return years.map(function (key) { return { key: key, value: d[key] }; }); })
-                                .enter().append("rect")
-                                .attr("class", function (d) { return "bar OptionYear" + d.key; }) // Add a class for each bar
-                                .attr("x", function (d) { return x_axis_eachBar(d.key); })
-                                .attr("y", function (d) { return y_axis_groupedBar_count(d.value); })
-                                .attr("width", x_axis_eachBar.bandwidth())
-                                .attr("height", function (d) { return height - y_axis_groupedBar_count(d.value); })
-                                .attr("fill", function (d) { return color_groupBar(d.key); })
-                                .each(function (d, i) {
-                                    // Append text on top of each bar with count value
-                                    d3.select(this.parentNode) // Select the parent g element
-                                        .append("text")
-                                        .attr("class", "bar-text OptionYear" + d.key) // Add a class for each text element
-                                        .attr("x", function () {
-                                            return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
-                                        })
-                                        .attr("y", y_axis_groupedBar_count(d.value) - 10)
-                                        .attr("text-anchor", "middle")
-                                        .style("font-size", "14px") // Adjust the font size as needed
-                                        .text(d.value)
-                                        // Start of the animation of the text on top of each bar
-                                        .style("opacity", 0)
-                                        .transition()
-                                        .duration(2000)
-                                        .style("opacity", 1)
-                                        .delay(function () {
-                                            return i * 100;
-                                        });
-                                });
+                                    .data(data_groupedBar_ready)
+                                    .join("g")
+                                        .attr("transform", function (d) { return "translate(" + x_axis_groupedBar(d['Option Number']) + ",0)"; })
+                                        .selectAll("rect")
+                                            .data(function (d) { return years.map(function (key) { return { key: key, value: d[key] }; }); })
+                                            .enter().append("rect")
+                                                .attr("class", function (d) { return "bar OptionYear" + d.key; }) // Add a class for each bar
+                                                .attr("x", function (d) { return x_axis_eachBar(d.key); })
+                                                .attr("y", function (d) { return y_axis_groupedBar_count(d.value); })
+                                                .attr("width", x_axis_eachBar.bandwidth())
+                                                .attr("height", function (d) { return height - y_axis_groupedBar_count(d.value); })
+                                                .attr("fill", function (d) { return color_groupBar(d.key); })
+                                                .each(function (d, i) {
+                                                    // Append text on top of each bar with count value
+                                                    d3.select(this.parentNode) // Select the parent g element
+                                                        .append("text")
+                                                            .attr("class", "bar-text OptionYear" + d.key) // Add a class for each text element
+                                                            .attr("x", function () {
+                                                                return x_axis_eachBar(d.key) + x_axis_eachBar.bandwidth() / 2;
+                                                            })
+                                                            .attr("y", y_axis_groupedBar_count(d.value) - 10)
+                                                            .attr("text-anchor", "middle")
+                                                            .style("font-size", "14px") // Adjust the font size as needed
+                                                            .text(d.value)
+                                                            // Start of the animation of the text on top of each bar
+                                                            .style("opacity", 0)
+                                                            .transition()
+                                                            .duration(2000)
+                                                            .style("opacity", 1)
+                                                            .delay(function () {
+                                                                return i * 100;
+                                                            });
+                                                });
 
                             // Create a legend container
-                            var legend = option_comparison_div.append("g")
+                            let legend = option_comparison_div.append("g")
                                 .attr("class", "legend-item-option")
                                 .attr("transform", "translate(-50, 10)"); // Adjust the values here for positioning
 
                             // Bind data to the legend container
-                            var legendItems = legend.selectAll(".legend-item-option")
+                            let legendItems = legend.selectAll(".legend-item-option")
                                 .data(years)
                                 .enter().append("g")
-                                .attr("class", "legend-item-option")
-                                .attr("transform", function (d, i) {
-                                    return "translate(0," + i * 20 + ")";
-                                });
+                                    .attr("class", "legend-item-option")
+                                    .attr("transform", function (d, i) {
+                                        return "translate(0," + i * 20 + ")";
+                                    });
 
                             // Append rectangles or circles to represent legend items
                             legendItems.append("rect")
@@ -1498,12 +1387,12 @@
 
                                 .on("click", function (event, d) {
                                     // Toggle the visibility of bars with the corresponding class
-                                    const bars = d3.selectAll(".OptionYear" + d);
-                                    const currentOpacity = bars.style("opacity");
+                                    let bars = d3.selectAll(".OptionYear" + d);
+                                    let currentOpacity = bars.style("opacity");
                                     bars.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
 
                                     // Toggle the visibility of text elements with the corresponding class
-                                    const texts = d3.selectAll(".bar-text.OptionYear" + d);
+                                    let texts = d3.selectAll(".bar-text.OptionYear" + d);
                                     texts.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
                                 });
 
@@ -1519,12 +1408,12 @@
                                 .style("cursor", "pointer")  // Make the legend item clickable
                                 .on("click", function (event, d) {
                                     // Toggle the visibility of bars with the corresponding class
-                                    const bars = d3.selectAll(".OptionYear" + d);
-                                    const currentOpacity = bars.style("opacity");
+                                    let bars = d3.selectAll(".OptionYear" + d);
+                                    let currentOpacity = bars.style("opacity");
                                     bars.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
 
                                     // Toggle the visibility of text elements with the corresponding class
-                                    const texts = d3.selectAll(".bar-text.OptionYear" + d);
+                                    let texts = d3.selectAll(".bar-text.OptionYear" + d);
                                     texts.transition().style("opacity", currentOpacity == 1 ? 0 : 1);
                                 })
                                 .on("mouseover", function (event, d) {
